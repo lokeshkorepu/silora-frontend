@@ -1,0 +1,69 @@
+<header class="header">
+
+  <!-- LEFT -->
+  <div class="left">
+    <img src="/logos/Silora3.png" alt="Silora Logo" class="logo" />
+
+    <!-- LOCATION WRAPPER -->
+    <div class="location-wrapper">
+
+      <!-- LOCATION CARD -->
+      <div class="location-card" (click)="togglePopup()">
+        <div class="location-title">
+          Delivery in <b>10 mins</b>
+        </div>
+        <div class="location-subtitle">
+          {{ userLocation }}
+          <span class="arrow">▼</span>
+        </div>
+      </div>
+
+      <!-- LOCATION POPUP (DROPDOWN) -->
+      <div class="location-dropdown" *ngIf="showPopup">
+
+        <div class="dropdown-header">
+          <span>Choose delivery location</span>
+          <button class="close-btn" (click)="togglePopup()">✕</button>
+        </div>
+
+        <button class="detect-btn" (click)="fetchLocation()">
+          📍 Detect my location
+        </button>
+
+        <div *ngIf="error" class="error-text">
+          {{ error }}
+        </div>
+
+        <div class="divider">OR</div>
+
+        <input type="text"
+               class="location-input"
+               placeholder="Search area, street, landmark"
+               [(ngModel)]="searchQuery" />
+
+        <button class="confirm-btn" (click)="searchLocation()">
+          Confirm location
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CENTER SEARCH -->
+  <div class="search-box">
+    <input type="text"
+           [placeholder]="typedText"
+           class="search-input" />
+    <span class="search-icon">🔍</span>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+    <button class="login-btn" (click)="toggleLogin()">Login</button>
+    <button class="cart-btn">🛒 Cart</button>
+  </div>
+
+</header>
+
+

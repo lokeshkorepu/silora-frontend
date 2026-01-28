@@ -41,3 +41,21 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Node
+node_modules/
+
+# Angular
+.angular/
+dist/
+
+# Visual Studio
+.vs/
+*.sln
+*.suo
+*.user
+*.vsidx
+
+# OS
+.DS_Store
+Thumbs.db
