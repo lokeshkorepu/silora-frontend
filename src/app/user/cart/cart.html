@@ -1,1 +1,58 @@
-<p>cart works!</p>
+<div class="cart-container">
+
+  <!-- TOP ACTION BAR -->
+  <div class="cart-top-bar" *ngIf="cartItems.length > 0">
+    <button class="clear-btn" (click)="clearCart()">
+      ✕ Clear cart
+    </button>
+  </div>
+
+  <h2 class="cart-title">Your Cart</h2>
+
+  <!-- EMPTY CART -->
+  <div *ngIf="cartItems.length === 0" class="empty-cart">
+    🛒 Your cart is empty <br />
+    <button class="back-btn big" routerLink="/home">
+      Browse products
+    </button>
+  </div>
+
+  <!-- CART ITEMS -->
+  <div *ngFor="let item of cartItems" class="cart-item">
+
+    <img [src]="item.image" class="cart-image" />
+
+    <div class="cart-info">
+      <div class="cart-name">{{ item.name }}</div>
+      <div class="cart-qty">{{ item.quantity }}</div>
+      <div class="cart-price">₹{{ item.price }}</div>
+    </div>
+
+    <div class="cart-actions">
+      <button (click)="decrease(item)">−</button>
+      <span>{{ item.count }}</span>
+      <button (click)="increase(item)">+</button>
+    </div>
+  </div>
+
+  <!-- STICKY CHECKOUT BAR -->
+  <div *ngIf="cartItems.length > 0" class="checkout-bar">
+    <div class="total-info">
+      <span>Total</span>
+      <strong>₹{{ totalAmount }}</strong>
+    </div>
+
+    <button class="checkout-btn" routerLink="/checkout">
+      Proceed to Checkout →
+    </button>
+  </div>
+
+  <!-- ADD MORE ITEMS CTA -->
+  <div *ngIf="cartItems.length > 0" class="cart-cta">
+    <button class="add-more-btn" routerLink="/home">
+      + Add more items
+    </button>
+  </div>
+
+
+</div>

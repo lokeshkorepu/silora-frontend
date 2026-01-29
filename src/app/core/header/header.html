@@ -61,7 +61,18 @@
   <!-- RIGHT -->
   <div class="right">
     <button class="login-btn" (click)="toggleLogin()">Login</button>
-    <button class="cart-btn">🛒 Cart</button>
+
+    <button class="cart-btn" routerLink="/cart">
+      🛒 Cart
+      <span *ngIf="cartCount > 0" class="cart-badge">
+        {{ cartCount }}
+      </span>
+    </button>
+
+    <button routerLink="/orders" class="orders-btn">
+      Orders
+    </button>
+
   </div>
 
 </header>

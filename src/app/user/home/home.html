@@ -1,1 +1,76 @@
-<p>home works!</p>
+<!-- ===== HOME CONTAINER ===== -->
+<div class="home-container">
+
+  <!-- ===== CATEGORY SECTIONS ===== -->
+  <div *ngFor="let category of categories" class="category-section">
+
+    <!-- CATEGORY TITLE -->
+    <h2 class="category-title">
+      {{ category.name }}
+    </h2>
+
+    <!-- PRODUCT ROW (HORIZONTAL SCROLL) -->
+    <div class="product-row">
+
+      <div class="product-card" *ngFor="let product of category.items">
+
+        <!-- PRODUCT IMAGE -->
+        <div class="product-image">
+          <img [src]="product.image"
+               [alt]="product.name" />
+        </div>
+
+        <!-- QUANTITY BADGE -->
+        <span class="quantity-badge">
+          {{ product.quantity }}
+        </span>
+
+        <!-- PRODUCT NAME -->
+        <h3 class="product-name">
+          {{ product.name }}
+        </h3>
+
+        <!-- PRODUCT PRICE -->
+        <p class="product-price">
+          ₹{{ product.price }}
+        </p>
+
+        <!-- ACTIONS -->
+        <div class="product-actions">
+
+          <!-- ADD BUTTON -->
+          <button *ngIf="getCount(product) === 0"
+                  class="add-btn"
+                  (click)="addProduct(product)">
+            Add
+          </button>
+
+          <!-- QUANTITY CONTROLLER -->
+          <div *ngIf="getCount(product) > 0" class="qty-controller">
+
+            <button class="qty-btn"
+                    (click)="decrease(product)"
+                    [disabled]="product.count === 1">
+              −
+            </button>
+
+            <span class="qty-count">
+              {{ getCount(product) }}
+            </span>
+
+            <button class="qty-btn"
+                    (click)="increase(product)">
+              +
+            </button>
+
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+<app-cart-bar></app-cart-bar>
+

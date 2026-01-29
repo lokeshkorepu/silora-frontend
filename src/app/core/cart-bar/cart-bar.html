@@ -1,0 +1,13 @@
+<div class="cart-bar" *ngIf="cartService.getTotalCount() > 0"
+     routerLink="/cart">
+
+  <div class="cart-bar-left">
+    <strong>{{ cartService.getTotalCount() }} items</strong>
+    <span>₹{{ cartService.getTotalAmount() }}</span>
+  </div>
+
+  <div class="cart-bar-right">
+    View Cart →
+  </div>
+
+</div>

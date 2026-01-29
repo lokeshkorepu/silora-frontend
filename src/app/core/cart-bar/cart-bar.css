@@ -1,0 +1,28 @@
+.cart-bar {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 600px;
+  background: #00b35a;
+  color: white;
+  padding: 14px 18px;
+  border-radius: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  z-index: 999;
+}
+
+.cart-bar-left {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+}
+
+.cart-bar-right {
+  font-weight: 700;
+}

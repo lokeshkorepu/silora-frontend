@@ -1,27 +1,29 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-
+import { CartService } from '../../core/services/cart.service';
 
 @Component({
   selector: 'app-header',
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink,
-    FormsModule
+    FormsModule,
+    RouterModule   // ✅ required for routerLink
   ],
   templateUrl: './header.html',
   styleUrls: ['./header.css']
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
 
+  // ===== LOCATION STATE =====
   userLocation: string = 'Detecting location...';
   showPopup = false;
   showLocationPopup = false;
   showLoginPopup = false;
 
+  // ===== SEARCH =====
   searchQuery: string = '';
   error: string = '';
 
@@ -42,10 +44,18 @@ export class HeaderComponent {
   charIndex = 0;
   isDeleting = false;
 
-  constructor() {
+  constructor(private cartService: CartService) { }
+
+  // ===== CART COUNT (SINGLE SOURCE OF TRUTH) =====
+  get cartCount(): number {
+    return this.cartService.getTotalCount();
+  }
+
+  ngOnInit(): void {
     this.startTyping();
   }
 
+  // ===== UI TOGGLES =====
   togglePopup() {
     this.showPopup = !this.showPopup;
   }
@@ -62,6 +72,7 @@ export class HeaderComponent {
     this.showLocationPopup = false;
   }
 
+  // ===== LOCATION =====
   fetchLocation() {
     if (!navigator.geolocation) {
       this.error = 'Geolocation not supported';
@@ -80,6 +91,12 @@ export class HeaderComponent {
     );
   }
 
+  searchLocation() {
+    alert(`Searching for: ${this.searchQuery}`);
+    this.showLocationPopup = false;
+  }
+
+  // ===== SEARCH PLACEHOLDER ANIMATION =====
   startTyping() {
     const currentText = this.placeholders[this.placeholderIndex];
 
@@ -102,10 +119,5 @@ export class HeaderComponent {
     }
 
     setTimeout(() => this.startTyping(), this.isDeleting ? 60 : 90);
-  }
-
-  searchLocation() {
-    alert(`Searching for: ${this.searchQuery}`);
-    this.showLocationPopup = false;
   }
 }
