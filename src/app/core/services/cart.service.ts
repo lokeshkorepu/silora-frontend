@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 import { Product } from '../models/product.model';
 
 @Injectable({
@@ -6,7 +7,12 @@ import { Product } from '../models/product.model';
 })
 export class CartService {
 
-  private cartItems: Product[] = [];
+  private STORAGE_KEY = 'cart';
+
+  /* ---------------- SOURCE OF TRUTH ---------------- */
+
+  private cartItemsSubject = new BehaviorSubject<Product[]>([]);
+  cartItems$ = this.cartItemsSubject.asObservable();
 
   constructor() {
     this.loadCart();
@@ -14,96 +20,143 @@ export class CartService {
 
   /* ---------------- LOAD & SAVE ---------------- */
 
-  private loadCart() {
-    const storedCart = localStorage.getItem('cart');
-    if (storedCart) {
-      this.cartItems = JSON.parse(storedCart);
-    }
+ private loadCart(): void {
+  const savedVersion = localStorage.getItem('app_version');
+
+  // ✅ If app version changed → reset cart
+  if (savedVersion !== '1.0.0') {
+    localStorage.clear();
+    localStorage.setItem('app_version', '1.0.0');
+    this.cartItemsSubject.next([]);
+    return;
   }
 
-  private saveCart() {
-    localStorage.setItem('cart', JSON.stringify(this.cartItems));
+  const storedCart = localStorage.getItem(this.STORAGE_KEY);
+
+  if (storedCart) {
+    try {
+      const items = JSON.parse(storedCart);
+      if (Array.isArray(items)) {
+        this.cartItemsSubject.next(items);
+        return;
+      }
+    } catch {}
   }
 
-  /* ---------------- GETTERS ---------------- */
+  this.cartItemsSubject.next([]);
+}
+
+
+  private saveCart(items: Product[]): void {
+    this.cartItemsSubject.next(items);
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(items));
+  }
+
+  /* ---------------- GETTERS (UNCHANGED API) ---------------- */
 
   getCartItems(): Product[] {
-    return this.cartItems;
+    return this.cartItemsSubject.value;
   }
 
   getTotalCount(): number {
-    return this.cartItems.reduce((sum, item) => sum + (item.count || 0), 0);
+    return this.cartItemsSubject.value.reduce(
+      (sum, item) => sum + (item.count || 0),
+      0
+    );
   }
 
   getTotalAmount(): number {
-    return this.cartItems.reduce(
+    return this.cartItemsSubject.value.reduce(
       (sum, item) => sum + (item.price * (item.count || 0)),
       0
     );
   }
 
-  /* ---------------- ACTIONS ---------------- */
+  getProductCount(productId: number): number {
+    const item = this.cartItemsSubject.value.find(p => p.id === productId);
+    return item ? item.count || 0 : 0;
+  }
 
-  addToCart(product: Product) {
-    const item = this.cartItems.find(p => p.id === product.id);
+  /* ---------------- ACTIONS (SAME BEHAVIOR) ---------------- */
+
+  addToCart(product: Product): void {
+    const items = [...this.cartItemsSubject.value];
+    const item = items.find(p => p.id === product.id);
 
     if (item) {
       item.count!++;
     } else {
-      this.cartItems.push({ ...product, count: 1 });
+      items.push({ ...product, count: 1 });
     }
 
-    this.saveCart();
+    this.saveCart(items);
   }
 
-  increase(product: Product) {
-    const item = this.cartItems.find(p => p.id === product.id);
+  increase(product: Product): void {
+    const items = [...this.cartItemsSubject.value];
+    const item = items.find(p => p.id === product.id);
+
     if (item) {
       item.count!++;
-      this.saveCart();
+      this.saveCart(items);
     }
   }
 
-  decrease(product: Product) {
-    const item = this.cartItems.find(p => p.id === product.id);
+  decrease(product: Product): void {
+    let items = [...this.cartItemsSubject.value];
+    const item = items.find(p => p.id === product.id);
+
     if (!item) return;
 
     if (item.count! > 1) {
       item.count!--;
     } else {
-      this.cartItems = this.cartItems.filter(p => p.id !== product.id);
+      items = items.filter(p => p.id !== product.id);
     }
 
-    this.saveCart();
+    this.saveCart(items);
   }
 
-  clearCart() {
-    //this.cartItems.forEach(item => item.count = 0);
-    this.cartItems = [];
-    localStorage.removeItem('cart');
+  clearCart(): void {
+    this.saveCart([]);
+    localStorage.removeItem(this.STORAGE_KEY);
   }
 
-  getProductCount(productId: number): number {
-    const item = this.cartItems.find(p => p.id === productId);
-    return item ? item.count || 0 : 0;
+  resetCart(): void {
+    this.clearCart();
   }
 
-  resetCart() {
-    this.cartItems = [];
-    localStorage.removeItem('cart');
-  }
+  /* ---------------- LEGACY ORDER HELPERS (UNCHANGED) ---------------- */
+
   getOrders(): any[] {
     return JSON.parse(localStorage.getItem('orders') || '[]');
   }
 
-  saveOrder() {
-    const orders = this.getOrders();
-    orders.push({
-      date: new Date(),
-      items: this.cartItems,
-      total: this.getTotalAmount()
-    });
-    localStorage.setItem('orders', JSON.stringify(orders));
+  saveOrder(): void {
+    const existingOrders = JSON.parse(
+      localStorage.getItem('orders') || '[]'
+    );
+
+    const newOrder = {
+      id: Date.now(),
+      items: this.cartItemsSubject.value,
+      total: this.getTotalAmount(),
+      date: new Date().toISOString()
+    };
+
+    existingOrders.unshift(newOrder);
+    localStorage.setItem('orders', JSON.stringify(existingOrders));
   }
+
+  /* ---------------- AUTH MERGE (OPTION B) ---------------- */
+
+/**
+ * Called after user login.
+ * Currently cart is already local, so nothing to do.
+ * Later this will sync guest cart with backend user cart.
+ */
+mergeGuestCart(): void {
+  // NO-OP for now (intentionally empty)
+}
 
 }

@@ -4,6 +4,8 @@ import { CartService } from '../../core/services/cart.service';
 import { Product } from '../../core/models/product.model';
 import { Router, RouterModule } from '@angular/router';
 import { PRODUCTS } from '../../core/data/products';
+import { OrderService } from '../../core/services/order.service';
+
 
 @Component({
   selector: 'app-cart',
@@ -18,9 +20,10 @@ export class CartComponent implements OnInit {
   totalAmount = 0;
 
   constructor(
-    private cartService: CartService,
-    private router: Router
-  ) { }
+  private cartService: CartService,
+  private orderService: OrderService,
+  private router: Router
+) {}
 
   ngOnInit(): void {
     this.refreshCart();
@@ -50,17 +53,22 @@ export class CartComponent implements OnInit {
   }
 
   /* ---------- PLACE ORDER (STEP 2.6) ---------- */
-  placeOrder() {
+placeOrder() {
+  const items = this.cartItems.map(item => ({ ...item }));
+  const total = this.totalAmount;
 
-    // 1️⃣ Clear cart service
-    this.cartService.clearCart();
+  // ✅ Save order
+  this.orderService.saveOrder(items, total);
 
-    // 2️⃣ Reset ALL home product counts
-    this.resetProductCounts();
+  // ✅ Clear cart
+  this.cartService.clearCart();
 
-    // 3️⃣ Navigate back to Home (fresh state)
-    this.router.navigate(['/home']);
-  }
+  // ✅ Reset Home product counters
+  PRODUCTS.forEach(p => p.count = 0);
+
+  // ✅ Navigate to success page
+  this.router.navigate(['/success']);
+}
 
   /* ---------- GLOBAL PRODUCT RESET ---------- */
   resetProductCounts() {
@@ -69,3 +77,8 @@ export class CartComponent implements OnInit {
     });
   }
 }
+
+
+
+
+

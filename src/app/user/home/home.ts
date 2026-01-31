@@ -23,7 +23,20 @@ export class HomeComponent {
 
   ngOnInit() {
     this.groupByCategory();
+      this.syncWithCart();
+
   }
+  
+
+syncWithCart() {
+  const cartItems = this.cartService.getCartItems();
+
+  this.products.forEach(product => {
+    const cartItem = cartItems.find(c => c.id === product.id);
+    product.count = cartItem ? cartItem.count : 0;
+  });
+}
+
 
   groupByCategory() {
     const map = new Map<string, Product[]>();

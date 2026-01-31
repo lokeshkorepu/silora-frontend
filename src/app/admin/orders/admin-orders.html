@@ -1,0 +1,33 @@
+<h2>Admin – Orders</h2>
+
+<div *ngIf="loading">Loading…</div>
+
+<table *ngIf="!loading">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Order ID</th>
+      <th>Total</th>
+      <th>Status</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr *ngFor="let order of orders">
+      <td>{{ order.date | date:'short' }}</td>
+      <td>{{ order.id }}</td>
+      <td>₹{{ order.total }}</td>
+      <td>{{ order.status }}</td>
+      <td>
+        <select
+          [value]="order.status"
+          (change)="updateStatus(order, $any($event.target).value)">
+          <option>Delivered</option>
+          <option>Cancelled</option>
+          <option>Returned</option>
+        </select>
+      </td>
+    </tr>
+  </tbody>
+</table>

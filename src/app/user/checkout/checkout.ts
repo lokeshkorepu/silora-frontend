@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { CartService } from '../../core/services/cart.service';
 import { Product } from '../../core/models/product.model';
+import { OrderService } from '../../core/services/order.service';
+import { PRODUCTS } from '../../core/data/products';
 
 @Component({
   selector: 'app-checkout',
@@ -24,8 +26,9 @@ export class CheckoutComponent implements OnInit {
 
   constructor(
     private cartService: CartService,
+    private orderService: OrderService,
     private router: Router
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.cartItems = this.cartService.getCartItems();
@@ -38,12 +41,21 @@ export class CheckoutComponent implements OnInit {
       return;
     }
 
-    alert('🎉 Order placed successfully!');
+    // ✅ 1. SAVE ORDER (THIS WAS MISSING)
+    this.orderService.saveOrder(
+    this.cartItems,
+    this.totalAmount
+  );
 
-    // Clear cart after order
+    // ✅ 2. CLEAR CART
     this.cartService.clearCart();
 
-    // Redirect to home
-    this.router.navigate(['/home']);
+    // ✅ 3. RESET PRODUCT COUNTS (fix Add/+/- issue)
+    PRODUCTS.forEach(product => {
+      product.count = 0;
+    });
+
+    // ✅ 4. GO TO SUCCESS PAGE
+    this.router.navigate(['/success']);
   }
 }

@@ -59,8 +59,20 @@
   </div>
 
   <!-- RIGHT -->
+
+
   <div class="right">
-    <button class="login-btn" (click)="toggleLogin()">Login</button>
+
+    <button
+  *ngIf="isAdmin"
+  class="admin-btn"
+  routerLink="/admin/orders">
+  Admin
+</button>
+
+<button class="login-btn" (click)="toggleLogin()">
+  Login
+</button>
 
     <button class="cart-btn" routerLink="/cart">
       🛒 Cart
@@ -74,6 +86,38 @@
     </button>
 
   </div>
+
+  <!-- LOGIN POPUP -->
+<div class="login-overlay" *ngIf="showLoginPopup">
+  <div class="login-modal">
+    <h3>Login</h3>
+
+    <input
+      type="email"
+      placeholder="Email"
+      value="test@admin.com"
+      disabled
+    />
+
+    <input
+      type="password"
+      placeholder="Password"
+      value="123456"
+      disabled
+    />
+
+    <div class="login-actions">
+      <button class="cancel-btn" (click)="toggleLogin()">
+        Cancel
+      </button>
+
+      <button class="login-submit" (click)="login()">
+        Login
+      </button>
+    </div>
+  </div>
+</div>
+
 
 </header>
 
