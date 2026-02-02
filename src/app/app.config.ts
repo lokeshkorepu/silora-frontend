@@ -8,4 +8,6 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient() // ✅ REQUIRED for mock backend
   ]
-};
+
+  
+}

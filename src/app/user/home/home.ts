@@ -5,6 +5,8 @@ import { Product } from '../../core/models/product.model';
 import { CartService } from '../../core/services/cart.service';
 import { CartBar } from '../../core/cart-bar/cart-bar';
 
+
+
 @Component({
   selector: 'app-home',
   standalone: true,

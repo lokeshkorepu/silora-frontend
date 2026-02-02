@@ -8,4 +8,7 @@ import { HeaderComponent } from './core/header/header';
   templateUrl: './app.html',
   imports: [RouterOutlet, HeaderComponent],
 })
-export class AppComponent { }
+export class AppComponent { 
+
+  
+}
