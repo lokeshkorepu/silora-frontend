@@ -1,0 +1,25 @@
+<div style="max-width:400px; margin:auto; padding:20px;">
+  <h2>Firebase Authentication</h2>
+
+  <!-- Signup Form -->
+  <h3>Signup</h3>
+  <form (submit)="signup(signupEmail.value, signupPassword.value); $event.preventDefault()">
+    <input #signupEmail type="email" placeholder="Email" required />
+    <input #signupPassword type="password" placeholder="Password" required />
+    <button type="submit">Sign Up</button>
+  </form>
+
+  <!-- Login Form -->
+  <h3>Login</h3>
+  <form (submit)="login(loginEmail.value, loginPassword.value); $event.preventDefault()">
+    <input #loginEmail type="email" placeholder="Email" required />
+    <input #loginPassword type="password" placeholder="Password" required />
+    <button type="submit">Log In</button>
+  </form>
+
+  <div *ngIf="currentUser">
+  <p>Welcome, {{ currentUser.email }}</p>
+<button (click)="logout()">Logout</button>
+</div>
+
+</div>

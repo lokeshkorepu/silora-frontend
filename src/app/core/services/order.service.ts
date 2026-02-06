@@ -4,15 +4,22 @@ import { Order } from '../models/order.model';
 import { OrderDTO } from '../dto/order.dto';
 import { OrderMapper } from '../mappers/order.mapper';
 import { ApiService } from './api.service';
-import { Observable, map } from 'rxjs';
+import { Observable, from, map, tap } from 'rxjs';
+
+import { Firestore, collection, addDoc } from '@angular/fire/firestore';
 
 @Injectable({ providedIn: 'root' })
 export class OrderService {
 
-  constructor(private api: ApiService) {}
+  private readonly STORAGE_KEY = 'orders';
+
+  constructor(
+    private api: ApiService,
+    private firestore: Firestore
+  ) {}
 
   /* =========================
-     PUBLIC API (UI USES THIS)
+     GET ORDERS (UI USES THIS)
   ========================== */
 
   getOrders(): Observable<Order[]> {
@@ -20,6 +27,13 @@ export class OrderService {
       map(dtos => dtos.map(dto => OrderMapper.fromDTO(dto)))
     );
   }
+
+  /* =========================
+     SAVE ORDER (DUAL WRITE)
+     - Firestore (real backend)
+     - localStorage (fallback)
+     - API (existing flow)
+  ========================== */
 
   saveOrder(items: Product[], total: number): Observable<void> {
     const newOrderDTO: OrderDTO = {
@@ -34,8 +48,30 @@ export class OrderService {
       }))
     };
 
-    return this.api.saveOrder(newOrderDTO);
+    // 1️⃣ Save to Firestore (Promise → Observable)
+    const firestore$ = from(
+      addDoc(collection(this.firestore, 'orders'), {
+        ...newOrderDTO,
+        createdAt: new Date()
+      })
+    );
+
+    // 2️⃣ Save to API (existing behavior)
+    const api$ = this.api.saveOrder(newOrderDTO);
+
+    // 3️⃣ Save to localStorage (fallback)
+    return firestore$.pipe(
+      tap(() => this.saveToLocalStorage(newOrderDTO)),
+      map(() => void 0),
+      tap(() => {
+        api$.subscribe(); // keep existing backend in sync
+      })
+    );
   }
+
+  /* =========================
+     UPDATE ORDER STATUS
+  ========================== */
 
   updateOrder(order: Order): Observable<void> {
     const status =
@@ -44,5 +80,17 @@ export class OrderService {
       'RETURNED';
 
     return this.api.updateOrderStatus(order.id, status);
+  }
+
+  /* =========================
+     LOCAL STORAGE (FALLBACK)
+  ========================== */
+
+  private saveToLocalStorage(order: OrderDTO) {
+    const existing = JSON.parse(
+      localStorage.getItem(this.STORAGE_KEY) || '[]'
+    );
+    existing.push(order);
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(existing));
   }
 }

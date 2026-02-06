@@ -10,9 +10,10 @@ import { CartBar } from '../../core/cart-bar/cart-bar';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, CartBar],
+  imports: [CommonModule,
+            CartBar],
   templateUrl: './home.html',
-  styleUrls: ['./home.css']
+   styleUrls: ['./home.css'] // 👈 MUST be THIS
 })
 export class HomeComponent {
 
@@ -26,6 +27,8 @@ export class HomeComponent {
   ngOnInit() {
     this.groupByCategory();
       this.syncWithCart();
+      this.cartService.clearCart();
+      
 
   }
   

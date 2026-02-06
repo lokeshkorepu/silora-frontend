@@ -7,11 +7,14 @@ export class AdminGuard implements CanActivate {
   constructor(private auth: AuthService, private router: Router) {}
 
   canActivate(): boolean {
-    const user = this.auth.getCurrentUser();
-    // Mock rule: logged-in users with email ending admin.com are admins
-    if (user && user.email.endsWith('@admin.com')) return true;
+  const user = this.auth.getCurrentUser();
 
-    this.router.navigate(['/home']);
-    return false;
+  if (user?.email && user.email === 'admin@silora.com') {
+    return true;
   }
+
+  this.router.navigate(['/home']);
+  return false;
+}
+
 }

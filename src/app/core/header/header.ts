@@ -3,9 +3,10 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
+import { RouterLink } from '@angular/router';
+
 import { CartService } from '../../core/services/cart.service';
 import { AuthService } from '../auth/auth.service';
-
 
 @Component({
   selector: 'app-header',
@@ -13,20 +14,25 @@ import { AuthService } from '../auth/auth.service';
   imports: [
     CommonModule,
     FormsModule,
-    RouterModule   // ✅ required for routerLink
+    RouterModule,
+    RouterLink
   ],
   templateUrl: './header.html',
   styleUrls: ['./header.css']
 })
 export class HeaderComponent implements OnInit, OnDestroy {
 
-  // ===== LOCATION STATE =====
+  /* =====================
+     LOCATION STATE
+  ===================== */
   userLocation: string = 'Detecting location...';
   showPopup = false;
   showLocationPopup = false;
   showLoginPopup = false;
 
-  // ===== SEARCH =====
+  /* =====================
+     SEARCH
+  ===================== */
   searchQuery: string = '';
   error: string = '';
 
@@ -47,28 +53,24 @@ export class HeaderComponent implements OnInit, OnDestroy {
   charIndex = 0;
   isDeleting = false;
 
-  // ===== CART COUNT (FIXED) =====
-  cartCount: number = 0;
+  /* =====================
+     CART
+  ===================== */
+  cartCount = 0;
   private cartSub!: Subscription;
 
-constructor(
-  private cartService: CartService,
-  private authService: AuthService
-) {}
+  constructor(
+    private cartService: CartService,
+    public authService: AuthService   // 👈 public for template
+  ) {}
 
-get isLoggedIn(): boolean {
-  return this.authService.isLoggedIn();
-}
-
-get userName(): string {
-  return this.authService.getCurrentUser()?.name || '';
-}
-
-
+  /* =====================
+     LIFECYCLE
+  ===================== */
   ngOnInit(): void {
     this.startTyping();
 
-    // ✅ SINGLE SOURCE OF TRUTH
+    // ✅ single source of truth for cart count
     this.cartSub = this.cartService.cartItems$.subscribe(items => {
       this.cartCount = items.reduce(
         (sum, item) => sum + (item.count || 0),
@@ -81,7 +83,24 @@ get userName(): string {
     this.cartSub?.unsubscribe();
   }
 
-  // ===== UI TOGGLES =====
+  /* =====================
+     AUTH HELPERS (CLEAN)
+  ===================== */
+  get isLoggedIn(): boolean {
+    return this.authService.isLoggedIn();
+  }
+
+  get isAdmin(): boolean {
+    return this.authService.isAdmin();
+  }
+
+  get userName(): string {
+    return this.authService.getCurrentUser()?.email || '';
+  }
+
+  /* =====================
+     UI TOGGLES
+  ===================== */
   togglePopup() {
     this.showPopup = !this.showPopup;
   }
@@ -98,7 +117,9 @@ get userName(): string {
     this.showLocationPopup = false;
   }
 
-  // ===== LOCATION =====
+  /* =====================
+     LOCATION
+  ===================== */
   fetchLocation() {
     if (!navigator.geolocation) {
       this.error = 'Geolocation not supported';
@@ -122,7 +143,9 @@ get userName(): string {
     this.showLocationPopup = false;
   }
 
-  // ===== SEARCH PLACEHOLDER ANIMATION =====
+  /* =====================
+     SEARCH PLACEHOLDER
+  ===================== */
   startTyping() {
     const currentText = this.placeholders[this.placeholderIndex];
 
@@ -147,20 +170,19 @@ get userName(): string {
     setTimeout(() => this.startTyping(), this.isDeleting ? 60 : 90);
   }
 
+  /* =====================
+     LOGIN / LOGOUT
+  ===================== */
   login(): void {
-    console.log('LOGIN CLICKED');
-  this.authService.login({
-    email: 'test@admin.com',
-    password: '123456'
-  }).subscribe(() => {
-    this.showLoginPopup = false;
-  });
-}
+    this.authService.login({
+      email: 'admin@silora.com',   // 👈 admin email for now
+      password: '123456'
+    }).subscribe(() => {
+      this.showLoginPopup = false;
+    });
+  }
 
-get isAdmin(): boolean {
-  const user = this.authService.getCurrentUser();
-  return !!user && user.email.endsWith('@admin.com');
-}
-
-
+  logout(): void {
+    this.authService.logout();
+  }
 }

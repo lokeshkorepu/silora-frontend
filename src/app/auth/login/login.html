@@ -1,1 +1,31 @@
-<p>login works!</p>
+<div class="login-page">
+  <div class="login-card">
+    <h2>Login to Silora</h2>
+
+    <form (ngSubmit)="onLogin()">
+      <div class="form-group">
+        <input
+          type="email"
+          placeholder="Email"
+          [(ngModel)]="email"
+          name="email"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <input
+          type="password"
+          placeholder="Password"
+          [(ngModel)]="password"
+          name="password"
+          required
+        />
+      </div>
+
+      <button type="submit" class="login-btn">
+        Login
+      </button>
+    </form>
+  </div>
+</div>

@@ -58,34 +58,48 @@
     <span class="search-icon">🔍</span>
   </div>
 
-  <!-- RIGHT -->
+ <!-- RIGHT -->
+<div class="right">
 
-
-  <div class="right">
-
-    <button
-  *ngIf="isAdmin"
-  class="admin-btn"
-  routerLink="/admin/orders">
+  <!-- ADMIN (only real admin) -->
+<button
+  *ngIf="authService.isAdmin()"
+  routerLink="/admin/orders"
+  class="btn">
   Admin
 </button>
 
-<button class="login-btn" (click)="toggleLogin()">
+<!-- LOGOUT -->
+<button
+  *ngIf="authService.isLoggedIn()"
+  (click)="logout()"
+  class="btn">
+  Logout
+</button>
+
+<!-- LOGIN -->
+<button
+  *ngIf="!authService.isLoggedIn()"
+  (click)="toggleLogin()"
+  class="btn">
   Login
 </button>
 
-    <button class="cart-btn" routerLink="/cart">
-      🛒 Cart
-      <span *ngIf="cartCount > 0" class="cart-badge">
-        {{ cartCount }}
-      </span>
-    </button>
+  <!-- CART -->
+  <button class="cart-btn" routerLink="/cart">
+    🛒 Cart
+    <span *ngIf="cartCount > 0" class="cart-badge">
+      {{ cartCount }}
+    </span>
+  </button>
 
-    <button routerLink="/orders" class="orders-btn">
-      Orders
-    </button>
+  <!-- ORDERS -->
+  <button routerLink="/orders" class="orders-btn">
+    Orders
+  </button>
 
-  </div>
+</div>
+
 
   <!-- LOGIN POPUP -->
 <div class="login-overlay" *ngIf="showLoginPopup">
