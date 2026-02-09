@@ -1,76 +1,63 @@
-<!-- ===== HOME CONTAINER ===== -->
-<div class="home-container">
+<div class="home-layout">
+<h1 style="color:red">HOME WORKS</h1>
 
-  <!-- ===== CATEGORY SECTIONS ===== -->
-  <div *ngFor="let category of categories" class="category-section">
+  <div class="products-panel">
 
-    <!-- CATEGORY TITLE -->
-    <h2 class="category-title">
-      {{ category.name }}
-    </h2>
+    <!-- Loading state -->
+    <p *ngIf="loading" class="loading-text">Loading products...</p>
 
-    <!-- PRODUCT ROW (HORIZONTAL SCROLL) -->
-    <div class="product-row">
+    <!-- Content -->
+      <div class="home-container" *ngIf="!loading">
 
-      <div class="product-card" *ngFor="let product of category.items">
 
-        <!-- PRODUCT IMAGE -->
-        <div class="product-image">
-          <img [src]="product.image"
-               [alt]="product.name" />
-        </div>
+      <div *ngFor="let category of categories" class="category-section">
 
-        <!-- QUANTITY BADGE -->
-        <span class="quantity-badge">
-          {{ product.quantity }}
-        </span>
+        <h2 class="category-title">{{ category.name }}</h2>
 
-        <!-- PRODUCT NAME -->
-        <h3 class="product-name">
-          {{ product.name }}
-        </h3>
+        <div class="product-row">
 
-        <!-- PRODUCT PRICE -->
-        <p class="product-price">
-          ₹{{ product.price }}
-        </p>
+          <div class="product-card" *ngFor="let product of category.items">
 
-        <!-- ACTIONS -->
-        <div class="product-actions">
+            <div class="product-image">
+              <img [src]="product.image" [alt]="product.name" />
+            </div>
 
-          <!-- ADD BUTTON -->
-          <button *ngIf="getCount(product) === 0"
-                  class="add-btn"
-                  (click)="addProduct(product)">
-            Add
-          </button>
+            <span class="quantity-badge">{{ product.quantity }}</span>
 
-          <!-- QUANTITY CONTROLLER -->
-          <div *ngIf="getCount(product) > 0" class="qty-controller">
+            <h3 class="product-name">{{ product.name }}</h3>
 
-            <button class="qty-btn"
-                    (click)="decrease(product)"
-                    [disabled]="product.count === 1">
-              −
-            </button>
+            <p class="product-price">₹{{ product.price }}</p>
 
-            <span class="qty-count">
-              {{ getCount(product) }}
-            </span>
+            <div class="product-actions">
 
-            <button class="qty-btn"
-                    (click)="increase(product)">
-              +
-            </button>
+              <button
+                *ngIf="getCount(product) === 0"
+                class="add-btn"
+                (click)="addProduct(product)">
+                Add
+              </button>
+
+              <div *ngIf="getCount(product) > 0" class="qty-controller">
+                <button class="qty-btn" (click)="decrease(product)">−</button>
+                <span class="qty-count">{{ getCount(product) }}</span>
+                <button class="qty-btn" (click)="increase(product)">+</button>
+              </div>
+
+            </div>
 
           </div>
-
         </div>
       </div>
 
     </div>
+
+    <!-- Empty state -->
+    <p *ngIf="!loading && categories.length === 0" class="loading-text">
+      No products found
+    </p>
+
   </div>
 
 </div>
-<app-cart-bar></app-cart-bar>
 
+<app-cart-bar></app-cart-bar>

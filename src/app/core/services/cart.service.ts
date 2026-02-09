@@ -72,7 +72,7 @@ export class CartService {
     );
   }
 
-  getProductCount(productId: number): number {
+  getProductCount(productId: string): number {
     const item = this.cartItemsSubject.value.find(p => p.id === productId);
     return item ? item.count || 0 : 0;
   }

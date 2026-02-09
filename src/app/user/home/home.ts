@@ -1,11 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { PRODUCTS } from '../../core/data/products';
 import { Product } from '../../core/models/product.model';
 import { CartService } from '../../core/services/cart.service';
 import { CartBar } from '../../core/cart-bar/cart-bar';
-
-
+import { ProductService } from '../../core/services/product.service';
 
 @Component({
   selector: 'app-home',
@@ -15,23 +13,56 @@ import { CartBar } from '../../core/cart-bar/cart-bar';
   templateUrl: './home.html',
    styleUrls: ['./home.css'] // 👈 MUST be THIS
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
 
-  products = PRODUCTS;
-
+  products: Product[] = [];
   categories: { name: string; items: Product[] }[] = [];
+  loading = true;
 
-  constructor(private cartService: CartService) { }
+  constructor(
+    private cartService: CartService,
+    private productService: ProductService
+  ) {}
 
+ ngOnInit(): void {
+  this.loading = true;
 
-  ngOnInit() {
-    this.groupByCategory();
+  this.productService.getProducts().subscribe({
+    next: (res: Product[]) => {
+      this.products = res ?? [];
+      this.buildCategories();
       this.syncWithCart();
-      this.cartService.clearCart();
-      
+      this.loading = false;
+    },
+    error: (err) => {
+      console.error('Product API failed', err);
+      this.products = [];
+      this.categories = [];
+      this.loading = false;
+    }
+  });
+}
 
+
+  private buildCategories(): void {
+  const map: Record<string, Product[]> = {};
+
+  for (const p of this.products) {
+    const category = p.category?.trim() || 'Others'; // ✅ fallback
+
+    if (!map[category]) {
+      map[category] = [];
+    }
+
+    map[category].push(p);
   }
-  
+
+  this.categories = Object.keys(map).map(key => ({
+    name: key,
+    items: map[key]
+  }));
+}
+
 
 syncWithCart() {
   const cartItems = this.cartService.getCartItems();
@@ -41,23 +72,6 @@ syncWithCart() {
     product.count = cartItem ? cartItem.count : 0;
   });
 }
-
-
-  groupByCategory() {
-    const map = new Map<string, Product[]>();
-
-    this.products.forEach(p => {
-      if (!map.has(p.category)) {
-        map.set(p.category, []);
-      }
-      map.get(p.category)!.push(p);
-    });
-
-    this.categories = Array.from(map.entries()).map(([name, items]) => ({
-      name,
-      items
-    }));
-  }
 
   addProduct(product: any) {
     this.cartService.addToCart(product);

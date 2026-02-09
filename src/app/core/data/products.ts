@@ -2,7 +2,7 @@ import { Product } from '../models/product.model';
 
 export const PRODUCTS: Product[] = [
   {
-    id: 1,
+    id: '1',
     name: 'Milk',
     price: 28,
     image: '/products/Amul Buffalo A2 Milk.avif',
@@ -11,7 +11,7 @@ export const PRODUCTS: Product[] = [
     count: 0
   },
   {
-    id: 2,
+    id: '2',
     name: 'Bread',
     price: 40,
     image: '/products/Bonn High Fibre Brown Bread.avif',
@@ -20,7 +20,7 @@ export const PRODUCTS: Product[] = [
     count: 0
   },
   {
-    id: 3,
+    id: '3',
     name: 'Eggs',
     price: 65,
     image: '/products/Eggs.avif',

@@ -7,7 +7,7 @@ export interface OrderDTO {
 }
 
 export interface OrderItemDTO {
-  productId: number;
+  productId: string;
   price: number;
   quantity: number;
 }

@@ -6,6 +6,9 @@ import { CartComponent } from './user/cart/cart';
 import { CheckoutComponent } from './user/checkout/checkout';
 import { OrderSuccess } from './user/order-success/order-success';
 import { DashboardComponent } from './admin/dashboard/dashboard';
+import { AdminOrdersComponent } from './admin/orders/admin-orders';
+import { AddProductComponent } from './admin/add-product/add-product';
+
 
 import { AuthGuard } from './core/auth/auth.guard';
 import { AdminGuard } from './core/auth/admin.guard';
@@ -15,19 +18,23 @@ export const routes: Routes = [
   /* =========================
      DEFAULT ROUTE
   ========================== */
-  {
-    path: '',
-    redirectTo: 'home',
-    pathMatch: 'full'
-  },
+    {
+  path: '',
+  loadComponent: () =>
+    import('./user/home/home')
+      .then(m => m.HomeComponent)
+},
 
   /* =========================
      USER ROUTES
   ========================== */
-  {
-    path: 'home',
-    component: HomeComponent
-  },
+//   {
+//   path: 'home',
+//   loadComponent: () =>
+//     import('./user/home/home')
+//       .then(m => m.HomeComponent)
+// },
+
   {
     path: 'cart',
     component: CartComponent
@@ -62,16 +69,18 @@ export const routes: Routes = [
      ADMIN ROUTES
   ========================== */
   {
-    path: 'admin',
-    canActivate: [AdminGuard],
-    component: DashboardComponent
-  },
-  {
-    path: 'admin/orders',
-    canActivate: [AdminGuard],
-    loadComponent: () =>
-      import('./admin/orders/admin-orders')
-        .then(m => m.AdminOrdersComponent)
+  path: 'admin',
+  component: DashboardComponent,
+  children: [
+    {
+      path: 'orders',
+      component: AdminOrdersComponent
+    },
+    {
+      path: 'add-product',
+      component: AddProductComponent
+    }
+  ]
   },
 
   /* =========================

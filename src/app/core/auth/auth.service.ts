@@ -8,8 +8,11 @@ import {
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
-  User
+  User,
+  createUserWithEmailAndPassword
 } from '@angular/fire/auth';
+import { Firestore, doc, setDoc } from '@angular/fire/firestore';
+
 
 export type UserRole = 'admin' | 'user' | null;
 
@@ -27,7 +30,9 @@ export class AuthService {
 
   constructor(
     private cartService: CartService,
-    private auth: Auth
+    private auth: Auth,
+    private firestore: Firestore   // ✅ Inject Firestore
+
   ) {
     this.listenToAuthState();
     this.loadUser();
@@ -47,13 +52,11 @@ export class AuthService {
       this.userSubject.next(user);
 
       if (user) {
-        // role logic (same as your existing logic)
         const role: UserRole =
           user.email === 'admin@silora.com' ? 'admin' : 'user';
 
         this.roleSubject.next(role);
 
-        // persist (kept from your existing design)
         localStorage.setItem(this.USER_KEY, JSON.stringify(user));
         localStorage.setItem(this.ROLE_KEY, role);
 
@@ -72,8 +75,27 @@ export class AuthService {
       signInWithEmailAndPassword(this.auth, dto.email, dto.password)
     ).pipe(
       tap(() => {
-        // ✅ merge guest cart after login (unchanged)
         this.cartService.mergeGuestCart?.();
+      }),
+      map(result => result.user)
+    );
+  }
+
+  signup(email: string, password: string, name: string): Observable<User> {
+    return from(
+      createUserWithEmailAndPassword(this.auth, email, password)
+    ).pipe(
+      tap(async (result) => {
+        const uid = result.user?.uid;
+        if (uid) {
+          const userRef = doc(this.firestore, `users/${uid}`);
+          await setDoc(userRef, {
+            uid,
+            name,
+            email,
+            createdAt: new Date()
+          });
+        }
       }),
       map(result => result.user)
     );

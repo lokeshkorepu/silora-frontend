@@ -1,0 +1,16 @@
+<h2>Bulk Add Products</h2>
+
+<div *ngFor="let p of products; let i = index" class="row">
+  <input placeholder="Name" [(ngModel)]="p.name" />
+  <input placeholder="Price" type="number" [(ngModel)]="p.price" />
+  <input placeholder="Category" [(ngModel)]="p.category" />
+  <input type="file" (change)="onFileSelected($event, i)" />
+  <input placeholder="Quantity" [(ngModel)]="p.quantity" />
+
+  <button (click)="removeRow(i)" *ngIf="products.length > 1">
+    Remove
+  </button>
+</div>
+
+<button (click)="addRow()">+ Add Row</button>
+<button (click)="submitAll()">Save All Products</button>

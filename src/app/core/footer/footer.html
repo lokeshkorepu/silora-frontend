@@ -1,1 +1,170 @@
-<p>footer works!</p>
+<div class="footer-container" style="padding: 32px; background-color: #f8f8f8;
+font-family: Arial, sans-serif; font-size: 14px; color: #808080;">
+
+  <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 60px;">
+
+    <!-- Useful Links -->
+    <div>
+      <h3 style="margin-bottom: 16px; color: #333;">Useful Links</h3>
+      <div style="display: flex; gap: 100px;">
+
+        <ul style="list-style: none; padding: 0; color: #808080;">
+          <li><a (click)="openBlog()" style="color: #808080; text-decoration: none;">Blog</a></li>
+          <br />
+          <li><a (click)="openPrivacy()" style="color: #808080; text-decoration: none;">Privacy</a></li>
+          <br />
+          <li><a (click)="openTerms()" style="color: #808080; text-decoration: none;">Terms</a></li>
+          <br />
+          <li><a (click)="openFAQs()" style="color: #808080; text-decoration: none;">FAQs</a></li>
+          <br />
+          <li><a (click)="openSecurity()" style="color: #808080; text-decoration: none;">Security</a></li>
+          <br />
+          <li><a (click)="openContact()" style="color: #808080; text-decoration: none;">Contact</a></li>
+        </ul>
+
+        <ul style="list-style: none; padding: 0; color: #808080;">
+          <li><a (click)="openPartner()" style="color: #808080; text-decoration: none;">Partner</a></li>
+          <br />
+          <li><a (click)="openFranchise()" style="color: #808080; text-decoration: none;">Franchise</a></li>
+          <br />
+          <li><a (click)="openSeller()" style="color: #808080; text-decoration: none;">Seller</a></li>
+          <br />
+          <li><a (click)="openWarehouse()" style="color: #808080; text-decoration: none;">Warehouse</a></li>
+          <br />
+          <li><a (click)="openDeliver()" style="color: #808080; text-decoration: none;">Deliver</a></li>
+          <br />
+          <li><a (click)="openResources()" style="color: #808080; text-decoration: none;">Resources</a></li>
+        </ul>
+
+        <ul style="list-style: none; padding: 0; color: #808080;">
+          <li><a (click)="openRecipes()" style="color: #808080; text-decoration: none;">Recipes</a></li>
+          <br />
+          <li><a (click)="openBistro()" style="color: #808080; text-decoration: none;">Bistro</a></li>
+          <br />
+          <li><a (click)="openDistrict()" style="color: #808080; text-decoration: none;">District</a></li>
+        </ul>
+
+      </div>
+    </div>
+
+    <!-- Categories -->
+    <div>
+      <h3 style="margin-bottom: 16px; color: #333;">Categories</h3>
+      <div style="display: flex; gap: 100px;">
+
+        <ul style="list-style: none; padding: 0; color: #808080;">
+          <li>Vegetables & Fruits</li>
+          <br />
+          <li>Cold Drinks & Juices</li>
+          <br />
+          <li>Bakery & Biscuits</li>
+          <br />
+          <li>Dry Fruits, Masala & Oil</li>
+          <br />
+          <li>Paan Corner</li>
+          <br />
+          <li>Pharma & Wellness</li>
+          <br />
+          <li>Personal Care</li>
+          <br />
+          <li>Magazines</li>
+          <br />
+          <li>Electronics & Electricals</li>
+          <br />
+          <li>Toys & Games</li>
+          <br />
+          <li>Rakhi Gifts</li>
+        </ul>
+
+        <ul style="list-style: none; padding: 0; color: #808080;">
+          <li>Dairy & Breakfast</li>
+          <br />
+          <li>Instant & Frozen Food</li>
+          <br />
+          <li>Sweet Tooth</li>
+          <br />
+          <li>Sauces & Spreads</li>
+          <br />
+          <li>Organic & Premium</li>
+          <br />
+          <li>Cleaning Essentials</li>
+          <br />
+          <li>Pet Care</li>
+          <br />
+          <li>Kitchen & Dining</li>
+          <br />
+          <li>Stationery Needs</li>
+          <br />
+          <li>Print Store</li>
+        </ul>
+
+        <ul style="list-style: none; padding: 0; color: #808080;">
+          <li>Munchies</li>
+          <br />
+          <a routerLink="/home/products/milk">Tea, Coffee & Milk Drinks</a>
+          <br />
+          <li>Atta, Rice & Dal</li>
+          <br />
+          <li>Chicken, Meat & Fish</li>
+          <br />
+          <li>Baby Care</li>
+          <br />
+          <li>Home Furnishing & Decor</li>
+          <br />
+          <li>Beauty & Cosmetics</li>
+          <br />
+          <li>Fashion & Accessories</li>
+          <br />
+          <li>Books</li>
+          <br />
+          <li>E-Gift Cards</li>
+        </ul>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Section -->
+  <div style="padding: 32px; background-color: #f8f8f8; font-family: Arial, sans-serif; font-size: 14px; color: #999; ">
+
+  <!-- Top Row: Download App + Icons and Copyright -->
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+
+    <!-- Right: Copyright -->
+    <div style="font-weight: bold;"> © SiLoRa Commerce Private Limited, 2016–2025 </div>
+
+  <!-- Left: Download App + Icons -->
+    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+    <span style="font-weight: bold;">Download App</span>
+
+  <!-- App Store Buttons -->
+    <a href="https://play.google.com/store/apps" target="_blank" rel="noopener noreferrer">
+      <img src="assets/Google Play.jpg" alt="Google Play" style="height: 30px;"> </a>
+
+    <a href="https://apps.apple.com/in" target="_blank" rel="noopener noreferrer">
+      <img src="assets/App Store.jpg" alt="App Store" style="height: 30px;"> </a>
+
+  <!-- Social Media Icons -->
+    <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer">
+      <img src="assets/Facebook.png" alt="Facebook" style="height: 30px;"> </a>
+
+    <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+      <img src="assets/Twitter.png" alt="Twitter" style="height: 30px;"> </a>
+
+    <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer">
+      <img src="assets/instagram.png" alt="Instagram" style="height: 30px;"> </a>
+
+    <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer">
+      <img src="assets/Linkedin.png" alt="Linkedin" style="height: 30px;"> </a>
+
+    <a href="https://www.threads.net" target="_blank" rel="noopener noreferrer">
+      <img src="assets/Threads.png" alt="Threads" style="height: 30px;"> </a>
+      </div>
+    </div>
+
+  <!-- Bottom Row: Legal Disclaimer -->
+  <div style="margin-top:64px; max-width: 100%;">
+    <p style="margin: 0; font-size: 15px; color: #999999;"> “SiLoRa” is owned & managed by <strong>SiLoRa Commerce Private Limited</strong> and is not related, linked or interconnected in whatsoever manner or nature, to <strong>GROFFR.COM</strong> which is a domain owned by Grofers India Private Limited.
+      </p>
+    </div>
+  </div>

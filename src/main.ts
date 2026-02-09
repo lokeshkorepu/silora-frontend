@@ -6,6 +6,9 @@ import { environment } from './environments/environment';
 import { provideRouter } from '@angular/router';
 import { routes } from './app/app.routes';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
+import { provideAnimations } from '@angular/platform-browser/animations';
+import { provideStorage, getStorage } from '@angular/fire/storage';
+
 
 // ✅ GLOBAL ERROR SAFETY (prevents white screen)
 window.addEventListener('error', (event) => {
@@ -19,9 +22,11 @@ window.addEventListener('unhandledrejection', (event) => {
 bootstrapApplication(AppComponent, {
   providers: [
     provideRouter(routes),
-
+    provideAnimations(),
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideFirestore(() => getFirestore()),
-    provideAuth(() => getAuth())
+    provideAuth(() => getAuth()),
+    provideStorage(() => getStorage())
+
   ]
 });
