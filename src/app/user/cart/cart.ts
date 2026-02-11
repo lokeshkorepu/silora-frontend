@@ -76,6 +76,11 @@ placeOrder() {
       product.count = 0;
     });
   }
+
+  onImageError(event: Event) {
+  (event.target as HTMLImageElement).src ='/products/no-image.png';
+
+}
 }
 
 

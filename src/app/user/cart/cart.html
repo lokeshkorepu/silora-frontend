@@ -20,7 +20,11 @@
   <!-- CART ITEMS -->
   <div *ngFor="let item of cartItems" class="cart-item">
 
-    <img [src]="item.image" class="cart-image" />
+<img
+  [src]="item.imageUrl"
+  class="cart-image"
+  (error)="onImageError($event)"
+/>
 
     <div class="cart-info">
       <div class="cart-name">{{ item.name }}</div>

@@ -1,63 +1,58 @@
-<div class="home-layout">
-<h1 style="color:red">HOME WORKS</h1>
+<div class="home-page">
 
-  <div class="products-panel">
+  <div class="home-box">
 
-    <!-- Loading state -->
-    <p *ngIf="loading" class="loading-text">Loading products...</p>
-
-    <!-- Content -->
-      <div class="home-container" *ngIf="!loading">
-
-
-      <div *ngFor="let category of categories" class="category-section">
-
-        <h2 class="category-title">{{ category.name }}</h2>
-
-        <div class="product-row">
-
-          <div class="product-card" *ngFor="let product of category.items">
-
-            <div class="product-image">
-              <img [src]="product.image" [alt]="product.name" />
-            </div>
-
-            <span class="quantity-badge">{{ product.quantity }}</span>
-
-            <h3 class="product-name">{{ product.name }}</h3>
-
-            <p class="product-price">₹{{ product.price }}</p>
-
-            <div class="product-actions">
-
-              <button
-                *ngIf="getCount(product) === 0"
-                class="add-btn"
-                (click)="addProduct(product)">
-                Add
-              </button>
-
-              <div *ngIf="getCount(product) > 0" class="qty-controller">
-                <button class="qty-btn" (click)="decrease(product)">−</button>
-                <span class="qty-count">{{ getCount(product) }}</span>
-                <button class="qty-btn" (click)="increase(product)">+</button>
-              </div>
-
-            </div>
-
-          </div>
-        </div>
-      </div>
-
+   <!-- SECTION TITLE -->
+    <div class="section-title">
+      Buy {{ selectedCategory?.name }} Online
     </div>
 
-    <!-- Empty state -->
-    <p *ngIf="!loading && categories.length === 0" class="loading-text">
-      No products found
-    </p>
+  <!-- MAIN CONTENT -->
+  <div class="home-body">
+
+    <!-- LEFT: CATEGORIES -->
+   <aside class="category-rail">
+        <div
+          class="rail-item"
+           *ngFor="let category of categories; let i = index"
+           [class.active]="selectedCategory?.name === category.name"
+           (click)="scrollToCategory(category)"
+        >
+        <img
+            src="assets/products/no-image.png"
+            class="rail-icon"
+          />
+       <span>{{ category.name }}</span>
+        </div>
+      </aside>
+
+   <section class="products-grid" #productsGrid>
+  <div
+    class="product-card"
+    *ngFor="let product of selectedCategory?.items"
+  >
+    <img
+      [src]="product.imageUrl || 'assets/products/no-image.png'"
+      (error)="onImageError($event)"
+    />
+
+    <div class="delivery">⏱ 8 MINS</div>
+
+    <div class="name">{{ product.name }}</div>
+    <div class="qty">{{ product.quantity }}</div>
+
+    <div class="footer">
+      <span class="price">₹{{ product.price }}</span>
+      <button class="add-btn">ADD</button>
+    </div>
+  </div>
+</section>
+        
+
+        </div>
+      </div>
+    
 
   </div>
 
-</div>
 
-<app-cart-bar></app-cart-bar>

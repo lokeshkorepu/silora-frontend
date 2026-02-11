@@ -1,16 +1,12 @@
-<h2>Bulk Add Products</h2>
+<h2>Add Product</h2>
 
-<div *ngFor="let p of products; let i = index" class="row">
-  <input placeholder="Name" [(ngModel)]="p.name" />
-  <input placeholder="Price" type="number" [(ngModel)]="p.price" />
-  <input placeholder="Category" [(ngModel)]="p.category" />
-  <input type="file" (change)="onFileSelected($event, i)" />
-  <input placeholder="Quantity" [(ngModel)]="p.quantity" />
+<img [src]="previewUrl" class="preview" />
 
-  <button (click)="removeRow(i)" *ngIf="products.length > 1">
-    Remove
-  </button>
-</div>
+<input type="file" (change)="onFileSelected($event)" />
 
-<button (click)="addRow()">+ Add Row</button>
-<button (click)="submitAll()">Save All Products</button>
+<input type="text" placeholder="Name" [(ngModel)]="name" />
+<input type="number" placeholder="Price" [(ngModel)]="price" />
+<input type="text" placeholder="Category" [(ngModel)]="category" />
+<input type="text" placeholder="Quantity" [(ngModel)]="quantity" />
+
+<button (click)="saveProduct()">Save Product</button>

@@ -12,49 +12,64 @@ import { ProductService } from '../../core/services/product.service';
 })
 export class AddProductComponent {
 
-  products: any[] = [
-    this.createEmptyProduct()
-  ];
+  name = '';
+  price: number | null = null;
+  category = '';
+  quantity = '';
+  selectedFile: File | null = null;
+  previewUrl = 'assets/products/no-image.png';
 
   constructor(private productService: ProductService) {}
 
-  createEmptyProduct() {
-    return {
-      name: '',
-      price: null,
-      category: '',
-      image: '',
-      quantity: ''
-    };
+  onFileSelected(event: any) {
+    const file: File = event.target.files[0];
+    if (!file) return;
+
+     if (!file.type.startsWith('image/')) {
+    alert('Please select an image file');
+    return;
+  }
+    this.selectedFile = file;
+    this.previewUrl = URL.createObjectURL(file); // 👈 preview
   }
 
-  addRow() {
-    this.products.push(this.createEmptyProduct());
-  }
-
-  removeRow(index: number) {
-    this.products.splice(index, 1);
-  }
-
-  async submitAll() {
-  for (const p of this.products) {
-    if (p.file) {
-      p.image = await this.productService.uploadImage(p.file);
+  async saveProduct() {
+    if (!this.name || !this.price || !this.category || !this.quantity) {
+      alert('Fill all fields');
+      return;
     }
-    delete p.file;
-    await this.productService.addProduct(p);
+
+    if (!this.selectedFile) {
+      alert('Select image');
+      return;
+    }
+
+    try {
+      const imageUrl = await this.productService.uploadImage(this.selectedFile);
+
+      await this.productService.addProduct({
+        name: this.name,
+        price: Number(this.price),
+        category: this.category,
+        quantity: this.quantity,
+        imageUrl
+      });
+
+      alert('Product added');
+      this.resetForm();
+
+    } catch (e) {
+      console.error(e);
+      alert('Upload failed');
+    }
   }
 
-  alert('All products with images added successfully');
-  this.products = [this.createEmptyProduct()];
-}
-
-
-  onFileSelected(event: any, index: number) {
-  const file = event.target.files[0];
-  if (file) {
-    this.products[index].file = file;
+  resetForm() {
+    this.name = '';
+    this.price = null;
+    this.category = '';
+    this.quantity = '';
+    this.selectedFile = null;
+    this.previewUrl = 'assets/products/no-image.png';
   }
-}
-
 }

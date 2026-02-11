@@ -26,18 +26,18 @@ export class ProductService {
   ) {}
 
   // ✅ GET PRODUCTS (for Home page)
-  getProducts(): Observable<Product[]> {
-    const refCol = collection(this.firestore, 'products');
-    return collectionData(refCol, { idField: 'id' }).pipe(
-      map(data => data as Product[])
-    );
-  }
+ getProducts(): Observable<Product[]> {
+  const refCol = collection(this.firestore, 'products');
+  return collectionData(refCol, { idField: 'id' }) as Observable<Product[]>;
+}
+
 
   // ✅ ADD PRODUCT (Admin)
-  addProduct(product: any) {
-    const refCol = collection(this.firestore, 'products');
-    return addDoc(refCol, product);
-  }
+  addProduct(product: Product): Promise<any> {
+  const refCol = collection(this.firestore, 'products');
+  return addDoc(refCol, product);
+}
+
 
   // ✅ UPLOAD IMAGE (Firebase Storage)
   async uploadImage(file: File): Promise<string> {

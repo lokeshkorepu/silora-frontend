@@ -41,11 +41,15 @@ export class OrderService {
       createdAt: new Date().toISOString(),
       totalAmount: total,
       status: 'DELIVERED',
-      items: items.map(item => ({
-        productId: item.id,
-        price: item.price,
-        quantity: Number(item.quantity) || 1
-      }))
+      items: items
+  .filter(item => !!item.id && typeof item.count === 'number')
+  .map(item => ({
+    productId: item.id as string,
+    price: item.price,
+    quantity: item.count as number
+  }))
+
+
     };
 
     // 1️⃣ Save to Firestore (Promise → Observable)
