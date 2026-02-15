@@ -1,20 +1,33 @@
+* {
+  box-sizing: border-box;
+}
+
 html, body {
-  height: 100%;
   margin: 0;
+  padding: 0;
+  height: 100%;
+  /* overflow: hidden; 🔥 prevents outer scroll */
 }
 
 body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
+/* Root layout */
+app-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+}
+
+
 /* Header height variable */
 :root {
   --header-height: 72px;
 }
 
-/* Push content below fixed header */
-.page-wrapper {
-  padding-top: var(--header-height);
-  min-height: calc(100vh - var(--header-height));
-  overflow: hidden;
-}
+

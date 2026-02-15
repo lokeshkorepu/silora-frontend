@@ -9,6 +9,18 @@ export class CartService {
 
   private STORAGE_KEY = 'cart';
 
+  private cartOpen = new BehaviorSubject<boolean>(false);
+  cartOpen$ = this.cartOpen.asObservable();
+
+  openCart() {
+    this.cartOpen.next(true);
+  }
+
+  closeCart() {
+    this.cartOpen.next(false);
+  }
+
+
   /* ---------------- SOURCE OF TRUTH ---------------- */
 
   private cartItemsSubject = new BehaviorSubject<Product[]>([]);
@@ -20,37 +32,44 @@ export class CartService {
 
   /* ---------------- LOAD & SAVE ---------------- */
 
- private loadCart(): void {
-  const savedVersion = localStorage.getItem('app_version');
+private loadCart(): void {
+  const storedCart = localStorage.getItem(this.STORAGE_KEY);
 
-  // ✅ If app version changed → reset cart
-  if (savedVersion !== '1.0.0') {
-    localStorage.clear();
-    localStorage.setItem('app_version', '1.0.0');
+  if (!storedCart) {
     this.cartItemsSubject.next([]);
     return;
   }
 
-  const storedCart = localStorage.getItem(this.STORAGE_KEY);
+  try {
+    const items: Product[] = JSON.parse(storedCart);
 
-  if (storedCart) {
-    try {
-      const items = JSON.parse(storedCart);
-      if (Array.isArray(items)) {
-        this.cartItemsSubject.next(items);
-        return;
-      }
-    } catch {}
+    if (Array.isArray(items)) {
+      // sanitize invalid counts
+      const cleanItems = items.filter(
+        item => item.id && item.price && item.count && item.count > 0
+      );
+
+      this.cartItemsSubject.next(cleanItems);
+    } else {
+      this.cartItemsSubject.next([]);
+    }
+
+  } catch {
+    // if corrupted JSON
+    localStorage.removeItem(this.STORAGE_KEY);
+    this.cartItemsSubject.next([]);
   }
-
-  this.cartItemsSubject.next([]);
 }
 
+private saveCart(items: Product[]): void {
+  this.cartItemsSubject.next(items);
 
-  private saveCart(items: Product[]): void {
-    this.cartItemsSubject.next(items);
+  if (items.length === 0) {
+    localStorage.removeItem(this.STORAGE_KEY);
+  } else {
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(items));
   }
+}
 
   /* ---------------- GETTERS (UNCHANGED API) ---------------- */
 
@@ -118,9 +137,10 @@ export class CartService {
   }
 
   clearCart(): void {
-    this.saveCart([]);
-    localStorage.removeItem(this.STORAGE_KEY);
-  }
+  this.cartItemsSubject.next([]);
+  localStorage.removeItem(this.STORAGE_KEY);
+}
+
 
   resetCart(): void {
     this.clearCart();

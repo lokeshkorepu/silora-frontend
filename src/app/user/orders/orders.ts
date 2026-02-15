@@ -8,6 +8,8 @@ import { Order } from '../../core/models/order.model';
 import { OrderService } from '../../core/services/order.service';
 import { CartService } from '../../core/services/cart.service';
 import { Router } from '@angular/router';
+import { AuthService } from '../../core/auth/auth.service';
+import { Observable } from 'rxjs';
 
 import { OrderDetailsDialogComponent } from './order-details.dialog';
 
@@ -38,13 +40,15 @@ export class OrdersComponent implements OnInit {
 
   searchText = '';
   statusFilter = '';
+  orders$!: Observable<any[]>;
 
   constructor(
     private orderService: OrderService,
     private cartService: CartService,
     private router: Router,
     private snackBar: MatSnackBar,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {

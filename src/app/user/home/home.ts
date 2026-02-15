@@ -3,163 +3,136 @@ import { CommonModule } from '@angular/common';
 import { Product } from '../../core/models/product.model';
 import { CartService } from '../../core/services/cart.service';
 import { ProductService } from '../../core/services/product.service';
+import { CartBar } from '../../core/cart-bar/cart-bar';
+import { CategoryService } from '../../core/services/category.service';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CartBar],
   templateUrl: './home.html',
-   styleUrls: ['./home.css'] // 👈 MUST be THIS
+  styleUrls: ['./home.css']
 })
 export class HomeComponent implements OnInit {
 
   products: Product[] = [];
-  categories: { name: string; items: Product[] }[] = [];
+  categories: any[] = [];
+  selectedCategory: any = null;
+
   loading = true;
-  selectedCategory: { name: string; items: Product[] } | null = null;
+  isCartOpen = false;
+
+  @ViewChild('productsGrid') productsGrid!: ElementRef;
 
   constructor(
     private cartService: CartService,
-    private productService: ProductService
+    private productService: ProductService,
+    private categoryService: CategoryService
   ) {}
 
- ngOnInit(): void {
-  this.loading = true;
+  ngOnInit(): void {
 
-  this.productService.getProducts().subscribe({
-    next: (res: Product[]) => {
+    /* =========================
+       CART STATE
+    ========================== */
+    this.cartService.cartOpen$.subscribe(value => {
+      this.isCartOpen = value;
+    });
 
-      console.log('🔥 RAW PRODUCTS FROM FIRESTORE:', res);
+    /* =========================
+       LOAD CATEGORIES (REAL-TIME)
+    ========================== */
+    this.categoryService.getCategories().subscribe(data => {
+      this.categories = data;
 
-      this.products = res ?? [];
-
-      this.buildCategories();
-
-      console.log('📦 CATEGORIES AFTER BUILD:', this.categories);
-
-      this.selectedCategory = this.categories[0]; // ✅ move this HERE
-
-      console.log('👉 SELECTED CATEGORY:', this.selectedCategory);
-
-      this.syncWithCart();
-      this.loading = false;
-    },
-    error: (err) => {
-      console.error('❌ Product API failed', err);
-      this.products = [];
-      this.categories = [];
-      this.loading = false;
-    }
-  });
-}
-
-private buildCategories(): void {
-  const map: Record<string, Product[]> = {};
-
-  for (const p of this.products) {
-    const category = p.category?.trim() || 'Others';
-
-    if (!map[category]) {
-      map[category] = [];
-    }
-
-    map[category].push(p);
-  }
-
-  this.categories = Object.keys(map).map(key => ({
-    name: key,
-    items: map[key]
-  }));
-}
-
-
-ngAfterViewInit() {
-  const container = this.productsGrid.nativeElement as HTMLElement;
-
-  container.addEventListener('scroll', () => {
-    const blocks = Array.from(
-      container.querySelectorAll('.category-block')
-    ) as HTMLElement[];
-
-    for (const block of blocks) {
-      const rect = block.getBoundingClientRect();
-      const containerRect = container.getBoundingClientRect();
-
-      if (rect.top >= containerRect.top && rect.top < containerRect.bottom) {
-        const categoryName = block.getAttribute('data-category');
-        const match = this.categories.find(c => c.name === categoryName);
-        if (match) this.selectedCategory = match;
-        break;
+      if (data.length && !this.selectedCategory) {
+        this.selectedCategory = data[0];
       }
-    }
-  });
-}
+    });
 
-syncWithCart() {
-  const cartItems = this.cartService.getCartItems();
+    /* =========================
+       LOAD PRODUCTS (REAL-TIME)
+    ========================== */
+    this.productService.getProducts().subscribe({
+      next: (res: Product[]) => {
+        this.products = res ?? [];
+        this.syncWithCart();
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Product fetch failed:', err);
+        this.products = [];
+        this.loading = false;
+      }
+    });
+  }
 
-  this.products.forEach(product => {
-    const cartItem = cartItems.find(c => c.id === product.id);
-    product.count = cartItem ? cartItem.count : 0;
-  });
-}
+  /* =========================
+     FILTER PRODUCTS BY CATEGORY
+  ========================== */
+  get filteredProducts(): Product[] {
+    if (!this.selectedCategory?.name) return [];
 
-  addProduct(product: any) {
+    return this.products.filter(
+      p => p.category === this.selectedCategory.name
+    );
+  }
+
+  /* =========================
+     CART SYNC
+  ========================== */
+  syncWithCart() {
+    const cartItems = this.cartService.getCartItems();
+
+    this.products.forEach(product => {
+      const cartItem = cartItems.find(c => c.id === product.id);
+      product.count = cartItem ? cartItem.count : 0;
+    });
+  }
+
+  addProduct(product: Product) {
     this.cartService.addToCart(product);
-    //product.count = 1;
   }
 
-  increase(product: any) {
+  increase(product: Product) {
     this.cartService.increase(product);
-    //product.count++;
   }
 
-  decrease(product: any) {
+  decrease(product: Product) {
     this.cartService.decrease(product);
-    //product.count--;
   }
 
- getCount(product: Product): number {
-  if (!product.id) return 0;   // ✅ guard
-  return this.cartService.getProductCount(product.id);
-}
-
-
- onImageError(event: Event) {
-  const img = event.target as HTMLImageElement;
-
-  // prevent infinite loop
-  if (!img.src.includes('no-image.png')) {
-    img.src = 'assets/products/no-image.png';
+  getCount(product: Product): number {
+    if (!product.id) return 0;
+    return this.cartService.getProductCount(product.id);
   }
-}
 
-@ViewChild('productsGrid') productsGrid!: ElementRef;
+  /* =========================
+     SIDEBAR CLICK
+  ========================== */
+  scrollToCategory(category: any) {
+    this.selectedCategory = category;
 
-scrollToCategory(category: any) {
-  const container = this.productsGrid.nativeElement as HTMLElement;
-  const target = container.querySelector(
-    `[data-category="${category.name}"]`
-  ) as HTMLElement;
+    if (!this.productsGrid) return;
 
-  if (target) {
-    container.scrollTo({
-      top: target.offsetTop,
+    this.productsGrid.nativeElement.scrollTo({
+      top: 0,
       behavior: 'smooth'
     });
   }
 
-  this.selectedCategory = category;
+  openCart() {
+    this.cartService.openCart();
+  }
 
-  setTimeout(() => {
-    if(this.productsGrid) {
-      this.productsGrid.nativeElement.scrollTo({
-        top : 0,
-        behavior : 'smooth'
-      });
+  /* =========================
+     IMAGE FALLBACK
+  ========================== */
+  onImageError(event: Event) {
+    const img = event.target as HTMLImageElement;
+    if (!img.src.includes('no-image.png')) {
+      img.src = 'assets/products/no-image.png';
     }
-  });
-}
-
+  }
 
 }

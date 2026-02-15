@@ -1,10 +1,142 @@
-<h2>Admin Dashboard</h2>
+<div class="dashboard-container">
 
-<!-- Admin navigation -->
-<div style="margin-bottom: 16px;">
-  <button routerLink="/admin/orders">Orders</button>
-  <button routerLink="/admin/add-product">Add Product</button>
+  <h2>Admin Dashboard</h2>
+
+  <div *ngIf="loading" class="skeleton-grid">
+  <div class="skeleton-card"></div>
+  <div class="skeleton-card"></div>
+  <div class="skeleton-card"></div>
+  <div class="skeleton-card"></div>
 </div>
 
-<!-- 🔥 VERY IMPORTANT -->
-<router-outlet></router-outlet>
+
+  <!-- KPI CARDS -->
+  <div class="kpi-grid">
+    <div class="kpi-card blue">
+      <h3>{{ totalOrders }}</h3>
+      <p>Total Orders</p>
+    </div>
+
+    <div class="kpi-card green">
+      <h3>₹{{ totalRevenue }}</h3>
+      <p>Total Revenue</p>
+    </div>
+
+    <div class="kpi-card purple">
+      <h3>{{ delivered }}</h3>
+      <p>Delivered</p>
+    </div>
+
+    <div class="kpi-card orange">
+      <h3>{{ pending }}</h3>
+      <p>Pending</p>
+    </div>
+  </div>
+
+  <!-- CHART SECTION -->
+  <div class="chart-grid">
+
+    <div class="chart-card">
+      <h3>Revenue (Last 7 Days)</h3>
+      <canvas baseChart
+        [data]="revenueChartData"
+        [type]="'line'">
+      </canvas>
+    </div>
+
+    <div class="chart-card">
+      <h3>Order Status</h3>
+      <canvas baseChart
+        [data]="statusChartData"
+        [type]="'doughnut'">
+      </canvas>
+    </div>
+
+  </div>
+
+  <!-- Recent Orders -->
+  <div class="recent-orders-card">
+
+  <div class="recent-header">
+    <h3>Recent Orders</h3>
+  </div>
+
+  <table class="recent-table">
+
+    <thead>
+      <tr>
+        <th>Order ID</th>
+        <th>Customer</th>
+        <th>Amount</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+
+<ng-container *ngFor="let order of recentOrders">
+
+  <!-- MAIN ROW -->
+  <tr
+    class="clickable-row"
+    (click)="toggleExpand(order.id)">
+
+    <td>{{ order.id }}</td>
+    <td>{{ order.userEmail }}</td>
+    <td>₹{{ order.totalAmount }}</td>
+    <td>
+      <span class="status-pill"
+        [ngClass]="{
+          'delivered': order.status === 'DELIVERED',
+          'pending': order.status === 'PENDING',
+          'cancelled': order.status === 'CANCELLED'
+        }">
+        {{ order.status }}
+      </span>
+    </td>
+
+  </tr>
+
+  <!-- EXPANDABLE ROW -->
+  <tr *ngIf="expandedOrderId === order.id" class="expanded-row">
+    <td colspan="4">
+
+      <div class="expanded-content">
+
+        <div *ngFor="let item of order.items">
+          • {{ item.productId }} —
+          Qty: {{ item.quantity }}
+        </div>
+
+      </div>
+
+    </td>
+  </tr>
+
+</ng-container>
+</table>
+</div>
+</div>
+
+<!-- ORDER DETAILS MODAL -->
+<div *ngIf="selectedOrder" class="modal-overlay" (click)="closeModal()">
+
+  <div class="modal-card" (click)="$event.stopPropagation()">
+
+    <h3>Order Details</h3>
+
+    <p><strong>Order ID:</strong> {{ selectedOrder.id }}</p>
+    <p><strong>Customer:</strong> {{ selectedOrder.userEmail }}</p>
+    <p><strong>Total:</strong> ₹{{ selectedOrder.totalAmount }}</p>
+
+    <h4>Items:</h4>
+
+    <div *ngFor="let item of selectedOrder.items">
+      {{ item.productId }} —
+      Qty: {{ item.quantity }}
+    </div>
+
+    <button class="close-btn" (click)="closeModal()">Close</button>
+
+  </div>
+</div>
+
+<!-- </div> -->

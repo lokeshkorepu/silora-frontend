@@ -12,47 +12,127 @@
 
     <!-- LEFT: CATEGORIES -->
    <aside class="category-rail">
-        <div
-          class="rail-item"
-           *ngFor="let category of categories; let i = index"
-           [class.active]="selectedCategory?.name === category.name"
-           (click)="scrollToCategory(category)"
-        >
+
+  @for (category of categories; track category.id) {
+    <div
+      class="rail-item"
+      [class.active]="selectedCategory?.id === category.id"
+      (click)="selectedCategory = category"
+    >
+
+      <div class="rail-image-box">
         <img
-            src="assets/products/no-image.png"
-            class="rail-icon"
-          />
-       <span>{{ category.name }}</span>
-        </div>
-      </aside>
+          [src]="category.imageUrl || 'assets/products/no-image.png'"
+          alt="{{ category.name }}"
+        />
+      </div>
+
+      <div class="rail-label">
+        {{ category.name }}
+      </div>
+
+    </div>
+  }
+
+</aside>
+
 
    <section class="products-grid" #productsGrid>
-  <div
-    class="product-card"
-    *ngFor="let product of selectedCategory?.items"
-  >
-    <img
-      [src]="product.imageUrl || 'assets/products/no-image.png'"
-      (error)="onImageError($event)"
-    />
 
-    <div class="delivery">⏱ 8 MINS</div>
+  @for (product of filteredProducts; track product.id) {
+    <div class="product-card">
 
-    <div class="name">{{ product.name }}</div>
-    <div class="qty">{{ product.quantity }}</div>
+      <div class="image-wrapper">
 
-    <div class="footer">
-      <span class="price">₹{{ product.price }}</span>
-      <button class="add-btn">ADD</button>
+  <!-- Triangle Discount Badge -->
+<div *ngIf="product.discountPercentage && product.discountPercentage > 0"
+     class="discount-mini-badge">
+  {{ product.discountPercentage }}% <br />
+  OFF
+</div>
+
+  <img
+    [src]="product.imageUrl || 'assets/products/no-image.png'"
+    (error)="onImageError($event)"
+  />
+</div>
+
+      <div class="delivery">⏱ 8 MINS</div>
+
+      <div class="name">{{ product.name }}</div>
+      <div class="qty">{{ product.quantity }}</div>
+
+      <div class="footer">
+<div class="price-box">
+
+  <ng-container *ngIf="product.discountPercentage && product.discountPercentage > 0; else normalPrice">
+
+    <!-- Selling Price -->
+    <div class="new-price">
+      ₹{{ product.price }}
     </div>
-  </div>
+
+    <!-- MRP -->
+    <div class="mrp">
+     ₹{{ product.originalPrice }}
+    </div>
+
+    <!-- You Save
+    <div class="save-text">
+      You Save ₹{{ product.originalPrice! - product.price }}
+    </div> -->
+
+  </ng-container>
+
+  <ng-template #normalPrice>
+    <div class="new-price">
+      ₹{{ product.price }}
+    </div>
+  </ng-template>
+
+</div>
+
+
+        <!-- IF COUNT IS 0 SHOW ADD -->
+        <ng-container *ngIf="getCount(product) === 0; else counter">
+          <button
+            class="add-btn"
+            (click)="addProduct(product)">
+            ADD
+          </button>
+        </ng-container>
+
+        <!-- ELSE SHOW +/- COUNTER -->
+        <ng-template #counter>
+          <div class="qty-box">
+            <button class="qty-btn"
+                    (click)="decrease(product)">
+              −
+            </button>
+
+            <span class="qty-count">
+              {{ getCount(product) }}
+            </span>
+
+            <button class="qty-btn"
+                    (click)="increase(product)">
+              +
+            </button>
+          </div>
+        </ng-template>
+
+      </div>
+
+    </div>
+  }
+
 </section>
-        
 
         </div>
       </div>
     
 
   </div>
+<app-cart-bar></app-cart-bar>
 
 

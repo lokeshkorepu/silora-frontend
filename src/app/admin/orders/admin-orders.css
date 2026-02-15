@@ -1,8 +1,90 @@
+.orders-container {
+  padding: 20px;
+}
+
+.orders-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.orders-header h2 {
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.search-input {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  width: 200px;
+}
+
+.filter-select {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.table-card {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.05);
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
 }
-th, td {
-  padding: 8px;
+
+th {
+  text-align: left;
+  padding: 12px;
+  background: #f8fafc;
+  font-weight: 600;
+}
+
+td {
+  padding: 12px;
   border-bottom: 1px solid #eee;
+}
+
+tr:hover {
+  background: #f9fafb;
+}
+
+.status-badge {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  color: white;
+}
+
+.status-badge.delivered {
+  background: #10b981;
+}
+
+.status-badge.pending {
+  background: #f59e0b;
+}
+
+.status-badge.returned {
+  background: #ef4444;
+}
+
+.status-badge.cancelled {
+  background: #6b7280;  /* grey */
+  color: white;
+}
+
+
+.status-select {
+  padding: 6px;
+  border-radius: 6px;
 }

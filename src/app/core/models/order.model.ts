@@ -12,6 +12,6 @@ export interface Order {
   id: string;
   date: string;
   total: number;
-  status: 'Delivered' | 'Cancelled' | 'Returned';
+  status: 'Delivered' | 'Cancelled' | 'Returned'| 'Pending';
   items: OrderItem[];
 }

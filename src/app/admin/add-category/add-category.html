@@ -1,0 +1,52 @@
+<h2>Add Category</h2>
+
+<input type="text" [(ngModel)]="name" placeholder="Category Name" />
+
+<input type="file" (change)="onFileSelected($event)" />
+
+<button (click)="save()">
+  {{ isEditMode ? 'Update Category' : 'Save Category' }}
+</button>
+
+<hr />
+
+<h3>Existing Categories</h3>
+
+@if (categories$ | async; as categories) {
+
+  <table border="1" cellpadding="8">
+    <tr>
+      <th>Image</th>
+      <th>Name</th>
+      <th>Actions</th> <!-- ✅ Added -->
+    </tr>
+
+    @for (category of categories; track category.id) {
+      <tr>
+        <td>
+          <img [src]="category.imageUrl" width="40" />
+        </td>
+
+        <td>{{ category.name }}</td>
+
+        <!-- ✅ NEW ACTION COLUMN -->
+        <td>
+          <!-- Edit -->
+          <button 
+            type="button"
+            (click)="editCategory(category)" 
+            style="margin-right:8px;">
+            ✏️
+          </button>
+
+          <!-- Delete -->
+          <button (click)="deleteCategory(category)" style="color:red;">
+            🗑️
+          </button>
+        </td>
+      </tr>
+    }
+
+  </table>
+
+}

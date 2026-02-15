@@ -1,0 +1,62 @@
+<div class="table-card">
+  <div class="products-wrapper">
+
+  <table class="products-table">
+
+    <thead>
+      <tr>
+        <!-- <th class="col-image">Image</th> -->
+        <th class="col-name">Name</th>
+        <th class="col-price">Price</th>
+        <th class="col-category">Category</th>
+        <th class="col-quantity">Quantity</th>
+        <th class="col-action">Action</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let product of products">
+
+        <!-- <td class="col-image">
+          <div class="img-wrapper">
+            <img
+              [src]="product.imageUrl || 'assets/products/no-image.png'"
+              (error)="product.imageUrl = 'assets/products/no-image.png'"
+            />
+          </div>
+        </td> -->
+
+        <td class="col-name">{{ product.name }}</td>
+
+        <td class="col-price">₹{{ product.price }}</td>
+
+        <td class="col-category">{{ product.category }}</td>
+
+        <td class="col-quantity">{{ product.quantity }}</td>
+
+       <td class="col-action">
+  <div class="action-icons">
+
+    <!-- Edit Icon -->
+    <button class="icon-btn edit-icon"
+            (click)="editProduct(product)">
+      <mat-icon>edit</mat-icon>
+    </button>
+
+    <!-- Delete Icon -->
+    <button class="icon-btn delete-icon"
+            (click)="deleteProduct(product.id!)">
+      <mat-icon>delete</mat-icon>
+    </button>
+
+  </div>
+</td>
+
+
+      </tr>
+    </tbody>
+
+  </table>
+  </div>
+
+</div>

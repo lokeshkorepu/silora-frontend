@@ -7,12 +7,21 @@ import { RouterLink } from '@angular/router';
 @Component({
   selector: 'app-cart-bar',
   standalone: true,
-  imports: [CommonModule, RouterModule, RouterLink],
+  imports: [CommonModule, RouterModule],
   templateUrl: './cart-bar.html',
   styleUrl: './cart-bar.css',
 })
 export class CartBar {
 
-  constructor(public cartService: CartService) { }
+  isCartOpen = false;
 
+  constructor(public cartService: CartService) { 
+    this.cartService.cartOpen$.subscribe(value => {
+      this.isCartOpen = value;
+    });
+  }
+
+  openCart() {
+  this.cartService.openCart();
+}
 }

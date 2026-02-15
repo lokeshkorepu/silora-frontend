@@ -1,62 +1,107 @@
-<div class="cart-container">
+<!-- OVERLAY -->
+<div class="cart-overlay" (click)="goBack()"></div>
 
-  <!-- TOP ACTION BAR -->
-  <div class="cart-top-bar" *ngIf="cartItems.length > 0">
-    <button class="clear-btn" (click)="clearCart()">
-      ✕ Clear cart
-    </button>
+<!-- RIGHT DRAWER -->
+<div class="cart-drawer">
+
+  <!-- HEADER -->
+  <div class="cart-header">
+    <h2>My Cart</h2>
+    <button class="close-btn" (click)="goBack()">✕</button>
   </div>
 
-  <h2 class="cart-title">Your Cart</h2>
+  <!-- SCROLLABLE CONTENT -->
+  <div class="cart-content">
 
-  <!-- EMPTY CART -->
-  <div *ngIf="cartItems.length === 0" class="empty-cart">
-    🛒 Your cart is empty <br />
-    <button class="back-btn big" routerLink="/home">
-      Browse products
-    </button>
-  </div>
-
-  <!-- CART ITEMS -->
-  <div *ngFor="let item of cartItems" class="cart-item">
-
-<img
-  [src]="item.imageUrl"
-  class="cart-image"
-  (error)="onImageError($event)"
-/>
-
-    <div class="cart-info">
-      <div class="cart-name">{{ item.name }}</div>
-      <div class="cart-qty">{{ item.quantity }}</div>
-      <div class="cart-price">₹{{ item.price }}</div>
+    <!-- SAVINGS BAR -->
+    <div class="savings-bar">
+      <span>Your total savings</span>
+      <strong>₹{{ totalSavings }}</strong>
     </div>
 
-    <div class="cart-actions">
-      <button (click)="decrease(item)">−</button>
-      <span>{{ item.count }}</span>
-      <button (click)="increase(item)">+</button>
+    <!-- DELIVERY CARD -->
+    <div class="delivery-card">
+
+      <div class="delivery-info">
+        <div class="icon">⏱</div>
+        <div>
+          <div class="delivery-title">Delivery in 8 minutes</div>
+          <div class="delivery-sub">
+            Shipment of {{ cartItems.length }} item
+          </div>
+        </div>
+      </div>
+
+      <div *ngFor="let item of cartItems" class="product-row">
+
+        <img
+          [src]="item.imageUrl || 'assets/products/no-image.png'"
+          (error)="onImageError($event)"
+        />
+
+        <div class="product-info">
+          <div class="name">{{ item.name }}</div>
+          <div class="weight">{{ item.quantity }}</div>
+          <div class="price">₹{{ item.price }}</div>
+        </div>
+
+        <div class="qty-box">
+          <button (click)="decrease(item)">−</button>
+          <span>{{ item.count }}</span>
+          <button (click)="increase(item)">+</button>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- BILL DETAILS -->
+    <div class="bill-card">
+
+      <h4>Bill details</h4>
+
+      <div class="bill-row">
+        <span>Items total</span>
+        <span>₹{{ totalAmount }}</span>
+      </div>
+
+      <div class="bill-row">
+        <span>Delivery charge</span>
+        <span class="free">FREE</span>
+      </div>
+
+      <div class="bill-row">
+        <span>Handling charge</span>
+        <span>₹2</span>
+      </div>
+
+      <div class="bill-row total">
+        <span>Grand total</span>
+        <strong>₹{{ totalAmount + 2 }}</strong>
+      </div>
+
+    </div>
+
+    <!-- POLICY -->
+    <div class="policy-card">
+      <h4>Cancellation Policy</h4>
+      <p>
+        Orders cannot be cancelled once packed for delivery.
+        In case of unexpected delays, a refund will be provided, if applicable.
+      </p>
     </div>
   </div>
 
-  <!-- STICKY CHECKOUT BAR -->
-  <div *ngIf="cartItems.length > 0" class="checkout-bar">
-    <div class="total-info">
-      <span>Total</span>
-      <strong>₹{{ totalAmount }}</strong>
+  <!-- FIXED BOTTOM BAR -->
+  <div class="bottom-bar">
+    <div>
+      <div class="total-price">₹{{ totalAmount + 2 }}</div>
+      <div class="total-label">TOTAL</div>
     </div>
 
-    <button class="checkout-btn" routerLink="/checkout">
-      Proceed to Checkout →
-    </button>
+    <button class="proceed-btn" (click)="handleProceed()">
+  Login to Proceed →
+</button>
+
   </div>
-
-  <!-- ADD MORE ITEMS CTA -->
-  <div *ngIf="cartItems.length > 0" class="cart-cta">
-    <button class="add-more-btn" routerLink="/home">
-      + Add more items
-    </button>
-  </div>
-
-
 </div>

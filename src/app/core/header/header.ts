@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { RouterLink } from '@angular/router';
@@ -28,7 +28,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   userLocation: string = 'Detecting location...';
   showPopup = false;
   showLocationPopup = false;
-  showLoginPopup = false;
+  // showLoginPopup = false;
 
   /* =====================
      SEARCH
@@ -61,6 +61,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   constructor(
     private cartService: CartService,
+    private router: Router,
     public authService: AuthService   // 👈 public for template
   ) {}
 
@@ -105,9 +106,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.showPopup = !this.showPopup;
   }
 
-  toggleLogin() {
-    this.showLoginPopup = !this.showLoginPopup;
-  }
+  // toggleLogin() {
+  //   this.showLoginPopup = !this.showLoginPopup;
+  // }
 
   toggleLocationPopup() {
     this.showLocationPopup = !this.showLocationPopup;
@@ -169,20 +170,35 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     setTimeout(() => this.startTyping(), this.isDeleting ? 60 : 90);
   }
+/* =====================
+   LOGIN / LOGOUT
+===================== */
+// login(): void {
+//   this.authService.login({
+//     email: 'admin@silora.com',
+//     password: '123456'
+//   }).subscribe(() => {
 
-  /* =====================
-     LOGIN / LOGOUT
-  ===================== */
-  login(): void {
-    this.authService.login({
-      email: 'admin@silora.com',   // 👈 admin email for now
-      password: '123456'
-    }).subscribe(() => {
-      this.showLoginPopup = false;
-    });
-  }
+//     this.showLoginPopup = false;
 
-  logout(): void {
-    this.authService.logout();
-  }
+//     // 👇 Redirect admin to admin panel
+//     if (this.authService.isAdmin()) {
+//       this.router.navigate(['/admin']);
+//     }
+
+//   });
+// }
+// login(): void {
+//   this.router.navigate(['/login']);
+// }
+
+
+logout(): void {
+  this.authService.logout();
+  this.router.navigate(['/']); // optional but recommended
+}
+openCart() {
+  this.cartService.openCart();
+}
+
 }

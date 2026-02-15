@@ -1,75 +1,177 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { ProductService } from '../../core/services/product.service';
+import { Router, ActivatedRoute } from '@angular/router';
+import { CategoryService } from '../../core/services/category.service';
 
 @Component({
   selector: 'app-add-product',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './add-product.html',
   styleUrls: ['./add-product.css']
 })
 export class AddProductComponent {
 
-  name = '';
-  price: number | null = null;
-  category = '';
-  quantity = '';
+  product = {
+    name: '',
+    price: null as number | null,
+    category: '',
+    quantity: null as number | null,
+    discount: null as number | null
+  };
+
   selectedFile: File | null = null;
-  previewUrl = 'assets/products/no-image.png';
+  previewImage: string = 'assets/products/no-image.png';
+  isSaving = false;
+  productForm!: FormGroup;
+  isEditMode = false;
+  categories$ : any;
 
-  constructor(private productService: ProductService) {}
+  
+  
+  constructor(
+    private productService: ProductService,
+    private router: Router,
+    private fb: FormBuilder,
+    private route: ActivatedRoute,
+    private categoryService: CategoryService
+  ) {}
 
-  onFileSelected(event: any) {
-    const file: File = event.target.files[0];
+  ngOnInit() {
+
+    // 🔥 Firestore Categories
+       this.categories$ = this.categoryService.getCategories();
+
+    this.productForm = this.fb.group({
+      name: [''],
+      price: [''],
+      category: [''],
+      quantity: [''],
+      discount: ['']
+    });
+
+    const id = this.route.snapshot.paramMap.get('id');
+
+    if (id) {
+      this.isEditMode = true;
+
+      this.productService.getProductById(id).subscribe((product: any) => {
+        if (product) {
+          this.productForm.patchValue(product);
+          this.previewImage = product.imageUrl;
+        }
+      });
+    }
+  }
+
+  /* =========================
+     FILE SELECT
+  ========================== */
+  onFileSelected(event: any): void {
+
+    const file: File = event.target.files?.[0];
     if (!file) return;
 
-     if (!file.type.startsWith('image/')) {
-    alert('Please select an image file');
-    return;
-  }
+    if (!file.type.startsWith('image/')) {
+      alert('Please select a valid image file');
+      return;
+    }
+
     this.selectedFile = file;
-    this.previewUrl = URL.createObjectURL(file); // 👈 preview
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.previewImage = reader.result as string;
+    };
+    reader.readAsDataURL(file);
   }
 
-  async saveProduct() {
-    if (!this.name || !this.price || !this.category || !this.quantity) {
-      alert('Fill all fields');
+  /* =========================
+     SAVE PRODUCT
+  ========================== */
+  async saveProduct(): Promise<void> {
+
+    if (this.productForm.invalid) {
+      alert('Please fill all fields');
       return;
     }
 
-    if (!this.selectedFile) {
-      alert('Select image');
-      return;
-    }
+    const formValue = this.productForm.value;
+    const id = this.route.snapshot.paramMap.get('id');
+
+    const originalPrice = Number(formValue.price);
+    const discountPercentage = Number(formValue.discount) || 0;
+
+    // ✅ Calculate final price
+    const finalPrice = discountPercentage > 0
+      ? Math.round(originalPrice - (originalPrice * discountPercentage / 100))
+      : originalPrice;
+
+    const productData = {
+      name: formValue.name,
+      price: finalPrice,              // ✅ selling price
+      originalPrice: originalPrice,   // ✅ MRP
+      discountPercentage: discountPercentage,
+      quantity: formValue.quantity,
+      category: formValue.category,
+      createdAt: new Date()
+    };
 
     try {
-      const imageUrl = await this.productService.uploadImage(this.selectedFile);
+      this.isSaving = true;
 
-      await this.productService.addProduct({
-        name: this.name,
-        price: Number(this.price),
-        category: this.category,
-        quantity: this.quantity,
-        imageUrl
-      });
+      if (this.isEditMode && id) {
 
-      alert('Product added');
-      this.resetForm();
+        // 🔥 UPDATE (image optional)
+        await this.productService.updateProduct(id, productData);
+        alert('Product updated successfully ✅');
 
-    } catch (e) {
-      console.error(e);
-      alert('Upload failed');
+      } else {
+
+        if (!this.selectedFile) {
+          alert('Please select product image');
+          this.isSaving = false;
+          return;
+        }
+
+        // 🔥 NEW ADD (pass file directly)
+        await this.productService.addProduct(          
+            productData,
+            this.selectedFile
+            // createdAt: new Date()          
+          // this.selectedFile
+        );
+
+        alert('Product added successfully ✅');
+      }
+
+      this.router.navigate(['/admin/products']);
+
+    } catch (error) {
+      console.error(error);
+      alert('Operation failed ❌');
+    } finally {
+      this.isSaving = false;
     }
   }
 
-  resetForm() {
-    this.name = '';
-    this.price = null;
-    this.category = '';
-    this.quantity = '';
+  /* =========================
+     RESET FORM
+  ========================== */
+  resetForm(): void {
+
+    this.product = {
+      name: '',
+      price: null,
+      category: '',
+      quantity: null,
+      discount: null
+    };
+
+    this.productForm.reset();
     this.selectedFile = null;
-    this.previewUrl = 'assets/products/no-image.png';
+    this.previewImage = 'assets/products/no-image.png';
   }
 }

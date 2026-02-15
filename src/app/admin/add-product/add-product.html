@@ -1,12 +1,74 @@
-<h2>Add Product</h2>
+<div class="add-product-container">
 
-<img [src]="previewUrl" class="preview" />
+  <h2 class="page-title">Add New Product</h2>
 
-<input type="file" (change)="onFileSelected($event)" />
+  <div class="form-card">
 
-<input type="text" placeholder="Name" [(ngModel)]="name" />
-<input type="number" placeholder="Price" [(ngModel)]="price" />
-<input type="text" placeholder="Category" [(ngModel)]="category" />
-<input type="text" placeholder="Quantity" [(ngModel)]="quantity" />
+    <!-- Left: Image Section -->
+    <div class="image-section">
+      <img
+        [src]="previewImage || 'assets/products/no-image.png'"
+        alt="Preview"
+        class="preview-image"
+      />
 
-<button (click)="saveProduct()">Save Product</button>
+      <input
+        type="file"
+        (change)="onFileSelected($event)"
+        class="file-input"
+      />
+    </div>
+
+    <!-- Right: Product Form -->
+    <div class="form-section" [formGroup]="productForm">
+
+  <input
+    type="text"
+    placeholder="Product Name"
+    formControlName="name"
+    class="form-input"
+  />
+
+  <input
+    type="number"
+    placeholder="Price"
+    formControlName="price"
+    class="form-input"
+  />
+
+  <input
+    type="number"
+    placeholder="Discount"
+    formControlName="discount"
+    class="form-input"
+  />
+
+  <input
+    type="text"
+    placeholder="Quantity"
+    formControlName="quantity"
+    class="form-input"
+  />
+
+  <select formControlName="category">
+  <option value="">Select Category</option>
+  <option *ngFor="let cat of categories$ | async" [value]="cat.name">
+    {{ cat.name }}
+  </option>
+</select>
+
+</div>
+</div>
+
+  <div class="save-container">
+    <button
+  mat-raised-button
+  color="primary"
+  (click)="saveProduct()">
+  {{ isEditMode ? 'Update Product' : 'Add Product' }}
+</button>
+
+
+  </div>
+
+</div>

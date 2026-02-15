@@ -18,7 +18,7 @@
         </div>
       </div>
 
-      <!-- LOCATION POPUP (DROPDOWN) -->
+      <!-- LOCATION POPUP -->
       <div class="location-dropdown" *ngIf="showPopup">
 
         <div class="dropdown-header">
@@ -58,81 +58,49 @@
     <span class="search-icon">🔍</span>
   </div>
 
- <!-- RIGHT -->
-<div class="right">
+  <!-- RIGHT -->
+  <div class="right">
 
-  <!-- ADMIN (only real admin) -->
-<button
-  *ngIf="authService.isAdmin()"
-  routerLink="/admin/orders"
-  class="btn">
-  Admin
-</button>
+    <!-- LOGIN (when not logged in) -->
+    <button
+      *ngIf="!authService.isLoggedIn()"
+      routerLink="/login"
+      class="btn">
+      Login
+    </button>
 
-<!-- LOGOUT -->
-<button
-  *ngIf="authService.isLoggedIn()"
-  (click)="logout()"
-  class="btn">
-  Logout
-</button>
+    <!-- CART -->
+      <button class="btn" (click)="openCart()">
+      🛒 Cart
+      <span *ngIf="cartCount > 0" class="cart-badge">
+        {{ cartCount }}
+      </span>
+    </button>
 
-<!-- LOGIN -->
-<button
-  *ngIf="!authService.isLoggedIn()"
-  (click)="toggleLogin()"
-  class="btn">
-  Login
-</button>
+    <!-- ORDERS (only when logged in) -->
+    <button
+      *ngIf="authService.isLoggedIn()"
+      routerLink="/orders"
+      class="btn">
+      Orders
+    </button>
 
-  <!-- CART -->
-  <button class="cart-btn" routerLink="/cart">
-    🛒 Cart
-    <span *ngIf="cartCount > 0" class="cart-badge">
-      {{ cartCount }}
-    </span>
-  </button>
+    <!-- ADMIN (only real admin) -->
+    <button
+      *ngIf="authService.isAdmin()"
+      routerLink="/admin"
+      class="btn">
+      Admin
+    </button>
 
-  <!-- ORDERS -->
-  <button routerLink="/orders" class="orders-btn">
-    Orders
-  </button>
+    <!-- LOGOUT -->
+    <button
+      *ngIf="authService.isLoggedIn()"
+      (click)="logout()"
+      class="btn">
+      Logout
+    </button>
 
-</div>
-
-
-  <!-- LOGIN POPUP -->
-<div class="login-overlay" *ngIf="showLoginPopup">
-  <div class="login-modal">
-    <h3>Login</h3>
-
-    <input
-      type="email"
-      placeholder="Email"
-      value="test@admin.com"
-      disabled
-    />
-
-    <input
-      type="password"
-      placeholder="Password"
-      value="123456"
-      disabled
-    />
-
-    <div class="login-actions">
-      <button class="cancel-btn" (click)="toggleLogin()">
-        Cancel
-      </button>
-
-      <button class="login-submit" (click)="login()">
-        Login
-      </button>
-    </div>
   </div>
-</div>
-
 
 </header>
-
-

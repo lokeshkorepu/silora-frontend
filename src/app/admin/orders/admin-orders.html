@@ -1,33 +1,76 @@
-<h2>Admin – Orders</h2>
+<div class="orders-container">
 
-<div *ngIf="loading">Loading…</div>
+  <div class="orders-header">
+    <h2>Orders Management</h2>
 
-<table *ngIf="!loading">
-  <thead>
-    <tr>
-      <th>Date</th>
-      <th>Order ID</th>
-      <th>Total</th>
-      <th>Status</th>
-      <th>Action</th>
-    </tr>
-  </thead>
+    <div class="actions">
+      <input
+        type="text"
+        placeholder="Search Order ID..."
+        class="search-input"
+        [(ngModel)]="searchTerm"
+      />
 
-  <tbody>
-    <tr *ngFor="let order of orders">
-      <td>{{ order.date | date:'short' }}</td>
-      <td>{{ order.id }}</td>
-      <td>₹{{ order.total }}</td>
-      <td>{{ order.status }}</td>
-      <td>
-        <select
-          [value]="order.status"
-          (change)="updateStatus(order, $any($event.target).value)">
-          <option>Delivered</option>
-          <option>Cancelled</option>
-          <option>Returned</option>
-        </select>
-      </td>
-    </tr>
-  </tbody>
-</table>
+      <select
+        class="filter-select"
+        [(ngModel)]="selectedStatus">
+
+        <option value="All">All</option>
+        <option value="Delivered">Delivered</option>
+        <option value="Returned">Returned</option>
+        <option value="Pending">Pending</option>
+        <option value="Cancelled">Cancelled</option>
+
+      </select>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Order ID</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let order of filteredOrders">
+          <td>{{ order.date | date:'medium' }}</td>
+          <td>{{ order.id }}</td>
+          <td>₹{{ order.total }}</td>
+
+          <td>
+            <span class="status-badge"
+              [ngClass]="{
+                'delivered': order.status === 'Delivered',
+                'returned': order.status === 'Returned',
+                'pending': order.status === 'Pending',
+                'cancelled': order.status === 'Cancelled'
+              }">
+              {{ order.status }}
+            </span>
+          </td>
+
+          <td>
+            <select
+              [(ngModel)]="order.status"
+              (change)="updateStatus(order)"
+              class="status-select">
+
+              <option>Delivered</option>
+              <option>Returned</option>
+              <option>Pending</option>
+              <option>Cancelled</option>
+
+            </select>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>

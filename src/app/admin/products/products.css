@@ -1,0 +1,136 @@
+.table-card {
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.products-wrapper {
+  max-height: 400px;   /* adjust height as you like */
+  overflow-y: auto;
+  border-radius: 8px;
+}
+
+/* Optional: smooth scrollbar */
+.products-wrapper::-webkit-scrollbar {
+  width: 6px;
+}
+
+.products-wrapper::-webkit-scrollbar-thumb {
+  background: #bbb;
+  border-radius: 4px;
+}
+
+
+.products-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;   /* 🔥 ADD THIS */
+}
+
+/* Header */
+.products-table thead th {
+  text-align: left;
+  padding: 15px 10px;
+  font-weight: 600;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+/* Body */
+.products-table tbody td {
+  padding: 18px 10px;
+  border-bottom: 1px solid #f1f1f1;
+  vertical-align: middle;
+}
+
+.products-table thead .col-action {
+  text-align: center;
+}
+
+/* Column widths */
+
+/* .col-image {
+  width: 100px;
+} */
+
+.col-name {
+  width: 200px;
+}
+
+.col-category {
+  width: 160px;
+}
+
+.col-price {
+  width: 120px;
+}
+
+.col-quantity {
+  width: 120px;
+}
+
+.col-action {
+  width: 130px;
+  text-align: center;
+}
+
+/* Image styling */
+
+/* .img-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.img-wrapper img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+} */
+
+/* Hover effect */
+.products-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.action-icons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.icon-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  transition: 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-btn mat-icon {
+  font-size: 20px;
+}
+
+/* Edit Icon */
+.edit-icon {
+  color: #2563eb;
+}
+
+.edit-icon:hover {
+  background: #e0e7ff;
+}
+
+/* Delete Icon */
+.delete-icon {
+  color: #ef4444;
+}
+
+.delete-icon:hover {
+  background: #fee2e2;
+}
+
