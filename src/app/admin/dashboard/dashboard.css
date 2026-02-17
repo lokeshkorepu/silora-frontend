@@ -205,3 +205,74 @@
   0% { background-position: 100% 0 }
   100% { background-position: -100% 0 }
 }
+
+/* ===== HEADER ===== */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.action-btn {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  background: #3b82f6;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+  transition: 0.2s ease;
+}
+
+.action-btn:hover {
+  opacity: 0.9;
+}
+
+.dark-toggle {
+  background: #111827;
+}
+
+/* ===== DARK MODE ===== */
+.dark-mode {
+  background: #0f172a;
+  color: #f1f5f9;
+}
+
+.dark-mode .chart-card,
+.dark-mode .recent-orders-card {
+  background: #1e293b;
+  color: white;
+}
+
+.dark-mode .recent-table thead {
+  background: #334155;
+}
+
+.dark-mode .recent-table th {
+  color: #cbd5e1;
+}
+
+/* ===== TOAST STYLE ===== */
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #10b981;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  animation: slideIn 0.3s ease-out;
+  z-index: 1000;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}

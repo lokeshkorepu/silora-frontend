@@ -1,10 +1,14 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Product } from '../models/product.model';
 import { Order } from '../models/order.model';
 import { OrderDTO } from '../dto/order.dto';
 import { ApiService } from './api.service';
 import { Observable, from, map, of } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
+import { serverTimestamp } from '@angular/fire/firestore';
+import { runInInjectionContext, EnvironmentInjector } from '@angular/core';
+
+
 import {
   Firestore,
   collection,
@@ -22,11 +26,12 @@ import {
 })
 export class OrderService {
 
-  constructor(
-    private api: ApiService,
-    private firestore: Firestore,
-    private authService: AuthService
-  ) {}
+  // ✅ Angular 20 recommended injection pattern
+  private firestore = inject(Firestore);
+  private api = inject(ApiService);
+  private authService = inject(AuthService);
+  private injector = inject(EnvironmentInjector);
+
 
   /* =========================
      USER ORDERS (Firestore)
@@ -47,7 +52,9 @@ export class OrderService {
       orderBy('createdAt', 'desc')
     );
 
-    return collectionData(q, { idField: 'docId' });
+      return runInInjectionContext(this.injector, () =>
+             collectionData(q, { idField: 'docId' })
+);
   }
 
   /* =========================
@@ -62,7 +69,10 @@ export class OrderService {
       orderBy('createdAt', 'desc')
     );
 
-    return collectionData(q, { idField: 'docId' });
+    return runInInjectionContext(this.injector, () =>
+           collectionData(q, { idField: 'docId' })
+);
+
   }
 
   /* =========================
@@ -93,7 +103,7 @@ export class OrderService {
           ...newOrderDTO,
           userId: user?.uid || null,
           userEmail: user?.email || null,
-          createdAt: new Date()
+          createdAt: serverTimestamp()
         }
       )
     );

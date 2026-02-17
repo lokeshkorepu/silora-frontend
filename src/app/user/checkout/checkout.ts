@@ -45,17 +45,20 @@ export class CheckoutComponent implements OnInit {
     this.orderService.saveOrder(
     this.cartItems,
     this.totalAmount
-  );
+  ).subscribe({
 
-    // ✅ 2. CLEAR CART
-    this.cartService.clearCart();
+    next: () => {
 
-    // ✅ 3. RESET PRODUCT COUNTS (fix Add/+/- issue)
-    PRODUCTS.forEach(product => {
-      product.count = 0;
-    });
+      this.cartService.clearCart();
 
-    // ✅ 4. GO TO SUCCESS PAGE
+      PRODUCTS.forEach(product => {
+        product.count = 0;
+      });
     this.router.navigate(['/success']);
-  }
+  },
+   error: () => {
+      alert('Order failed ❌ Please try again');
+    }
+  });
+}
 }

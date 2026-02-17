@@ -8,7 +8,7 @@ import { routes } from './app/app.routes';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideStorage, getStorage } from '@angular/fire/storage';
-
+import { provideZoneChangeDetection } from '@angular/core';
 
 // ✅ GLOBAL ERROR SAFETY (prevents white screen)
 window.addEventListener('error', (event) => {
@@ -21,6 +21,7 @@ window.addEventListener('unhandledrejection', (event) => {
 
 bootstrapApplication(AppComponent, {
   providers: [
+    provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideAnimations(),
     provideFirebaseApp(() => initializeApp(environment.firebase)),

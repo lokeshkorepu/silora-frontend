@@ -2,13 +2,58 @@
 
   <!-- Header -->
   <header class="admin-header">
-    <div class="admin-title">Admin Dashboard</div>
+
+    <div class="admin-title-wrapper">
+      <div class="admin-title">Admin Dashboard</div>
+
+      <!-- 🔔 Bell Beside Title -->
+      <div class="notification-wrapper" (click)="toggleDropdown()">
+        🔔
+        <span class="badge"
+              *ngIf="(notificationService.count$ | async) as count"
+              [class.show]="count > 0">
+          {{ count }}
+        </span>
+      </div>
+    </div>
 
     <div class="admin-actions">
       <span>Welcome, Admin</span>
       <button class="logout-btn" (click)="logout()">Logout</button>
     </div>
+
   </header>
+
+  <!-- 🔽 Dropdown -->
+  <div class="dropdown"
+       *ngIf="isDropdownOpen">
+
+   <div *ngFor="let n of (notifications$ | async)"
+     class="notification-item"
+     [class.unread]="isUnread(n)">
+
+  <div class="text">{{ n.message }}</div>
+
+  <button (click)="viewOrder(n)">View</button>
+</div>
+
+<span class="badge"
+      *ngIf="(notifications$ | async) as list"
+      [class.show]="getUnreadCount(list)">
+  {{ getUnreadCount(list) }}
+</span>
+
+    <div *ngIf="!(notificationService.notifications$ | async)?.length"
+         class="empty">
+      No notifications
+    </div>
+  </div>
+
+  <!-- 🔔 Toast -->
+  <div class="toast"
+       *ngIf="(notificationService.toast$ | async) as message">
+    {{ message }}
+  </div>
 
   <!-- Body -->
   <div class="admin-body">
@@ -16,32 +61,27 @@
     <!-- Sidebar -->
     <aside class="admin-sidebar">
 
-  <a routerLink="/admin/dashboard"
-     routerLinkActive="active-link">
-     Dashboard
-  </a>
+      <a routerLink="/admin/dashboard" routerLinkActive="active-link">
+        Dashboard
+      </a>
 
-  <a routerLink="/admin/products"
-     routerLinkActive="active-link">
-     Products
-  </a>
+      <a routerLink="/admin/products" routerLinkActive="active-link">
+        Products
+      </a>
 
-  <a routerLink="/admin/add-product"
-     routerLinkActive="active-link">
-     Add Product
-  </a>
+      <a routerLink="/admin/add-product" routerLinkActive="active-link">
+        Add Product
+      </a>
 
-  <a routerLink="/admin/add-category"
-     routerLinkActive="active-link">
-     Add Category
-  </a>
+      <a routerLink="/admin/add-category" routerLinkActive="active-link">
+        Add Category
+      </a>
 
-  <a routerLink="/admin/orders"
-     routerLinkActive="active-link">
-     Orders
-  </a>
+      <a routerLink="/admin/orders" routerLinkActive="active-link">
+        Orders
+      </a>
 
-</aside>
+    </aside>
 
     <!-- Main Content -->
     <main class="admin-content">

@@ -88,3 +88,24 @@ tr:hover {
   padding: 6px;
   border-radius: 6px;
 }
+
+.new-order {
+  background-color: #d1fae5 !important;
+  animation: flashGreen 0.8s ease-in-out 3;
+}
+
+@keyframes flashGreen {
+  0% { background-color: #bbf7d0; }
+  50% { background-color: #d1fae5; }
+  100% { background-color: #bbf7d0; }
+}
+
+.new-badge {
+  background: #16a34a;
+  color: white;
+  font-size: 11px;
+  padding: 3px 6px;
+  border-radius: 6px;
+  margin-left: 8px;
+}
+

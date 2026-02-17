@@ -79,3 +79,58 @@
 .active-link {
   background: #334155;
 }
+
+.admin-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.notification-wrapper {
+  position: relative;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.badge {
+  position: absolute;
+  top: -6px;
+  right: -10px;
+  background: red;
+  color: white;
+  font-size: 12px;
+  padding: 3px 6px;
+  border-radius: 50%;
+  display: none;
+}
+
+.badge.show {
+  display: inline-block;
+}
+
+.dropdown {
+  position: absolute;
+  top: 70px;
+  right: 30px;
+  width: 300px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+  padding: 10px;
+  z-index: 9999;
+}
+
+.notification-item {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.notification-item.unread {
+  background: #f0f9ff;
+}
+
+.notification-item button {
+  margin-top: 5px;
+  font-size: 12px;
+}
+

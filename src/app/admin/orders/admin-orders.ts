@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OrderService } from '../../core/services/order.service';
 import { FormsModule } from '@angular/forms';
+import { NotificationService } from '../../core/services/notification.service';
 
 @Component({
   selector: 'app-admin-orders',
@@ -17,7 +18,9 @@ export class AdminOrdersComponent implements OnInit {
   selectedStatus: string = 'All';
   searchTerm: string = '';
 
-  constructor(private orderService: OrderService) {}
+  constructor(private orderService: OrderService,
+              public notificationService: NotificationService
+  ) {}
 
   ngOnInit(): void {
 

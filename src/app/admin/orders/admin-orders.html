@@ -38,38 +38,51 @@
       </thead>
 
       <tbody>
-        <tr *ngFor="let order of filteredOrders">
-          <td>{{ order.date | date:'medium' }}</td>
-          <td>{{ order.id }}</td>
-          <td>₹{{ order.total }}</td>
+  <tr *ngFor="let order of filteredOrders"
+      [class.new-order]="(notificationService.newOrderIds$ | async)?.has(order.docId)">
 
-          <td>
-            <span class="status-badge"
-              [ngClass]="{
-                'delivered': order.status === 'Delivered',
-                'returned': order.status === 'Returned',
-                'pending': order.status === 'Pending',
-                'cancelled': order.status === 'Cancelled'
-              }">
-              {{ order.status }}
-            </span>
-          </td>
+    <td>{{ order.date | date:'medium' }}</td>
 
-          <td>
-            <select
-              [(ngModel)]="order.status"
-              (change)="updateStatus(order)"
-              class="status-select">
+    <td>
+      {{ order.id }}
 
-              <option>Delivered</option>
-              <option>Returned</option>
-              <option>Pending</option>
-              <option>Cancelled</option>
+      <span *ngIf="(notificationService.newOrderIds$ | async)?.has(order.docId)"
+            class="new-badge">
+        NEW
+      </span>
+    </td>
 
-            </select>
-          </td>
-        </tr>
-      </tbody>
+    <td>₹{{ order.total }}</td>
+
+    <td>
+      <span class="status-badge"
+        [ngClass]="{
+          'delivered': order.status === 'Delivered',
+          'returned': order.status === 'Returned',
+          'pending': order.status === 'Pending',
+          'cancelled': order.status === 'Cancelled'
+        }">
+        {{ order.status }}
+      </span>
+    </td>
+
+    <td>
+      <select
+        [(ngModel)]="order.status"
+        (change)="updateStatus(order)"
+        class="status-select">
+
+        <option>Delivered</option>
+        <option>Returned</option>
+        <option>Pending</option>
+        <option>Cancelled</option>
+
+      </select>
+    </td>
+
+  </tr>
+</tbody>
+
     </table>
   </div>
 
