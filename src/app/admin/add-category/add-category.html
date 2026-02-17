@@ -1,52 +1,136 @@
-<h2>Add Category</h2>
+<div class="add-category-container">
 
-<input type="text" [(ngModel)]="name" placeholder="Category Name" />
+  <h2 class="page-title">
+    {{ isEditMode ? 'Edit Category' : 'Add Category' }}
+  </h2>
 
-<input type="file" (change)="onFileSelected($event)" />
+  <div class="form-card">
 
-<button (click)="save()">
-  {{ isEditMode ? 'Update Category' : 'Save Category' }}
-</button>
+    <!-- LEFT SIDE – IMAGE -->
+    <div class="image-section">
 
-<hr />
+      <div class="image-preview">
+        <img
+          *ngIf="previewImage"
+          [src]="previewImage"
+          class="preview-img"
+        />
 
-<h3>Existing Categories</h3>
+        <span *ngIf="!previewImage" class="placeholder-text">
+          Category Image
+        </span>
+      </div>
 
-@if (categories$ | async; as categories) {
+      <label class="upload-btn">
+        Upload Image
+        <input
+          type="file"
+          (change)="onFileSelected($event)"
+          hidden
+        />
+      </label>
 
-  <table border="1" cellpadding="8">
-    <tr>
-      <th>Image</th>
-      <th>Name</th>
-      <th>Actions</th> <!-- ✅ Added -->
-    </tr>
+    </div>
 
-    @for (category of categories; track category.id) {
-      <tr>
-        <td>
-          <img [src]="category.imageUrl" width="40" />
-        </td>
+    <!-- RIGHT SIDE – FORM -->
+    <div class="form-section">
 
-        <td>{{ category.name }}</td>
+      <div class="form-group">
+        <label>Category Name</label>
+        <input
+          type="text"
+          [(ngModel)]="name"
+          placeholder="Enter category name"
+          class="form-input"
+        />
+      </div>
 
-        <!-- ✅ NEW ACTION COLUMN -->
-        <td>
-          <!-- Edit -->
-          <button 
-            type="button"
-            (click)="editCategory(category)" 
-            style="margin-right:8px;">
-            ✏️
-          </button>
+    </div>
 
-          <!-- Delete -->
-          <button (click)="deleteCategory(category)" style="color:red;">
-            🗑️
-          </button>
-        </td>
-      </tr>
+  </div>
+
+  <!-- BUTTONS (same alignment as Product page) -->
+  <div class="button-container">
+
+    <button class="save-btn" (click)="save()">
+      {{ isEditMode ? 'Update' : 'Save' }}
+    </button>
+
+    <button class="cancel-btn" type="button" (click)="cancel()">
+      Cancel
+    </button>
+
+  </div>
+
+  <!-- EXISTING CATEGORIES -->
+  <div class="table-card">
+
+    <div class="table-header">
+
+  <h3 class="section-title">Existing Categories</h3>
+
+  <input
+    type="text"
+    placeholder="Search categories..."
+    [(ngModel)]="searchText"
+    class="search-input"
+  />
+
+</div>
+
+
+    @if (categories$ | async; as categories) {
+
+      <table class="modern-table">
+
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Name</th>
+            <th style="text-align:center;">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          @for (category of getFilteredCategories(categories); track category.id)
+ {
+            <tr>
+
+              <td>
+                <img
+                  [src]="category.imageUrl"
+                  class="table-img"
+                />
+              </td>
+
+              <td>{{ category.name }}</td>
+
+              <td class="action-cell">
+
+                <button
+                  class="icon-btn edit-btn"
+                  (click)="editCategory(category)">
+                  ✏️
+                </button>
+
+                <button
+                  class="icon-btn delete-btn"
+                  (click)="deleteCategory(category)">
+                  🗑️
+                </button>
+
+              </td>
+
+            </tr>
+          }
+
+        </tbody>
+
+      </table>
+
     }
 
-  </table>
+  </div>
 
-}
+</div>

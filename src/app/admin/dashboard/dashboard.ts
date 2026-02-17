@@ -149,7 +149,15 @@ openModal(order: any) { this.selectedOrder = order; }
 closeModal() { this.selectedOrder = null; } 
 
 /* ========================= DARK MODE ========================== */ 
-toggleDarkMode() { this.isDarkMode = !this.isDarkMode; document.body.classList.toggle('dark-mode'); } 
+toggleDarkMode() {
+  this.isDarkMode = !this.isDarkMode;
+
+  if (this.isDarkMode) {
+    document.body.classList.add('dark-mode');
+  } else {
+    document.body.classList.remove('dark-mode');
+  }
+}
 
 /* ========================= CSV EXPORT ========================== */ 
 exportCSV() { const rows = this.recentOrders.map(o => [ o.id, o.userEmail, o.totalAmount, o.status ]); 

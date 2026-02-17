@@ -23,6 +23,9 @@ import { Observable } from 'rxjs';
 export class AdminLayout implements OnInit {
 
   notifications$!: Observable<AdminNotification[]>;
+  private previousNotificationCount = 0;
+  toastMessage: string | null = null;
+
 
 constructor(private router: Router, 
             public authService: AuthService,
@@ -31,9 +34,34 @@ constructor(private router: Router,
           ) {}
 
 ngOnInit(): void {
-    this.notifications$ =
-      this.adminNotificationService.getNotifications();
-  }         
+
+  this.notifications$ =
+    this.adminNotificationService.getNotifications();
+
+  // 🔔 Toast trigger from Firestore
+  this.notifications$.subscribe(list => {
+
+    const user = this.authService.getCurrentUser();
+    if (!user) return;
+
+    const unread = list.filter(n =>
+      !n.readBy?.includes(user.uid)
+    );
+
+    if (this.previousNotificationCount &&
+        unread.length > this.previousNotificationCount) {
+
+      this.toastMessage = '🎉 New order received!';
+
+      setTimeout(() => {
+        this.toastMessage = null;
+      }, 4000);
+    }
+
+    this.previousNotificationCount = unread.length;
+  });
+}
+      
 
 logout() {
   // Clear auth/session storage first
@@ -69,9 +97,15 @@ onClick(event: any) {
 }
 
 getUnreadCount(list: AdminNotification[]): number {
-    if (!list) return 0;
-    return list.filter(n => !n.readBy?.length).length;
-  }
+
+  const user = this.authService.getCurrentUser();
+  if (!user || !list) return 0;
+
+  return list.filter(n =>
+    !n.readBy?.includes(user.uid)
+  ).length;
+}
+
 
 isUnread(notification: any): boolean {
 
@@ -83,5 +117,16 @@ isUnread(notification: any): boolean {
 
   return !notification.readBy.includes(user.uid);
 }
+
+getUnreadNotifications(list: AdminNotification[] | null): AdminNotification[] {
+
+  const user = this.authService.getCurrentUser();
+  if (!user || !list) return [];
+
+  return list.filter(n =>
+    !n.readBy?.includes(user.uid)
+  );
+}
+
 
 }

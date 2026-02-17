@@ -30,4 +30,26 @@ app-root {
   --header-height: 72px;
 }
 
+.dark-mode {
+  background-color: #121212;
+  color: #ffffff;
+}
+
+.dark-mode .admin-container {
+  background-color: #1e1e1e;
+}
+
+.dark-mode .admin-header {
+  background-color: #0d1b2a;
+}
+
+.dark-mode .card {
+  background-color: #1f1f1f !important;
+  color: white;
+}
+
+.dark-mode .sidebar {
+  background-color: #111827;
+}
+
 

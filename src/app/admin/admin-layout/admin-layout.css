@@ -90,19 +90,22 @@
   position: relative;
   cursor: pointer;
   font-size: 20px;
+  margin-left: 12px;
 }
+
 
 .badge {
   position: absolute;
   top: -6px;
-  right: -10px;
-  background: red;
+  right: -8px;
+
+  background: #ff3b3b;
   color: white;
-  font-size: 12px;
-  padding: 3px 6px;
+  font-size: 11px;
+  padding: 2px 6px;
   border-radius: 50%;
-  display: none;
 }
+
 
 .badge.show {
   display: inline-block;
@@ -110,27 +113,57 @@
 
 .dropdown {
   position: absolute;
-  top: 70px;
-  right: 30px;
-  width: 300px;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.2);
-  padding: 10px;
+  top: 36px;
+  left: 0;
+
+  width: 240px;               /* 🔥 smaller width */
+  max-height: 300px;          /* scroll if too many */
+  overflow-y: auto;
+
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+
+  padding: 6px 0;             /* 🔥 reduced padding */
   z-index: 9999;
 }
 
 .notification-item {
-  padding: 10px;
-  border-bottom: 1px solid #eee;
-}
-
-.notification-item.unread {
-  background: #f0f9ff;
+  padding: 8px 12px;          /* 🔥 smaller */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;            /* 🔥 smaller text */
 }
 
 .notification-item button {
-  margin-top: 5px;
   font-size: 12px;
+  padding: 3px 8px;
 }
+
+.notification-item:hover {
+  background: #f5f7fa;
+}
+
+.notification-item.unread {
+  background: #eef6ff;
+  font-weight: 500;
+}
+
+.notification-item .text {
+  color: #222;          /* 🔥 dark readable text */
+  font-weight: 500;
+  font-size: 13px;
+}
+
+
+.empty {
+  text-align: center;
+  padding: 12px;
+  font-size: 13px;
+  color: #888;
+}
+
+
+
 

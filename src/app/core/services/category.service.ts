@@ -4,6 +4,8 @@ import { Storage, ref, uploadBytes, getDownloadURL } from '@angular/fire/storage
 import { Observable } from 'rxjs';
 import { doc, docData } from '@angular/fire/firestore';
 import { updateDoc } from '@angular/fire/firestore';
+import { deleteObject, getStorage } from 'firebase/storage';
+import { deleteDoc, getFirestore } from 'firebase/firestore';
 
 @Injectable({
   providedIn: 'root'
@@ -64,4 +66,29 @@ export class CategoryService {
 
   await updateDoc(firestoreRef, data);
 }
+
+
+
+async deleteCategory(categoryId: string, imageUrl: string) {
+
+  const storage = getStorage();
+  const firestore = getFirestore();
+
+  try {
+
+    // Delete image from Firebase Storage
+    if (imageUrl) {
+      const imageRef = ref(storage, imageUrl);
+      await deleteObject(imageRef);
+    }
+
+    // Delete Firestore document
+    await deleteDoc(doc(firestore, 'categories', categoryId));
+
+  } catch (error: any) {
+    console.error('Delete failed:', error);
+    throw error;
+  }
+}
+
 }

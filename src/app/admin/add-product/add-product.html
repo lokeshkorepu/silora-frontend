@@ -6,69 +6,97 @@
 
     <!-- Left: Image Section -->
     <div class="image-section">
-      <img
-        [src]="previewImage || 'assets/products/no-image.png'"
-        alt="Preview"
-        class="preview-image"
-      />
+      <div class="image-box">
+        <img
+          [src]="previewImage || 'assets/products/no-image.png'"
+          alt="Preview"
+          class="preview-image"
+        />
+      </div>
 
-      <input
-        type="file"
-        (change)="onFileSelected($event)"
-        class="file-input"
-      />
+      <label class="upload-btn">
+        Upload Image
+        <input
+          type="file"
+          (change)="onFileSelected($event)"
+          hidden
+        />
+      </label>
     </div>
 
     <!-- Right: Product Form -->
     <div class="form-section" [formGroup]="productForm">
 
-  <input
-    type="text"
-    placeholder="Product Name"
-    formControlName="name"
-    class="form-input"
-  />
+      <div class="form-group">
+        <label>Product Name</label>
+        <input
+          type="text"
+          formControlName="name"
+          class="form-input"
+        />
+      </div>
 
-  <input
-    type="number"
-    placeholder="Price"
-    formControlName="price"
-    class="form-input"
-  />
+      <div class="form-row">
+        <div class="form-group">
+          <label>Price</label>
+          <input
+            type="number"
+            formControlName="price"
+            class="form-input"
+          />
+        </div>
 
-  <input
-    type="number"
-    placeholder="Discount"
-    formControlName="discount"
-    class="form-input"
-  />
+        <div class="form-group">
+          <label>Discount (%)</label>
+          <input
+            type="number"
+            formControlName="discount"
+            class="form-input"
+          />
+        </div>
+      </div>
 
-  <input
-    type="text"
-    placeholder="Quantity"
-    formControlName="quantity"
-    class="form-input"
-  />
+      <div class="form-row">
+        <div class="form-group">
+          <label>Quantity</label>
+          <input
+            type="text"
+            formControlName="quantity"
+            class="form-input"
+          />
+        </div>
 
-  <select formControlName="category">
-  <option value="">Select Category</option>
-  <option *ngFor="let cat of categories$ | async" [value]="cat.name">
-    {{ cat.name }}
-  </option>
-</select>
+        <div class="form-group">
+          <label>Category</label>
+          <select formControlName="category" class="form-input">
+            <option value="">Select Category</option>
+            <option *ngFor="let cat of categories$ | async" [value]="cat.name">
+              {{ cat.name }}
+            </option>
+          </select>
+        </div>
+      </div>
 
-</div>
-</div>
+    </div>
+  </div>
 
   <div class="save-container">
-    <button
-  mat-raised-button
-  color="primary"
-  (click)="saveProduct()">
-  {{ isEditMode ? 'Update Product' : 'Add Product' }}
-</button>
 
+  <button
+    mat-raised-button
+    class="save-btn"
+    (click)="saveProduct()">
+    Save
+  </button>
 
-  </div>
+  <button
+    mat-raised-button
+    class="cancel-btn"
+    type="button">
+    Cancel
+  </button>
+
+</div>
+
 
 </div>

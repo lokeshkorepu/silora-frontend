@@ -7,11 +7,20 @@ import {
   deleteDoc,
   updateDoc,
   addDoc,
-  docData
+  docData,
+  query,
+  where
 } from '@angular/fire/firestore';
 import { Storage, ref, uploadBytes, getDownloadURL } from '@angular/fire/storage';
 import { Observable } from 'rxjs';
 import { Product } from '../models/product.model';
+import { 
+  orderBy,
+  startAt,
+  endAt,
+  limit
+} from '@angular/fire/firestore';
+
 
 @Injectable({
   providedIn: 'root'
@@ -24,11 +33,20 @@ export class ProductService {
   ) {}
 
   /* =========================
-     GET PRODUCTS (REAL-TIME)
+     GET ALL PRODUCTS
   ========================== */
   getProducts(): Observable<Product[]> {
     const productsRef = collection(this.firestore, 'products');
     return collectionData(productsRef, { idField: 'id' }) as Observable<Product[]>;
+  }
+
+  /* =========================
+     GET PRODUCTS BY CATEGORY
+  ========================== */
+  getProductsByCategory(category: string): Observable<Product[]> {
+    const productsRef = collection(this.firestore, 'products');
+    const q = query(productsRef, where('category', '==', category));
+    return collectionData(q, { idField: 'id' }) as Observable<Product[]>;
   }
 
   /* =========================
@@ -45,6 +63,7 @@ export class ProductService {
 
     await addDoc(productsRef, {
       ...product,
+      nameLower: product.name.toLowerCase(),   // 👈 required
       imageUrl,
       createdAt: new Date()
     });
@@ -71,7 +90,50 @@ export class ProductService {
   ========================== */
   async updateProduct(id: string, data: any): Promise<void> {
     const productRef = doc(this.firestore, 'products', id);
-    await updateDoc(productRef, data);
+      await updateDoc(productRef, {
+           ...data,
+           nameLower: data.name?.toLowerCase()
+  });  
+}
+
+  /* =========================
+   SEARCH PRODUCTS BY NAME
+========================== */
+searchProducts(searchTerm: string): Observable<Product[]> {
+
+  const productsRef = collection(this.firestore, 'products');
+
+  const q = query(
+    productsRef,
+    orderBy('name'),
+    startAt(searchTerm),
+    endAt(searchTerm + '\uf8ff')
+  );
+
+  return collectionData(q, { idField: 'id' }) as Observable<Product[]>;
+}
+
+getFilteredProducts(
+  category: string,
+  pageSize: number
+): Observable<Product[]> {
+
+  const productsRef = collection(this.firestore, 'products');
+
+  let constraints: any[] = [];
+
+  if (category) {
+    constraints.push(where('category', '==', category));
   }
+
+  constraints.push(orderBy('createdAt', 'desc'));
+  constraints.push(limit(pageSize));
+
+  const q = query(productsRef, ...constraints);
+
+  return collectionData(q, { idField: 'id' }) as Observable<Product[]>;
+}
+
+
 
 }

@@ -13,7 +13,8 @@ import { ActivatedRoute } from '@angular/router';
   standalone: true,
   selector: 'app-add-category',
   imports: [CommonModule, FormsModule], // ✅ ADD FormsModule HERE
-  templateUrl: './add-category.html'
+  templateUrl: './add-category.html',
+  styleUrls: ['./add-category.css'] 
 })
 
 export class AddCategory {
@@ -23,105 +24,134 @@ export class AddCategory {
   categories$!: Observable<any[]>;
   categoryId: string | null = null;
   isEditMode = false;
-  
+  previewImage: string | null = null;
+  searchText: string = '';
 
-  constructor(private categoryService: CategoryService,
-              private route: ActivatedRoute,
-              private router: Router
+
+  constructor(
+    private categoryService: CategoryService,
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
- ngOnInit() {
+  ngOnInit() {
 
-  // Load category list
-  this.categories$ = this.categoryService.getCategories();
+    // Load categories
+    this.categories$ = this.categoryService.getCategories();
 
-  // Check if edit mode
-  this.categoryId = this.route.snapshot.paramMap.get('id');
+    // Check edit mode
+    this.categoryId = this.route.snapshot.paramMap.get('id');
 
-  if (this.categoryId) {
-    this.isEditMode = true;
+    if (this.categoryId) {
+      this.isEditMode = true;
 
-    this.categoryService.getCategoryById(this.categoryId)
-      .subscribe((category: any) => {
-
-        if (category) {
-          this.name = category.name || '';
-        }
-
-      });
+      this.categoryService.getCategoryById(this.categoryId)
+        .subscribe((category: any) => {
+          if (category) {
+            this.name = category.name || '';
+            this.previewImage = category.imageUrl || null; // ✅ show existing image
+          }
+        });
+    }
   }
-}
 
+  // ✅ IMAGE PREVIEW FIX
   onFileSelected(event: any) {
-    this.selectedFile = event.target.files[0];
+    const file = event.target.files[0];
+    if (!file) return;
+
+    this.selectedFile = file;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.previewImage = reader.result as string;
+    };
+    reader.readAsDataURL(file);
   }
 
   async save() {
 
-  if (!this.name) {
-    alert('Please enter category name');
-    return;
-  }
-
-  try {
-
-    if (this.isEditMode && this.categoryId) {
-
-      // ✅ UPDATE MODE
-      await this.categoryService.updateCategory(
-        this.categoryId,
-        this.name,
-        this.selectedFile
-      );
-
-      alert('Category updated successfully ✅');
-
-    } else {
-
-      // ✅ ADD MODE
-      if (!this.selectedFile) {
-        alert('Please select image');
-        return;
-      }
-
-      await this.categoryService.addCategory(this.name, this.selectedFile);
-
-      alert('Category added successfully ✅');
+    if (!this.name) {
+      alert('Please enter category name');
+      return;
     }
 
-    this.router.navigate(['/admin/add-category']);
+    try {
 
-  } catch (error) {
-    console.error(error);
-    alert('Operation failed ❌');
+      if (this.isEditMode && this.categoryId) {
+
+        await this.categoryService.updateCategory(
+          this.categoryId,
+          this.name,
+          this.selectedFile
+        );
+
+        alert('Category updated successfully ✅');
+
+      } else {
+
+        if (!this.selectedFile) {
+          alert('Please select image');
+          return;
+        }
+
+        await this.categoryService.addCategory(this.name, this.selectedFile);
+
+        alert('Category added successfully ✅');
+      }
+
+      // ✅ Reset form instead of full navigation reload
+      this.resetForm();
+
+    } catch (error) {
+      console.error(error);
+      alert('Operation failed ❌');
+    }
   }
-}
 
+  cancel() {
+    this.resetForm();
+  }
 
-editCategory(category: any) {
-  this.router.navigate(['/admin/edit-category', category.id]);
-}
+  resetForm() {
+    this.name = '';
+    this.selectedFile = null;
+    this.previewImage = null;
+    this.isEditMode = false;
+    this.categoryId = null;
+    this.router.navigate(['/admin/add-category']);
+  }
 
-deleteCategory(category: any) {
+  editCategory(category: any) {
+    this.router.navigate(['/admin/edit-category', category.id]);
+  }
+
+  deleteCategory(category: any) {
 
   if (!confirm('Are you sure you want to delete this category?')) return;
 
-  const storage = getStorage();
-  const firestore = getFirestore();
-
-  // ⚠️ Make sure you saved imagePath while uploading
-  const imageRef = ref(storage, category.imageUrl);
-
-  deleteObject(imageRef)
+  this.categoryService
+    .deleteCategory(category.id, category.imageUrl)
     .then(() => {
-      return deleteDoc(doc(firestore, 'categories', category.id));
+      alert('Category deleted successfully');
     })
-    .then(() => {
-      console.log('Category deleted successfully');
-    })
-    .catch((error) => {
-      console.error('Delete error:', error);
+    .catch((error: any) => {
+      console.error(error);
     });
 }
 
+
+getFilteredCategories(categories: any[]) {
+
+  if (!this.searchText) return categories;
+
+  return categories.filter(category =>
+    category.name
+      .toLowerCase()
+      .includes(this.searchText.toLowerCase())
+  );
 }
+
+
+}
+

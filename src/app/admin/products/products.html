@@ -1,62 +1,149 @@
 <div class="table-card">
+
+  <div class="page-header">
+
+  <div class="page-header-left">
+    <h2 class="page-title">Products Management</h2>    
+  </div>
+
+</div>
+
+  <div class="analytics-cards">
+
+  <div class="card">
+    <h3>Total Products</h3>
+    <p>{{ products.length }}</p>
+  </div>
+
+  <div class="card">
+    <h3>Total Categories</h3>
+    <p>{{ categories.length }}</p>
+  </div>
+
+  <div class="card">
+    <h3>Latest Product</h3>
+    <p>{{ products[0]?.name }}</p>
+  </div>
+
+</div>
+
+<div class="filter-container">
+
+  <!-- SEARCH FIELD -->
+  <mat-form-field appearance="outline" class="search-field">
+
+    <mat-label>Search Product</mat-label>
+
+    <mat-icon matPrefix>search</mat-icon>
+
+    <input
+      matInput
+      [(ngModel)]="searchTerm"
+      (keyup)="onSearchChange(searchTerm)"
+      placeholder="Search by name..."
+    />
+
+    <button
+      *ngIf="searchTerm"
+      mat-icon-button
+      matSuffix
+      (click)="clearSearch()">
+      <mat-icon>close</mat-icon>
+    </button>
+
+  </mat-form-field>
+
+
+  <!-- CATEGORY FIELD -->
+  <mat-form-field appearance="outline" class="category-field">
+    <mat-label>Filter by Category</mat-label>
+
+    <mat-select
+      [(value)]="selectedCategory"
+      (selectionChange)="onCategoryChange($event.value)">
+
+      <mat-option value="">
+        All Categories ({{ products.length }})
+      </mat-option>
+
+      <mat-option
+        *ngFor="let cat of categories"
+        [value]="cat">
+
+        {{ cat }} ({{ categoryCounts[cat] }})
+
+      </mat-option>
+
+    </mat-select>
+  </mat-form-field>
+
+</div>
+
   <div class="products-wrapper">
 
-  <table class="products-table">
+    <table class="products-table">
 
-    <thead>
-      <tr>
-        <!-- <th class="col-image">Image</th> -->
-        <th class="col-name">Name</th>
-        <th class="col-price">Price</th>
-        <th class="col-category">Category</th>
-        <th class="col-quantity">Quantity</th>
-        <th class="col-action">Action</th>
-      </tr>
-    </thead>
+      <thead>
+        <tr>
+          <th class="col-name">Name</th>
+          <th class="col-price">Price</th>
+          <th class="col-category">Category</th>
+          <th class="col-quantity">Quantity</th>
+          <th class="col-action">Action</th>
+        </tr>
+      </thead>
 
-    <tbody>
-      <tr *ngFor="let product of products">
+      <tbody>
 
-        <!-- <td class="col-image">
-          <div class="img-wrapper">
-            <img
-              [src]="product.imageUrl || 'assets/products/no-image.png'"
-              (error)="product.imageUrl = 'assets/products/no-image.png'"
-            />
-          </div>
-        </td> -->
+        <tr *ngFor="let product of products">
 
-        <td class="col-name">{{ product.name }}</td>
+          <td class="col-name">{{ product.name }}</td>
 
-        <td class="col-price">₹{{ product.price }}</td>
+          <td class="col-price">₹{{ product.price }}</td>
 
-        <td class="col-category">{{ product.category }}</td>
+          <td class="col-category">{{ product.category }}</td>
 
-        <td class="col-quantity">{{ product.quantity }}</td>
+          <td class="col-quantity">{{ product.quantity }}</td>
 
-       <td class="col-action">
-  <div class="action-icons">
+          <td class="col-action">
+            <div class="action-icons">
 
-    <!-- Edit Icon -->
-    <button class="icon-btn edit-icon"
-            (click)="editProduct(product)">
-      <mat-icon>edit</mat-icon>
-    </button>
+              <button class="icon-btn edit-icon"
+                      (click)="editProduct(product)">
+                <mat-icon>edit</mat-icon>
+              </button>
 
-    <!-- Delete Icon -->
-    <button class="icon-btn delete-icon"
-            (click)="deleteProduct(product.id!)">
-      <mat-icon>delete</mat-icon>
-    </button>
+              <button class="icon-btn delete-icon"
+                      (click)="deleteProduct(product.id!)">
+                <mat-icon>delete</mat-icon>
+              </button>
 
-  </div>
-</td>
+            </div>
+          </td>
+
+        </tr>
+
+        <tr *ngIf="products.length === 0 && !loading">
+          <td colspan="5" style="text-align:center; padding:20px;">
+            No products found.
+          </td>
+        </tr>
+
+      </tbody>
+
+    </table>
+
+   <div style="text-align:center; margin-top:20px;">
+  <button
+    mat-raised-button
+    class="load-more-btn"
+    (click)="pageSize = pageSize + 20; loadAllProducts()">
+    Load More
+  </button>
+</div>
 
 
-      </tr>
-    </tbody>
 
-  </table>
   </div>
 
 </div>

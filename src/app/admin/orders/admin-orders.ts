@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { OrderService } from '../../core/services/order.service';
 import { FormsModule } from '@angular/forms';
 import { NotificationService } from '../../core/services/notification.service';
-
+import { AdminNotification, AdminNotificationService } from '../../core/services/admin-notification.service';
+import { AuthService } from '../../core/auth/auth.service';
 @Component({
   selector: 'app-admin-orders',
   standalone: true,
@@ -17,35 +18,70 @@ export class AdminOrdersComponent implements OnInit {
   loading = true;
   selectedStatus: string = 'All';
   searchTerm: string = '';
+  highlightedOrders: Set<string> = new Set();
+
 
   constructor(private orderService: OrderService,
-              public notificationService: NotificationService
+              public notificationService: NotificationService,
+              public adminNotificationService: AdminNotificationService,
+              public authService: AuthService
   ) {}
 
-  ngOnInit(): void {
+ ngOnInit(): void {
 
-    // 🔥 Real-time Firestore Orders
-    this.orderService.getAllOrders().subscribe({
-      next: (data) => {
+  // 🔥 Real-time Firestore Orders
+  this.orderService.getAllOrders().subscribe({
+    next: (data) => {
 
-        // Map Firestore data → Your UI format
-        this.orders = data.map(order => ({
-          docId: order.docId,
-          id: order.id,
-          date: order.createdAt?.toDate?.()
-            ? order.createdAt.toDate()
-            : order.createdAt,
-          total: order.totalAmount,
-          status: this.formatStatus(order.status)
-        }));
+      // Map Firestore data → Your UI format
+      this.orders = data.map(order => ({
+        docId: order.docId,
+        id: order.id,
+        date: order.createdAt?.toDate?.()
+          ? order.createdAt.toDate()
+          : order.createdAt,
+        total: order.totalAmount,
+        status: this.formatStatus(order.status)
+      }));
 
-        this.loading = false;
-      },
-      error: () => {
-        this.loading = false;
+      this.loading = false;
+    },
+    error: () => {
+      this.loading = false;
+    }
+  });
+
+  /* ===============================
+     🔥 STEP 4 – GREEN HIGHLIGHT
+  ================================ */
+
+  this.adminNotificationService.getNotifications().subscribe(notifications => {
+
+    const user = this.authService.getCurrentUser();
+    if (!user) return;
+
+    const unread = notifications.filter(n =>
+      !n.readBy?.includes(user.uid)
+    );
+
+    unread.forEach(n => {
+
+      if (!this.highlightedOrders.has(n.orderId)) {
+
+        this.highlightedOrders.add(n.orderId);
+
+        // Remove highlight after 5 seconds
+        setTimeout(() => {
+          this.highlightedOrders.delete(n.orderId);
+        }, 5000);
       }
+
     });
-  }
+
+  });
+
+}
+
 
   /* =============================
      STATUS UPDATE (Firestore)
@@ -89,4 +125,18 @@ export class AdminOrdersComponent implements OnInit {
       return matchesStatus && matchesSearch;
     });
   }
+
+  isNewOrder(orderId: string, notifications: any[]): boolean {
+
+  const user = this.authService.getCurrentUser();
+  if (!user) return false;
+
+  const match = notifications.find(n =>
+    n.orderId === orderId &&
+    !n.readBy?.includes(user.uid)
+  );
+
+  return !!match;
+}
+
 }

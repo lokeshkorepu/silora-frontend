@@ -90,9 +90,10 @@ tr:hover {
 }
 
 .new-order {
-  background-color: #d1fae5 !important;
-  animation: flashGreen 0.8s ease-in-out 3;
+  background-color: #bbf7d0 !important;
+  transition: background-color 0.5s ease;
 }
+
 
 @keyframes flashGreen {
   0% { background-color: #bbf7d0; }

@@ -1,22 +1,62 @@
 <div class="admin-container">
 
-  <!-- Header -->
+  <!-- ================= HEADER ================= -->
   <header class="admin-header">
 
     <div class="admin-title-wrapper">
-      <div class="admin-title">Admin Dashboard</div>
 
-      <!-- 🔔 Bell Beside Title -->
-      <div class="notification-wrapper" (click)="toggleDropdown()">
-        🔔
-        <span class="badge"
-              *ngIf="(notificationService.count$ | async) as count"
-              [class.show]="count > 0">
-          {{ count }}
-        </span>
+      <div class="admin-title">
+        Admin Dashboard
       </div>
+
+      <!-- 🔔 Notification Bell -->
+      <div class="notification-wrapper" (click)="toggleDropdown()">
+
+        🔔
+
+        <!-- Badge -->
+        <ng-container *ngIf="notifications$ | async as list">
+          <span class="badge"
+                *ngIf="getUnreadCount(list) > 0">
+            {{ getUnreadCount(list) }}
+          </span>
+        </ng-container>
+
+        <!-- 🔽 Dropdown -->
+        <div class="dropdown" *ngIf="isDropdownOpen">
+
+          <ng-container *ngIf="notifications$ | async as list">
+
+            <!-- Unread Notifications Only -->
+            <div *ngFor="let n of getUnreadNotifications(list)"
+                 class="notification-item"
+                 [class.unread]="isUnread(n)">
+
+              <div class="text">
+                {{ n.message }}
+              </div>
+
+              <button (click)="viewOrder(n)">
+                View
+              </button>
+
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="getUnreadCount(list) === 0"
+                 class="empty">
+              No notifications
+            </div>
+
+          </ng-container>
+
+        </div>
+
+      </div>
+
     </div>
 
+    <!-- Right Side -->
     <div class="admin-actions">
       <span>Welcome, Admin</span>
       <button class="logout-btn" (click)="logout()">Logout</button>
@@ -24,38 +64,14 @@
 
   </header>
 
-  <!-- 🔽 Dropdown -->
-  <div class="dropdown"
-       *ngIf="isDropdownOpen">
-
-   <div *ngFor="let n of (notifications$ | async)"
-     class="notification-item"
-     [class.unread]="isUnread(n)">
-
-  <div class="text">{{ n.message }}</div>
-
-  <button (click)="viewOrder(n)">View</button>
-</div>
-
-<span class="badge"
-      *ngIf="(notifications$ | async) as list"
-      [class.show]="getUnreadCount(list)">
-  {{ getUnreadCount(list) }}
-</span>
-
-    <div *ngIf="!(notificationService.notifications$ | async)?.length"
-         class="empty">
-      No notifications
-    </div>
-  </div>
 
   <!-- 🔔 Toast -->
-  <div class="toast"
-       *ngIf="(notificationService.toast$ | async) as message">
-    {{ message }}
+  <div class="toast" *ngIf="toastMessage">
+    {{ toastMessage }}
   </div>
 
-  <!-- Body -->
+
+  <!-- ================= BODY ================= -->
   <div class="admin-body">
 
     <!-- Sidebar -->
