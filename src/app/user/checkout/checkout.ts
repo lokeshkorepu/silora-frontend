@@ -5,7 +5,6 @@ import { RouterModule, Router } from '@angular/router';
 import { CartService } from '../../core/services/cart.service';
 import { Product } from '../../core/models/product.model';
 import { OrderService } from '../../core/services/order.service';
-import { PRODUCTS } from '../../core/data/products';
 
 @Component({
   selector: 'app-checkout',
@@ -36,29 +35,26 @@ export class CheckoutComponent implements OnInit {
   }
 
   placeOrder() {
+
     if (!this.name || !this.phone || !this.address) {
       alert('Please fill all address details');
       return;
     }
 
-    // ✅ 1. SAVE ORDER (THIS WAS MISSING)
     this.orderService.saveOrder(
-    this.cartItems,
-    this.totalAmount
-  ).subscribe({
+      this.cartItems,
+      this.totalAmount
+    ).subscribe({
 
-    next: () => {
+      next: () => {
+        this.cartService.clearCart();
+        this.router.navigate(['/success']);
+      },
 
-      this.cartService.clearCart();
+      error: () => {
+        alert('Order failed ❌ Please try again');
+      }
 
-      PRODUCTS.forEach(product => {
-        product.count = 0;
-      });
-    this.router.navigate(['/success']);
-  },
-   error: () => {
-      alert('Order failed ❌ Please try again');
-    }
-  });
-}
+    });
+  }
 }

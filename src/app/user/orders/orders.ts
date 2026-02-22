@@ -108,7 +108,7 @@ export class OrdersComponent implements OnInit {
         price: item.price,
         quantity: String(item.quantity),
         imageUrl: item.image || '',
-        category: item.category || 'reorder'
+        categoryId: item.category || 'reorder'
       });
     });
 

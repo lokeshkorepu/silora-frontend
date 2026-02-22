@@ -1,8 +1,12 @@
 <div class="orders-container">
 
+  <!-- HEADER -->
   <div class="orders-header">
     <h2>Orders Management</h2>
+  </div>
 
+  <!-- FILTERS -->
+  <div class="orders-actions">
     <div class="actions">
       <input
         type="text"
@@ -14,17 +18,20 @@
       <select
         class="filter-select"
         [(ngModel)]="selectedStatus">
-
         <option value="All">All</option>
+        <option value="Placed">Placed</option>
+        <option value="Packed">Packed</option>
+        <option value="Shipped">Shipped</option>
         <option value="Delivered">Delivered</option>
-        <option value="Returned">Returned</option>
-        <option value="Pending">Pending</option>
-        <option value="Cancelled">Cancelled</option>
-
       </select>
     </div>
+
+    <button class="clean-btn" (click)="cleanOldOrders()">
+      🧹 Clean Orders
+    </button>
   </div>
 
+  <!-- TABLE -->
   <div class="table-card">
     <table>
       <thead>
@@ -38,52 +45,193 @@
       </thead>
 
       <tbody>
-  <tr *ngFor="let order of filteredOrders"
-    [class.new-order]="highlightedOrders.has(order.docId)">
+        <tr
+          *ngFor="let order of filteredOrders; trackBy: trackByOrder"
+          (click)="openDrawer(order)"
+          [class.new-order]="highlightedOrders.has(order.docId)">
 
-    <td>{{ order.date | date:'medium' }}</td>
+          <td>{{ order.date | date:'medium' }}</td>
+          <td>{{ order.id }}</td>
+          <td>₹{{ order.total }}</td>
 
-    <td>
-      {{ order.id }}
+          <!-- ✅ FIXED STATUS CELL -->
+          <td>
+            <span
+              class="status-pill"
+              [ngClass]="order.status.toLowerCase()">
+              {{ order.status }}
+            </span>
+          </td>
 
-      <span *ngIf="(notificationService.newOrderIds$ | async)?.has(order.docId)"
-            class="new-badge">
-        NEW
-      </span>
-    </td>
+          <td (click)="$event.stopPropagation()">
+            <select
+              [(ngModel)]="order.status"
+              (change)="updateStatus(order)"
+              class="status-select">
+              <option>Placed</option>
+              <option>Packed</option>
+              <option>Shipped</option>
+              <option>Delivered</option>
+            </select>
+          </td>
 
-    <td>₹{{ order.total }}</td>
-
-    <td>
-      <span class="status-badge"
-        [ngClass]="{
-          'delivered': order.status === 'Delivered',
-          'returned': order.status === 'Returned',
-          'pending': order.status === 'Pending',
-          'cancelled': order.status === 'Cancelled'
-        }">
-        {{ order.status }}
-      </span>
-    </td>
-
-    <td>
-      <select
-        [(ngModel)]="order.status"
-        (change)="updateStatus(order)"
-        class="status-select">
-
-        <option>Delivered</option>
-        <option>Returned</option>
-        <option>Pending</option>
-        <option>Cancelled</option>
-
-      </select>
-    </td>
-
-  </tr>
-</tbody>
-
+        </tr>
+      </tbody>
     </table>
+
+    <!-- PAGINATION -->
+    <div class="pagination-footer">
+      <div class="items-per-page">
+        <span>Items per page</span>
+
+        <select
+          [(ngModel)]="pageSize"
+          (change)="changePageSize(pageSize)">
+          <option [value]="10">10</option>
+          <option [value]="25">25</option>
+          <option [value]="50">50</option>
+          <option [value]="100">100</option>
+        </select>
+      </div>
+
+      <div class="range-info">
+        {{ startIndex }}–{{ endIndex }} of {{ totalOrders }}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- OVERLAY -->
+<div
+  *ngIf="isDrawerOpen"
+  class="drawer-overlay"
+  (click)="closeDrawer()">
+</div>
+
+<!-- DRAWER -->
+<div class="order-drawer" [class.open]="isDrawerOpen">
+
+  <!-- HEADER -->
+  <div class="drawer-header">
+    <h3>Order Details</h3>
+    <button (click)="closeDrawer()">✕</button>
   </div>
 
+  <!-- CONTENT -->
+  <div *ngIf="selectedOrder" class="drawer-content">
+
+    <!-- ORDER INFO -->
+    <div class="section">
+      <h4>Order Info</h4>
+      <p><strong>Order ID:</strong> {{ selectedOrder.id }}</p>
+      <p><strong>Date:</strong> {{ selectedOrder.date | date:'medium' }}</p>
+      <p><strong>Status:</strong> {{ selectedOrder.status }}</p>
+    </div>
+
+    <!-- ================= TIMELINE ================= -->
+    <div class="section">
+      <h4>Order Timeline</h4>
+
+      <div class="horizontal-timeline">
+
+        <div class="timeline-progress-track">
+<div
+  class="timeline-progress-fill"
+  [style.width.%]="getTimelineProgress(selectedOrder.status)"
+  [style.height.%]="getTimelineProgress(selectedOrder.status)">
+</div>
+        </div>
+
+        <div
+          class="timeline-step"
+          *ngFor="let step of timelineSteps; let i = index"
+          [class.completed]="i < getCurrentStepIndex(selectedOrder.status)"
+          [class.active]="i === getCurrentStepIndex(selectedOrder.status)">
+
+          <div class="circle">
+            
+          </div>
+
+          <div class="label">{{ step }}</div>
+          <div class="time">{{ getStepTime(step) }}</div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ================= PRODUCTS ================= -->
+    <div class="section">
+      <h4>Products</h4>
+
+      <div
+        *ngFor="let item of selectedOrder.products"
+        class="drawer-product">
+
+        <div>
+          <div class="product-name">
+            {{ item.name }}
+          </div>
+
+          <div class="product-qty">
+            Qty: {{ item.quantity }}
+          </div>
+        </div>
+
+        <div>
+          ₹{{ item.price * item.quantity }}
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ================= SUMMARY ================= -->
+    <div class="section summary">
+      <h4>Summary</h4>
+
+      <div class="summary-row">
+        <span>Subtotal</span>
+        <span>₹{{ selectedOrder.total }}</span>
+      </div>
+
+      <div class="summary-row">
+        <span>Shipping</span>
+        <span>₹0</span>
+      </div>
+
+      <div class="summary-row total">
+        <span>Total</span>
+        <span>₹{{ selectedOrder.total }}</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= STICKY FOOTER ================= -->
+  <div
+    *ngIf="selectedOrder && nextStatus"
+    class="drawer-footer">
+
+    <div class="footer-total">
+      Total: ₹{{ selectedOrder.total }}
+    </div>
+
+    <button
+      class="primary-btn"
+      (click)="selectedOrder.status = nextStatus; updateStatus(selectedOrder)">
+      Mark as {{ nextStatus }}
+    </button>
+
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast-container">
+  <div class="toast" [class.show]="showToast">
+    <div class="toast-icon">✔</div>
+    <div class="toast-message">
+      Order status updated successfully
+    </div>
+  </div>
 </div>

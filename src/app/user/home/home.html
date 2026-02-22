@@ -2,137 +2,164 @@
 
   <div class="home-box">
 
-   <!-- SECTION TITLE -->
+    <!-- HEADER -->
     <div class="section-title">
       Buy {{ selectedCategory?.name }} Online
     </div>
 
-  <!-- MAIN CONTENT -->
-  <div class="home-body">
+    <!-- MAIN CONTENT -->
+    <div class="home-body">
 
-    <!-- LEFT: CATEGORIES -->
-   <aside class="category-rail">
+      <!-- ================= SIDEBAR ================= -->
+      <aside class="category-rail">
 
-  @for (category of categories; track category.id) {
-    <div
-      class="rail-item"
-      [class.active]="selectedCategory?.id === category.id"
-      (click)="selectedCategory = category"
-    >
+        @for (category of categories; track category.id) {
+          <div
+            class="rail-item"
+            [class.active]="selectedCategory?.id === category.id"
+            (click)="selectedCategory = category">
 
-      <div class="rail-image-box">
-        <img
-          [src]="category.imageUrl || 'assets/products/no-image.png'"
-          alt="{{ category.name }}"
-        />
-      </div>
+            <div class="rail-image-box">
+              <img
+                [src]="category.imageUrl || 'assets/products/no-image.png'"
+                alt="{{ category.name }}" />
+            </div>
 
-      <div class="rail-label">
-        {{ category.name }}
-      </div>
+            <div class="rail-label">
+              {{ category.name }}
+            </div>
 
-    </div>
-  }
-
-</aside>
-
-
-   <section class="products-grid" #productsGrid>
-
-  @for (product of filteredProducts; track product.id) {
-    <div class="product-card">
-
-      <div class="image-wrapper">
-
-  <!-- Triangle Discount Badge -->
-<div *ngIf="product.discountPercentage && product.discountPercentage > 0"
-     class="discount-mini-badge">
-  {{ product.discountPercentage }}% <br />
-  OFF
-</div>
-
-  <img
-    [src]="product.imageUrl || 'assets/products/no-image.png'"
-    (error)="onImageError($event)"
-  />
-</div>
-
-      <div class="delivery">⏱ 8 MINS</div>
-
-      <div class="name">{{ product.name }}</div>
-      <div class="qty">{{ product.quantity }}</div>
-
-      <div class="footer">
-<div class="price-box">
-
-  <ng-container *ngIf="product.discountPercentage && product.discountPercentage > 0; else normalPrice">
-
-    <!-- Selling Price -->
-    <div class="new-price">
-      ₹{{ product.price }}
-    </div>
-
-    <!-- MRP -->
-    <div class="mrp">
-     ₹{{ product.originalPrice }}
-    </div>
-
-    <!-- You Save
-    <div class="save-text">
-      You Save ₹{{ product.originalPrice! - product.price }}
-    </div> -->
-
-  </ng-container>
-
-  <ng-template #normalPrice>
-    <div class="new-price">
-      ₹{{ product.price }}
-    </div>
-  </ng-template>
-
-</div>
-
-
-        <!-- IF COUNT IS 0 SHOW ADD -->
-        <ng-container *ngIf="getCount(product) === 0; else counter">
-          <button
-            class="add-btn"
-            (click)="addProduct(product)">
-            ADD
-          </button>
-        </ng-container>
-
-        <!-- ELSE SHOW +/- COUNTER -->
-        <ng-template #counter>
-          <div class="qty-box">
-            <button class="qty-btn"
-                    (click)="decrease(product)">
-              −
-            </button>
-
-            <span class="qty-count">
-              {{ getCount(product) }}
-            </span>
-
-            <button class="qty-btn"
-                    (click)="increase(product)">
-              +
-            </button>
           </div>
-        </ng-template>
+        }
 
-      </div>
+      </aside>
+
+      <!-- ================= PRODUCT GRID ================= -->
+      <section class="products-grid" #productsGrid>
+
+        @for (product of filteredProducts; track product.id) {
+
+          <div class="product-card">
+
+            <!-- IMAGE SECTION -->
+            <div class="image-wrapper">
+
+              <!-- Discount Badge -->
+              <div *ngIf="product.discountPercentage 
+                          && product.discountPercentage > 0 
+                          && (product.stockQuantity || 0) > 0"
+                   class="discount-mini-badge">
+                {{ product.discountPercentage }}% <br />
+                OFF
+              </div>
+
+              <!-- Low Stock Badge -->
+              <div *ngIf="isLowStock(product)"
+                   class="low-stock-badge"
+                   [ngClass]="getLowStockClass(product)">
+                Only {{ getAvailableUnits(product) }} left
+              </div>
+
+              <!-- Product Image -->
+              <img
+                [src]="product.imageUrl || 'assets/products/no-image.png'"
+                [class.out-img]="(product.stockQuantity || 0) <= 0"
+                (error)="onImageError($event)" />
+
+              <!-- Out of Stock Badge -->
+              <div class="out-of-stock-badge"
+                   *ngIf="(product.stockQuantity || 0) <= 0">
+                Out of Stock
+              </div>
+
+            </div>
+
+            <!-- PRODUCT INFO -->
+            <div class="delivery">⏱ 8 MINS</div>
+
+            <div class="name">
+              {{ product.name }}
+            </div>
+
+            <div class="qty">
+              {{ product.quantity }}
+            </div>
+
+            <!-- FOOTER -->
+            <div class="footer">
+
+              <!-- PRICE BOX -->
+              <div class="price-box">
+
+                <ng-container *ngIf="product.discountPercentage 
+                                      && product.discountPercentage > 0; 
+                                      else normalPrice">
+
+                  <div class="new-price">
+                    ₹{{ product.price }}
+                  </div>
+
+                  <div class="mrp">
+                    ₹{{ product.originalPrice }}
+                  </div>
+
+                </ng-container>
+
+                <ng-template #normalPrice>
+                  <div class="new-price">
+                    ₹{{ product.price }}
+                  </div>
+                </ng-template>
+
+              </div>
+
+              <!-- ADD / COUNTER -->
+              <ng-container *ngIf="getCount(product) === 0; else counter">
+
+                <button
+                  class="add-btn"
+                  [disabled]="(product.stockQuantity || 0) <= 0"
+                  (click)="addProduct(product)">
+                  ADD
+                </button>
+
+              </ng-container>
+
+              <!-- COUNTER -->
+              <ng-template #counter>
+                <div class="qty-box"
+                     [class.disabled-counter]="getAvailableUnits(product) === 0">
+
+                  <button class="qty-btn"
+                          (click)="decrease(product)">
+                    −
+                  </button>
+
+                  <span class="qty-count">
+                    {{ getCount(product) }}
+                  </span>
+
+                  <button class="qty-btn"
+                          (click)="increase(product)"
+                          [disabled]="getCount(product) >= getAvailableUnits(product)">
+                    +
+                  </button>
+
+                </div>
+              </ng-template>
+
+            </div>
+
+          </div>
+
+        }
+
+      </section>
 
     </div>
-  }
-
-</section>
-
-        </div>
-      </div>
-    
 
   </div>
+
+</div>
+
 <app-cart-bar></app-cart-bar>
-
-

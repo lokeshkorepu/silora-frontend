@@ -23,9 +23,19 @@
         </ng-container>
 
         <!-- 🔽 Dropdown -->
-        <div class="dropdown" *ngIf="isDropdownOpen">
+        <div class="dropdown" *ngIf="isDropdownOpen" 
+             (click)="$event.stopPropagation()">
 
           <ng-container *ngIf="notifications$ | async as list">
+
+            <!-- ✅ NEW HEADER WITH VIEW ALL -->
+         <div class="dropdown-header">
+        <span>Notifications</span>
+        <button class="view-all-btn"
+        (click)="viewAllNotifications(list); $event.stopPropagation()">
+  View All
+</button>
+      </div>
 
             <!-- Unread Notifications Only -->
             <div *ngFor="let n of getUnreadNotifications(list)"
@@ -36,7 +46,7 @@
                 {{ n.message }}
               </div>
 
-              <button (click)="viewOrder(n)">
+              <button (click)="viewOrder(n); $event.stopPropagation()">
                 View
               </button>
 
@@ -61,6 +71,7 @@
       <span>Welcome, Admin</span>
       <button class="logout-btn" (click)="logout()">Logout</button>
     </div>
+
 
   </header>
 
@@ -96,6 +107,20 @@
       <a routerLink="/admin/orders" routerLinkActive="active-link">
         Orders
       </a>
+
+      <a routerLink="/admin/users" routerLinkActive="active-link">
+        User
+      </a>
+
+      <a routerLink="/admin/vendors" routerLinkActive="active-link">
+        Vendor
+      </a>
+
+      <div class="sidebar-bottom">
+  <button class="migration-btn" (click)="migrateCategoryField()">
+    🔄 Run Category Migration
+  </button>
+</div>
 
     </aside>
 

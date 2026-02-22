@@ -17,7 +17,7 @@ export class AddProductComponent {
   product = {
     name: '',
     price: null as number | null,
-    category: '',
+    categoryId: '',
     quantity: null as number | null,
     discount: null as number | null
   };
@@ -47,9 +47,10 @@ export class AddProductComponent {
     this.productForm = this.fb.group({
       name: [''],
       price: [''],
-      category: [''],
+      categoryId: [''],
       quantity: [''],
-      discount: ['']
+      discount: [''],
+      stockQuantity: [0]
     });
 
     const id = this.route.snapshot.paramMap.get('id');
@@ -59,7 +60,11 @@ export class AddProductComponent {
 
       this.productService.getProductById(id).subscribe((product: any) => {
         if (product) {
-          this.productForm.patchValue(product);
+          this.productForm.patchValue({
+                  ...product,
+                  stockQuantity: product.stockQuantity ?? 0
+              });
+
           this.previewImage = product.imageUrl;
         }
       });
@@ -81,8 +86,8 @@ export class AddProductComponent {
 
     this.selectedFile = file;
 
-    const reader = new FileReader();
-    reader.onload = () => {
+      const reader = new FileReader();
+      reader.onload = () => {
       this.previewImage = reader.result as string;
     };
     reader.readAsDataURL(file);
@@ -115,7 +120,8 @@ export class AddProductComponent {
       originalPrice: originalPrice,   // ✅ MRP
       discountPercentage: discountPercentage,
       quantity: formValue.quantity,
-      category: formValue.category,
+      stockQuantity: Number(formValue.stockQuantity || 0),
+      categoryId: formValue.categoryId,
       createdAt: new Date()
     };
 
@@ -165,7 +171,7 @@ export class AddProductComponent {
     this.product = {
       name: '',
       price: null,
-      category: '',
+      categoryId: '',
       quantity: null,
       discount: null
     };

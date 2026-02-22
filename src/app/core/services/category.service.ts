@@ -20,7 +20,7 @@ export class CategoryService {
   /* GET ALL CATEGORIES (REALTIME) */
   getCategories(): Observable<any[]> {
     const categoryRef = collection(this.firestore, 'categories');
-    return collectionData(categoryRef, { idField: 'id' }) as Observable<any[]>;
+    return collectionData(collection(this.firestore, 'categories'), { idField: 'id' }) as Observable<any[]>;
   }
 
   getCategoryById(id: string) {

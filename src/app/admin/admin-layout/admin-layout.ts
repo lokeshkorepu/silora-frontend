@@ -6,7 +6,8 @@ import { CommonModule } from '@angular/common';
 import { HostListener } from '@angular/core';
 import { AdminNotificationService, AdminNotification } from '../../core/services/admin-notification.service';
 import { Observable } from 'rxjs';
-
+import { Firestore } from '@angular/fire/firestore';
+import { collection, getDocs, doc, updateDoc, deleteField } from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-admin-layout',
@@ -30,7 +31,8 @@ export class AdminLayout implements OnInit {
 constructor(private router: Router, 
             public authService: AuthService,
             public notificationService: NotificationService,
-            public adminNotificationService: AdminNotificationService
+            public adminNotificationService: AdminNotificationService,
+            private firestore: Firestore
           ) {}
 
 ngOnInit(): void {
@@ -128,5 +130,75 @@ getUnreadNotifications(list: AdminNotification[] | null): AdminNotification[] {
   );
 }
 
+async viewAllNotifications(list: AdminNotification[]) {
+
+  const user = this.authService.getCurrentUser();
+  if (!user || !list) return;
+
+  // 🔥 Get only unread notifications
+  const unreadNotifications = list.filter(n =>
+    !n.readBy?.includes(user.uid)
+  );
+
+  // 🔥 Mark each unread notification as read in Firestore
+  for (const notification of unreadNotifications) {
+    await this.adminNotificationService.markAsRead(notification);
+  }
+
+  // Close dropdown
+  this.isDropdownOpen = false;
+
+  // Navigate
+  this.router.navigate(['/admin/orders']);
+}
+
+
+async migrateCategoryField() {
+
+  const productsSnap = await getDocs(collection(this.firestore, 'products'));
+  const categoriesSnap = await getDocs(collection(this.firestore, 'categories'));
+
+  const categories: any[] = [];
+
+  categoriesSnap.forEach(catDoc => {
+    categories.push({
+      id: catDoc.id,
+      name: (catDoc.data() as any).name.toLowerCase().trim()
+    });
+  });
+
+  for (const productDoc of productsSnap.docs) {
+
+    const data: any = productDoc.data();
+
+    // Only update products that don't have categoryId
+    if (!data.categoryId && data.category) {
+
+      const oldCategory = data.category.toLowerCase().trim();
+
+      // 🔥 Smart match (contains instead of exact match)
+      const match = categories.find(c =>
+        oldCategory.includes(c.name)
+      );
+
+      if (match) {
+
+        await updateDoc(
+          doc(this.firestore, 'products', productDoc.id),
+          {
+            categoryId: match.id,
+            category: deleteField()
+          }
+        );
+
+        console.log(`✅ Updated: ${data.name}`);
+      } else {
+        console.warn(`❌ No match found for: ${data.name} (${data.category})`);
+      }
+    }
+  }
+
+  console.log('🎉 Migration completed successfully');
+}
 
 }

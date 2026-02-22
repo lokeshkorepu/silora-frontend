@@ -7,8 +7,8 @@ import { Observable, from, map, of } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { serverTimestamp } from '@angular/fire/firestore';
 import { runInInjectionContext, EnvironmentInjector } from '@angular/core';
-
-
+import { ProductService } from './product.service';
+import { switchMap } from 'rxjs';
 import {
   Firestore,
   collection,
@@ -18,8 +18,15 @@ import {
   collectionData,
   orderBy,
   doc,
-  updateDoc
+  updateDoc,
+  docData,
+  limit,
+  startAfter,
+  getDoc,
+  getDocs,
+  getCountFromServer 
 } from '@angular/fire/firestore';
+
 
 @Injectable({
   providedIn: 'root'
@@ -31,6 +38,7 @@ export class OrderService {
   private api = inject(ApiService);
   private authService = inject(AuthService);
   private injector = inject(EnvironmentInjector);
+  private productService = inject(ProductService);
 
 
   /* =========================
@@ -80,48 +88,62 @@ export class OrderService {
   ========================== */
   saveOrder(items: Product[], total: number): Observable<void> {
 
-    const user = this.authService.getCurrentUser();
+  const user = this.authService.getCurrentUser();
 
-    const newOrderDTO: OrderDTO = {
-      id: 'ORD-' + Date.now(),
-      createdAt: new Date().toISOString(),
-      totalAmount: total,
-      status: 'DELIVERED',
-      items: items
-        .filter(item => !!item.id && typeof item.count === 'number')
-        .map(item => ({
-          productId: item.id as string,
-          price: item.price,
-          quantity: item.count as number
-        }))
-    };
+  const newOrderDTO: OrderDTO = {
+    id: 'ORD-' + Date.now(),
+    createdAt: new Date().toISOString(),
+    totalAmount: total,
+    status: 'DELIVERED',
+    items: items.map(item => ({
+      productId: item.id as string,
+      price: item.price,
+      quantity: item.count as number
+    }))
+  };
 
-    const firestore$ = from(
-      addDoc(
-        collection(this.firestore, 'orders'),
-        {
-          ...newOrderDTO,
-          userId: user?.uid || null,
-          userEmail: user?.email || null,
-          createdAt: serverTimestamp()
-        }
-      )
-    );
+  const ordersRef = collection(this.firestore, 'orders');
 
-    return firestore$.pipe(
-      map(() => void 0)
-    );
-  }
+  return from(
+    addDoc(ordersRef, {
+      ...newOrderDTO,
+      userId: user?.uid || null,
+      userEmail: user?.email || null,
+      createdAt: serverTimestamp()
+    })
+  ).pipe(
+    switchMap(async () => {
+
+      for (const item of items) {
+
+        if (!item.id) continue;
+
+        const unitWeight = parseInt(item.quantity || '0');
+        const orderedQty = item.count || 0;
+
+        const deduction = unitWeight * orderedQty;
+
+        const newStock = (item.stockQuantity || 0) - deduction;
+
+        await updateDoc(
+          doc(this.firestore, `products/${item.id}`),
+          { stockQuantity: newStock }
+        );
+      }
+
+      return;
+    })
+  );
+}
+
 
   /* =========================
      ADMIN UPDATE STATUS
   ========================== */
-  updateOrderStatus(docId: string, status: string): Promise<void> {
-
-    const orderRef = doc(this.firestore, `orders/${docId}`);
-
-    return updateDoc(orderRef, { status });
-  }
+updateOrderStatus(docId: string, data: any) {
+  const orderRef = doc(this.firestore, `orders/${docId}`);
+  return updateDoc(orderRef, data);
+}
 
   /* =========================
      BACKEND SYNC (Optional)
@@ -135,5 +157,62 @@ export class OrderService {
 
     return this.api.updateOrderStatus(order.id, status);
   }
+
+getOrderProducts(orderDocId: string) {
+
+  const productsRef = collection(
+    doc(this.firestore, `orders/${orderDocId}`),
+    'products'
+  );
+
+  return collectionData(productsRef, { idField: 'id' });
+}
+
+async getProductById(productId: string): Promise<any> {
+
+  const productRef = doc(this.firestore, `products/${productId}`);
+  const productSnap = await getDoc(productRef);
+
+  if (productSnap.exists()) {
+    return productSnap.data();
+  }
+
+  return null;
+}
+
+async getOrdersPaginated(pageSize: number, lastDoc: any = null) {
+
+  const ordersRef = collection(this.firestore, 'orders');
+
+  let q;
+
+  if (lastDoc) {
+    q = query(
+      ordersRef,
+      orderBy('createdAt', 'desc'),
+      startAfter(lastDoc),
+      limit(pageSize)
+    );
+  } else {
+    q = query(
+      ordersRef,
+      orderBy('createdAt', 'desc'),
+      limit(pageSize)
+    );
+  }
+
+  const snapshot = await getDocs(q);
+
+  const countSnapshot = await getCountFromServer(ordersRef);
+
+  return {
+    orders: snapshot.docs.map(doc => ({
+  docId: doc.id,
+  ...(doc.data() as any)
+})),
+    lastDoc: snapshot.docs[snapshot.docs.length - 1],
+    totalCount: countSnapshot.data().count
+  };
+}
 
 }

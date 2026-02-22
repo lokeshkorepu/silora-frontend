@@ -12,7 +12,7 @@
 
   <div class="card">
     <h3>Total Products</h3>
-    <p>{{ products.length }}</p>
+    <p>{{ totalProducts }}</p>
   </div>
 
   <div class="card">
@@ -63,21 +63,29 @@
       (selectionChange)="onCategoryChange($event.value)">
 
       <mat-option value="">
-        All Categories ({{ products.length }})
+        All Categories
       </mat-option>
 
       <mat-option
         *ngFor="let cat of categories"
-        [value]="cat">
+        [value]="cat.id">
 
-        {{ cat }} ({{ categoryCounts[cat] }})
-
+        {{ cat.name }} 
       </mat-option>
 
     </mat-select>
   </mat-form-field>
 
 </div>
+
+<div class="bulk-actions">
+  <button
+    class="bulk-restock-btn"
+    (click)="bulkRestockLowStock()">
+    📦 Restock All Low Stock
+  </button>
+</div>
+
 
   <div class="products-wrapper">
 
@@ -89,6 +97,7 @@
           <th class="col-price">Price</th>
           <th class="col-category">Category</th>
           <th class="col-quantity">Quantity</th>
+          <th class="col-stockquantity">Stock Quantity</th>
           <th class="col-action">Action</th>
         </tr>
       </thead>
@@ -101,9 +110,29 @@
 
           <td class="col-price">₹{{ product.price }}</td>
 
-          <td class="col-category">{{ product.category }}</td>
+          <td class="col-category">{{ categoryMap[product.categoryId] }}</td>
 
           <td class="col-quantity">{{ product.quantity }}</td>
+
+          
+      <!-- STOCK COLUMN -->
+      
+        <td>
+  <div class="stock-cell">
+
+    <span class="stock-value"
+          [class.out-stock]="product.stockQuantity === 0">
+      {{ getFormattedStock(product) }}
+    </span>
+
+    <button *ngIf="shouldReorder(product)"
+            class="reorder-btn"
+            (click)="restockProduct(product)">
+      🔄 Re-order {{ getReorderQuantity(product) }}
+    </button>
+
+  </div>
+</td>
 
           <td class="col-action">
             <div class="action-icons">
@@ -127,23 +156,29 @@
           <td colspan="5" style="text-align:center; padding:20px;">
             No products found.
           </td>
-        </tr>
+        </tr>       
 
       </tbody>
 
     </table>
+    
+    <div class="table-footer">
 
-   <div style="text-align:center; margin-top:20px;">
-  <button
-    mat-raised-button
-    class="load-more-btn"
-    (click)="pageSize = pageSize + 20; loadAllProducts()">
-    Load More
-  </button>
+  <div class="items-per-page">
+    <label>Items per page</label>
+    <select [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+      <option [value]="10">10</option>
+      <option [value]="20">20</option>
+      <option [value]="50">50</option>
+      <option [value]="100">100</option>
+    </select>
+  </div>
+
+  <div class="pagination-info">
+1–{{ products.length }} of {{ totalProducts }}
+  </div>
+
 </div>
-
-
-
   </div>
 
 </div>

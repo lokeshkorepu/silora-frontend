@@ -1,65 +1,68 @@
-/* PAGE BACKGROUND */
+/* ================= PAGE BACKGROUND ================= */
+
 .home-page {
   background: #fff5f5;
-  padding-top: 32px;
-  /* padding-bottom: 32px; */
-  /* min-height: 100vh; */
+  padding-top: 24px;
 }
 
-/* CENTERED BOX (WHITE SECTION) */
+/* ================= CENTER CONTAINER ================= */
+
 .home-box {
   max-width: 1280px;
   margin: 0 auto;
- padding: 8px 16px; 
-  background: #ffffff;        /* ✅ WHITE BOX */
+  padding: 8px 16px;
+  background: #ffffff;
   border-radius: 16px;
   box-shadow: 0 1px 6px rgba(0,0,0,0.06);
 }
 
+/* ================= HEADER ================= */
+
 .section-title {
   position: sticky;
   top: 0;
-  z-index: 5;
+  z-index: 20;
+
   background: #ffffff;
-  padding: 8px 0 12px;
-  font-size: 20px;
+  padding: 16px 0 18px;
+
+  font-size: 22px;
   font-weight: 700;
+
+  border-bottom: 2px solid #f1f1f1;
 }
 
-/* BLINKIT LAYOUT */
+/* ================= MAIN LAYOUT ================= */
+
 .home-body {
   display: grid;
-  grid-template-columns: 96px 1fr;
+  grid-template-columns: 100px 1fr;
+  height: calc(100vh - 200px);
   overflow: hidden;
-  height: calc(100vh - 72px - 56px);
 }
 
-/* =========================
-   CATEGORY RAIL
-========================= */
+
+/* ================= CATEGORY RAIL ================= */
 
 .category-rail {
-  width: 95px;
   background: #fff;
-  padding: 6px 0;
-  overflow-y: auto;
   border-right: 1px solid #eee;
+  overflow-y: auto;
+  padding: 6px 0;
 }
 
-/* Category Item */
 .rail-item {
   position: relative;
   padding: 10px 4px;
   text-align: center;
   cursor: pointer;
-  background: #fff;  /* Always white */
+  background: #fff;
 }
 
-/* LEFT GREEN BAR ONLY */
 .rail-item.active::after {
   content: "";
   position: absolute;
-  right: 0;       /* ✅ moved to right */
+  right: 0;
   top: 12px;
   bottom: 12px;
   width: 4px;
@@ -67,13 +70,10 @@
   border-radius: 4px;
 }
 
-
-/* Make active text slightly bold */
 .rail-item.active .rail-label {
   font-weight: 600;
 }
 
-/* Image Box */
 .rail-image-box {
   width: 55px;
   height: 55px;
@@ -91,46 +91,125 @@
   object-fit: contain;
 }
 
-/* Label */
 .rail-label {
-  margin: 0;
-  padding: 0;
   font-size: 13px;
   font-weight: 500;
   color: #333;
   line-height: 1.2;
 }
 
+/* ================= PRODUCT GRID ================= */
 
-/* PRODUCT GRID - FIXED 6 PER ROW */
 .products-grid {
   padding: 12px;
   display: grid;
-  grid-template-columns: repeat(6, 1fr);  /* ✅ 6 products per row */
+  grid-template-columns: repeat(6, 1fr);
   gap: 16px;
   overflow-y: auto;
-  height: 100%;
 }
 
+/* ================= PRODUCT CARD ================= */
 
-/* PRODUCT CARD (COMPACT) */
 .product-card {
   background: #fff;
   border: 1px solid #eee;
   border-radius: 12px;
   padding: 10px;
-  display: flex;              /* IMPORTANT */
-  flex-direction: column;     /* Stack content vertically */
+  display: flex;
+  flex-direction: column;
   justify-content: space-between;
-  height: 100%;               /* Equal height cards */
 }
 
-.product-card img {
+/* ================= IMAGE WRAPPER ================= */
+
+.image-wrapper {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.image-wrapper img {
   width: 100%;
   height: 140px;
-  object-fit: contain;
-  margin-bottom: 6px;
+  object-fit: cover;
+  transition: opacity 0.2s ease;
 }
+
+/* Fade image when out of stock */
+.out-img {
+  opacity: 0.6;
+}
+
+/* ================= DISCOUNT BADGE ================= */
+
+.discount-mini-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: #2563eb;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 8px;
+  border-radius: 6px;
+  line-height: 1.1;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+  transition: transform 0.2s ease;
+}
+
+.product-card:hover .discount-mini-badge {
+  transform: scale(1.05);
+}
+
+/* ================= OUT OF STOCK BADGE ================= */
+
+.out-of-stock-badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(120, 120, 120, 0.85);
+  color: #fff;
+  padding: 5px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  z-index: 2;
+}
+
+/* ================= LOW STOCK BADGE ================= */
+
+.low-stock-badge {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  color: #fff;
+  z-index: 2;
+  animation: pulse 1.4s infinite;
+}
+
+.low-warning {
+  background: #f97316;
+}
+
+.low-critical {
+  background: #dc2626;
+}
+
+@keyframes pulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* ================= TEXT STYLES ================= */
 
 .delivery {
   font-size: 11px;
@@ -139,9 +218,8 @@
 
 .name {
   font-size: 13px;
-  font-weight: 400;
   margin-top: 4px;
-  height: 38px;               /* FIXED HEIGHT */
+  height: 38px;
   line-height: 18px;
   overflow: hidden;
 }
@@ -152,6 +230,28 @@
   height: 18px;
 }
 
+/* ================= PRICE ================= */
+
+.price-box {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.new-price {
+  font-weight: 500;
+  font-size: 13px;
+  color: #000;
+}
+
+.mrp {
+  font-size: 12px;
+  color: #777;
+  text-decoration: line-through;
+}
+
+/* ================= FOOTER ================= */
+
 .footer {
   display: flex;
   justify-content: space-between;
@@ -159,9 +259,7 @@
   margin-top: auto;
 }
 
-.price {
-  font-weight: 400;
-}
+/* ================= ADD BUTTON ================= */
 
 .add-btn {
   border: 1px solid #0f9d58;
@@ -170,23 +268,24 @@
   padding: 4px 10px;
   border-radius: 8px;
   font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.category-rail::-webkit-scrollbar,
-.products-grid::-webkit-scrollbar {
-  width: 6px;
+.add-btn:hover:not(:disabled) {
+  background: #0f9d58;
+  color: #fff;
 }
 
-.category-rail::-webkit-scrollbar-thumb,
-.products-grid::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 6px;
+.add-btn:disabled,
+.disabled-btn {
+  border: 1px solid #ddd;
+  background: #f5f5f5;
+  color: #b0b0b0;
+  cursor: not-allowed;
 }
 
-.category-rail::-webkit-scrollbar-track,
-.products-grid::-webkit-scrollbar-track {
-  background: transparent;
-}
+/* ================= COUNTER ================= */
 
 .qty-box {
   display: flex;
@@ -201,9 +300,14 @@
   background: none;
   border: none;
   font-size: 18px;
-  cursor: pointer;
   font-weight: bold;
   color: #22c55e;
+  cursor: pointer;
+}
+
+.qty-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .qty-count {
@@ -212,81 +316,40 @@
   text-align: center;
 }
 
-/* Laptop */
+.disabled-counter {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* ================= SCROLLBAR ================= */
+
+.category-rail::-webkit-scrollbar,
+.products-grid::-webkit-scrollbar {
+  width: 6px;
+}
+
+.category-rail::-webkit-scrollbar-thumb,
+.products-grid::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 6px;
+}
+
+/* ================= RESPONSIVE ================= */
+
 @media (max-width: 1200px) {
   .products-grid {
     grid-template-columns: repeat(4, 1fr);
   }
 }
 
-/* Tablet */
 @media (max-width: 768px) {
   .products-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
-/* Mobile */
 @media (max-width: 480px) {
   .products-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
-
-/* IMAGE WRAPPER */
-.image-wrapper {
-  position: relative;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-/* 🔵 Small Top-Left Square Badge */
-.discount-mini-badge {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  background: #2563eb; /* Blue like your screenshot */
-  color: #fff;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 6px 8px;
-  border-radius: 6px;
-  line-height: 1.1;
-  text-align: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  z-index: 2;
-}
-
-/* ✨ Smooth Pop Animation */
-@keyframes popIn {
-  0% { transform: scale(0.6); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-.price-box {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.new-price {
-  font-weight: 500;
-  font-size: 12px;
-  color: #000;
-}
-
-.mrp {
-  font-size: 13px;
-  color: #777;
-  text-decoration: line-through;
-  gap: 1px;
-}
-
-.discount-mini-badge {
-  transition: transform 0.2s ease;
-}
-
-.product-card:hover .discount-mini-badge {
-  transform: scale(1.05);
-}
-

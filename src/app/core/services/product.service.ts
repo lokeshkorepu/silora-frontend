@@ -20,6 +20,8 @@ import {
   endAt,
   limit
 } from '@angular/fire/firestore';
+import { map } from 'rxjs/operators';
+
 
 
 @Injectable({
@@ -134,6 +136,13 @@ getFilteredProducts(
   return collectionData(q, { idField: 'id' }) as Observable<Product[]>;
 }
 
+
+getAllProductsCount() {
+  const ref = collection(this.firestore, 'products');
+  return collectionData(ref, { idField: 'id' }).pipe(
+    map(products => products.length)
+  );
+}
 
 
 }

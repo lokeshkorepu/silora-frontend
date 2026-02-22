@@ -55,7 +55,20 @@ export class HomeComponent implements OnInit {
     ========================== */
     this.productService.getProducts().subscribe({
       next: (res: Product[]) => {
-        this.products = res ?? [];
+
+        const products = res ?? [];
+
+        // Move out-of-stock to bottom
+        this.products = products.sort((a, b) => {
+
+          const stockA = a.stockQuantity || 0;
+          const stockB = b.stockQuantity || 0;
+
+          if (stockA === 0 && stockB > 0) return 1;
+          if (stockA > 0 && stockB === 0) return -1;
+          return 0;
+        });
+
         this.syncWithCart();
         this.loading = false;
       },
@@ -68,20 +81,25 @@ export class HomeComponent implements OnInit {
   }
 
   /* =========================
-     FILTER PRODUCTS BY CATEGORY
+     FILTER PRODUCTS BY CATEGORY (FIXED)
   ========================== */
-  get filteredProducts(): Product[] {
-    if (!this.selectedCategory?.name) return [];
+get filteredProducts(): Product[] {
 
-    return this.products.filter(
-      p => p.category === this.selectedCategory.name
-    );
-  }
+  // console.log('Selected Category ID:', this.selectedCategory?.id);
+  // console.log('First Product CategoryId:', this.products[0]?.categoryId);
+
+  if (!this.selectedCategory) return this.products;
+
+  return this.products.filter(
+    p => p.categoryId === this.selectedCategory.id
+   );
+}
 
   /* =========================
      CART SYNC
   ========================== */
   syncWithCart() {
+
     const cartItems = this.cartService.getCartItems();
 
     this.products.forEach(product => {
@@ -111,6 +129,7 @@ export class HomeComponent implements OnInit {
      SIDEBAR CLICK
   ========================== */
   scrollToCategory(category: any) {
+
     this.selectedCategory = category;
 
     if (!this.productsGrid) return;
@@ -135,4 +154,27 @@ export class HomeComponent implements OnInit {
     }
   }
 
+  getAvailableUnits(product: Product): number {
+
+    if (!product.stockQuantity || !product.quantity) return 0;
+
+    const unitWeight = parseInt(product.quantity || '0');
+    const stock = product.stockQuantity || 0;
+
+    if (unitWeight === 0) return 0;
+
+    return Math.floor(stock / unitWeight);
+  }
+
+  isLowStock(product: Product): boolean {
+    const units = this.getAvailableUnits(product);
+    return units > 0 && units <= 3;
+  }
+
+  getLowStockClass(product: Product): string {
+    const units = this.getAvailableUnits(product);
+
+    if (units === 1) return 'low-critical';
+    return 'low-warning';
+  }
 }

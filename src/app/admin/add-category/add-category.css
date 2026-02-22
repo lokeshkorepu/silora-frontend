@@ -137,8 +137,10 @@
 }
 
 .section-title {
-  margin-bottom: 20px;
+ font-size: 26px;
   font-weight: 600;
+  margin-bottom: 25px;
+  color: #1e293b;
 }
 
 /* TABLE */

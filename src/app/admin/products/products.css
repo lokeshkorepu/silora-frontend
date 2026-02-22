@@ -265,4 +265,132 @@ mat-form-field {
 }
 
 
+.product-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.product-table th {
+  text-align: left;
+  padding: 12px;
+  font-weight: 600;
+  border-bottom: 1px solid #ddd;
+}
+
+.product-table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #eee;
+}
+
+
+
+.stock-value {
+  font-size: 14px;     /* same as other table text */
+  font-weight: 400;    /* normal weight */
+  color: #333;
+}
+
+
+.out-stock {
+  color: #dc2626;
+  font-weight: 500;   /* slightly highlighted but not bold */
+}
+
+.stock-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;   /* important */
+  gap: 6px;
+}
+
+/* Small reorder button */
+.reorder-btn {
+  background: #fef3c7;
+  color: #92400e;
+  border: none;
+
+  padding: 6px 14px;
+  border-radius: 20px;   /* pill shape */
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  width: auto;           /* important */
+  display: inline-flex;  /* important */
+  align-items: center;
+  gap: 6px;
+
+  animation: reorderPulse 1.5s infinite;
+}
+
+@keyframes reorderPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.6);
+  }
+  70% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 8px rgba(245, 158, 11, 0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.bulk-actions {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.bulk-restock-btn {
+  background: #16a34a;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.bulk-restock-btn:hover {
+  background: #15803d;
+}
+
+.table-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-top: 1px solid #e5e7eb;
+  margin-top: 20px;
+  font-size: 14px;
+  color: #374151;
+}
+
+.items-per-page {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.items-per-page select {
+  padding: 5px 8px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: white;
+  cursor: pointer;
+}
+
+.pagination-info {
+  font-weight: 500;
+}
+
+
+
+
+
 

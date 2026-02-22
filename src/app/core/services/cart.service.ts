@@ -7,8 +7,9 @@ import { Product } from '../models/product.model';
 })
 export class CartService {
 
-  private STORAGE_KEY = 'cart';
-
+  /* =========================
+     CART OPEN / CLOSE STATE
+  ========================== */
   private cartOpen = new BehaviorSubject<boolean>(false);
   cartOpen$ = this.cartOpen.asObservable();
 
@@ -20,58 +21,22 @@ export class CartService {
     this.cartOpen.next(false);
   }
 
-
-  /* ---------------- SOURCE OF TRUTH ---------------- */
+  /* =========================
+     CART SOURCE OF TRUTH
+     (NO LOCAL STORAGE)
+  ========================== */
 
   private cartItemsSubject = new BehaviorSubject<Product[]>([]);
   cartItems$ = this.cartItemsSubject.asObservable();
 
   constructor() {
-    this.loadCart();
-  }
-
-  /* ---------------- LOAD & SAVE ---------------- */
-
-private loadCart(): void {
-  const storedCart = localStorage.getItem(this.STORAGE_KEY);
-
-  if (!storedCart) {
-    this.cartItemsSubject.next([]);
-    return;
-  }
-
-  try {
-    const items: Product[] = JSON.parse(storedCart);
-
-    if (Array.isArray(items)) {
-      // sanitize invalid counts
-      const cleanItems = items.filter(
-        item => item.id && item.price && item.count && item.count > 0
-      );
-
-      this.cartItemsSubject.next(cleanItems);
-    } else {
-      this.cartItemsSubject.next([]);
-    }
-
-  } catch {
-    // if corrupted JSON
-    localStorage.removeItem(this.STORAGE_KEY);
+    // Start empty (no localStorage)
     this.cartItemsSubject.next([]);
   }
-}
 
-private saveCart(items: Product[]): void {
-  this.cartItemsSubject.next(items);
-
-  if (items.length === 0) {
-    localStorage.removeItem(this.STORAGE_KEY);
-  } else {
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(items));
-  }
-}
-
-  /* ---------------- GETTERS (UNCHANGED API) ---------------- */
+  /* =========================
+     GETTERS
+  ========================== */
 
   getCartItems(): Product[] {
     return this.cartItemsSubject.value;
@@ -96,7 +61,9 @@ private saveCart(items: Product[]): void {
     return item ? item.count || 0 : 0;
   }
 
-  /* ---------------- ACTIONS (SAME BEHAVIOR) ---------------- */
+  /* =========================
+     ACTIONS
+  ========================== */
 
   addToCart(product: Product): void {
     const items = [...this.cartItemsSubject.value];
@@ -108,7 +75,7 @@ private saveCart(items: Product[]): void {
       items.push({ ...product, count: 1 });
     }
 
-    this.saveCart(items);
+    this.cartItemsSubject.next(items);
   }
 
   increase(product: Product): void {
@@ -117,7 +84,7 @@ private saveCart(items: Product[]): void {
 
     if (item) {
       item.count!++;
-      this.saveCart(items);
+      this.cartItemsSubject.next(items);
     }
   }
 
@@ -133,50 +100,23 @@ private saveCart(items: Product[]): void {
       items = items.filter(p => p.id !== product.id);
     }
 
-    this.saveCart(items);
+    this.cartItemsSubject.next(items);
   }
 
   clearCart(): void {
-  this.cartItemsSubject.next([]);
-  localStorage.removeItem(this.STORAGE_KEY);
-}
-
+    this.cartItemsSubject.next([]);
+  }
 
   resetCart(): void {
     this.clearCart();
   }
 
-  /* ---------------- LEGACY ORDER HELPERS (UNCHANGED) ---------------- */
+  /* =========================
+     OPTIONAL FUTURE USE
+  ========================== */
 
-  getOrders(): any[] {
-    return JSON.parse(localStorage.getItem('orders') || '[]');
+  mergeGuestCart(): void {
+    // No-op for now (ready for future backend sync)
   }
-
-  saveOrder(): void {
-    const existingOrders = JSON.parse(
-      localStorage.getItem('orders') || '[]'
-    );
-
-    const newOrder = {
-      id: Date.now(),
-      items: this.cartItemsSubject.value,
-      total: this.getTotalAmount(),
-      date: new Date().toISOString()
-    };
-
-    existingOrders.unshift(newOrder);
-    localStorage.setItem('orders', JSON.stringify(existingOrders));
-  }
-
-  /* ---------------- AUTH MERGE (OPTION B) ---------------- */
-
-/**
- * Called after user login.
- * Currently cart is already local, so nothing to do.
- * Later this will sync guest cart with backend user cart.
- */
-mergeGuestCart(): void {
-  // NO-OP for now (intentionally empty)
-}
 
 }
