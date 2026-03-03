@@ -6,14 +6,22 @@ export interface Product {
 
   originalPrice?: number;
   discountPercentage?: number;
-
-  imageUrl?: string;   // ✅ ONLY THIS  
   
   quantity?: string;
   stockQuantity?: number;
 
-  categoryId: string;  
-  count?: number;
+  imageUrl?: string;   // ✅ ONLY THIS
   createdAt?: Date;   // ✅ add this line
+
+  categoryId?: string;
+  categoryName?: string;
+
+  subcategoryId?: string;
+  subcategoryName?: string;
+
+  isActive?: boolean;
+  nameLower?: string;
+
+  count?: number;
 
 }

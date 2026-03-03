@@ -175,6 +175,27 @@ tr:hover {
   100% { box-shadow: 0 0 0 rgba(34,197,94,0.3); }
 }
 
+/* ============ Pagination ============= */
+
+.pagination-footer {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 10px 0;
+}
+
+.items-per-page {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.range-info {
+  font-size: 14px;
+  color: #555;
+  white-space: nowrap; /* prevents it from going below */
+}
+
 /* ============================= */
 /* DRAWER */
 /* ============================= */
@@ -195,7 +216,7 @@ tr:hover {
   height: 100%;
   background: #ffffff;
   box-shadow: -8px 0 40px rgba(0,0,0,0.08);
-  z-index: 1000;
+  z-index: 2000;
   transform: translateX(100%);
   transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
   display: flex;
@@ -218,6 +239,13 @@ tr:hover {
   padding: 20px;
   overflow-y: auto;
   flex: 1;
+}
+
+.close-btn {
+  position: relative;
+  z-index: 1003;
+  cursor: pointer;
+  pointer-events: auto;
 }
 
 /* ============================= */
@@ -330,6 +358,128 @@ tr:hover {
   line-height: 1.4;
 }
 
+/* HEADER */
+/* HEADER */
+.product-header {
+  display: grid;
+  grid-template-columns: 3fr 80px 100px 110px;
+  align-items: center;
+  font-weight: 600;
+  font-size: 13px;
+  color: #666;
+  padding: 10px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* SCROLL WRAPPER */
+.products-wrapper {
+  max-height: 280px;   /* approx 4 rows */
+  overflow-y: auto;
+}
+
+/* ROW */
+.drawer-product {
+  display: grid;
+  grid-template-columns: 3fr 80px 100px 110px;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 14px;
+  transition: background 0.2s ease;
+}
+
+/* HOVER EFFECT */
+.drawer-product:hover {
+  background: #f8fafc;
+}
+
+/* PRODUCT INFO (Image + Name) */
+.product-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.product-thumb {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+/* ALIGNMENTS */
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+/* TOTAL - BOLD GREEN */
+.total {
+  font-weight: 700;
+  color: #16a34a;
+}
+
+/* OPTIONAL: Scrollbar Styling */
+.products-wrapper::-webkit-scrollbar {
+  width: 6px;
+}
+
+.products-wrapper::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 10px;
+}
+
+.summary-card {
+  background: #ffffff;
+  padding: 18px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  margin-top: 20px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  font-size: 14px;
+  color: #374151;
+}
+
+.summary-divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 10px 0;
+}
+
+.total-row {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.total-amount {
+  color: #16a34a;
+  font-weight: 700;
+}
+
+.summary-actions {
+  margin-top: 15px;
+}
+
+.invoice-btn {
+  width: 100%;
+  padding: 8px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 /* ============================= */
 /* TOAST */
 /* ============================= */
@@ -338,7 +488,8 @@ tr:hover {
   position: fixed;
   top: 20px;
   right: 20px;
-  z-index: 99999;
+  z-index: 1100; /* lower than drawer */
+  pointer-events: none; /* VERY IMPORTANT */
 }
 
 .toast {

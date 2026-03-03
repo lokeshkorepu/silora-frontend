@@ -53,54 +53,89 @@
   <!-- CENTER SEARCH -->
   <div class="search-box">
     <input type="text"
-           [placeholder]="typedText"
+           [formControl]="searchControl"
+           placeholder ="Search products..."
            class="search-input" />
+           
+           <p>{{ searchControl.value }}</p>
+
     <span class="search-icon">🔍</span>
   </div>
 
-  <!-- RIGHT -->
-  <div class="right">
+ <!-- RIGHT -->
+<div class="right">
 
-    <!-- LOGIN (when not logged in) -->
+  <!-- LOGIN -->
+  <button
+    *ngIf="!authService.isLoggedIn()"
+    routerLink="/login"
+    class="login-pill">
+    Login
+  </button>
+
+  <!-- ACCOUNT -->
+  <div
+   class="account-wrapper"
+   *ngIf="authService.user$ | async as user"
+   #accountWrapper
+  >
+
     <button
-      *ngIf="!authService.isLoggedIn()"
-      routerLink="/login"
-      class="btn">
-      Login
+     class="account-btn"
+     (click)="toggleAccountDropdown()"
+    >
+      Account <span class="arrow"> ▼ </span>
     </button>
 
-    <!-- CART -->
-      <button class="btn" (click)="openCart()">
-      🛒 Cart
-      <span *ngIf="cartCount > 0" class="cart-badge">
-        {{ cartCount }}
-      </span>
-    </button>
+    <!-- DROPDOWN PANEL -->
+    <div
+     class="account-dropdown"
+     *ngIf="showAccountDropdown"
+    >
 
-    <!-- ORDERS (only when logged in) -->
-    <button
-      *ngIf="authService.isLoggedIn()"
-      routerLink="/orders"
-      class="btn">
-      Orders
-    </button>
+    <!-- Header -->
+  <div class="account-header">
+    <h3>My Account</h3>
+    <p class="mobile-number">{{ user.phoneNumber }}</p>
+  </div>
 
-    <!-- ADMIN (only real admin) -->
-    <button
-      *ngIf="authService.isAdmin()"
-      routerLink="/admin"
-      class="btn">
-      Admin
-    </button>
+  <!-- Menu Items -->
+  <ul class="account-menu">
+    <li>My Orders</li>
+    <li>Saved Addresses</li>
+    <li>My Prescriptions</li>
+    <li>E-Gift Cards</li>
+    <li>FAQ's</li>
+    <li>Account Privacy</li>
+    <li class="logout" (click)="logout()">Log Out</li>
+  </ul>
 
-    <!-- LOGOUT -->
-    <button
-      *ngIf="authService.isLoggedIn()"
-      (click)="logout()"
-      class="btn">
-      Logout
-    </button>
+  <!-- Divider -->
+  <div class="divider-line"></div>
+
+  <!-- Bottom QR Section -->
+  <div class="qr-section">
+    <img src="assets/products/no-image.png" alt="QR Code" />
+    <div class="qr-text">
+      <h4>Simple way to get groceries</h4>
+      <span class="highlight">at your doorstep</span>
+      <p>Scan the QR code and download Silora app</p>
+    </div>
+  </div>
+
+</div>
 
   </div>
+
+   <!-- CART -->
+  <button class="cart-btn" (click)="openCart()">
+    <span class="cart-icon">🛒</span>
+    My Cart
+    <span *ngIf="cartCount > 0" class="cart-badge">
+      {{ cartCount }}
+    </span>
+  </button>
+
+</div>
 
 </header>

@@ -7,7 +7,9 @@ import { HostListener } from '@angular/core';
 import { AdminNotificationService, AdminNotification } from '../../core/services/admin-notification.service';
 import { Observable } from 'rxjs';
 import { Firestore } from '@angular/fire/firestore';
-import { collection, getDocs, doc, updateDoc, deleteField } from '@angular/fire/firestore';
+import { collection, getDocs, doc, updateDoc, getDoc, deleteField } from '@angular/fire/firestore';
+import { ProductService } from '../../core/services/product.service';
+
 
 @Component({
   selector: 'app-admin-layout',
@@ -32,7 +34,8 @@ constructor(private router: Router,
             public authService: AuthService,
             public notificationService: NotificationService,
             public adminNotificationService: AdminNotificationService,
-            private firestore: Firestore
+            private firestore: Firestore,
+            private productService: ProductService
           ) {}
 
 ngOnInit(): void {
@@ -199,6 +202,14 @@ async migrateCategoryField() {
   }
 
   console.log('🎉 Migration completed successfully');
+}
+
+
+
+
+
+runProductMigration() {
+  this.productService.migrateProductsToCorrectSlug();
 }
 
 }

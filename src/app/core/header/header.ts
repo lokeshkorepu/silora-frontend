@@ -4,9 +4,17 @@ import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { RouterLink } from '@angular/router';
-
 import { CartService } from '../../core/services/cart.service';
 import { AuthService } from '../auth/auth.service';
+import { ElementRef, ViewChild, HostListener } from '@angular/core';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { of } from 'rxjs';
+import { FormControl } from '@angular/forms';
+import { Observable } from 'rxjs';
+import { collection, collectionData, query, orderBy, startAt, endAt } from '@angular/fire/firestore';
+import { ReactiveFormsModule } from '@angular/forms';
+import { Output, EventEmitter } from '@angular/core';
+import { ProductService } from '../services/product.service';
 
 @Component({
   selector: 'app-header',
@@ -15,27 +23,20 @@ import { AuthService } from '../auth/auth.service';
     CommonModule,
     FormsModule,
     RouterModule,
-    RouterLink
+    RouterLink,
+    ReactiveFormsModule
   ],
   templateUrl: './header.html',
   styleUrls: ['./header.css']
 })
+
 export class HeaderComponent implements OnInit, OnDestroy {
 
-  /* =====================
-     LOCATION STATE
-  ===================== */
   userLocation: string = 'Detecting location...';
   showPopup = false;
   showLocationPopup = false;
-  // showLoginPopup = false;
-
-  /* =====================
-     SEARCH
-  ===================== */
   searchQuery: string = '';
   error: string = '';
-
   placeholders = [
     'Search "bread"',
     'Search "milk"',
@@ -47,48 +48,49 @@ export class HeaderComponent implements OnInit, OnDestroy {
     'Search "chocolates"',
     'Search "drinks"'
   ];
-
   typedText = '';
   placeholderIndex = 0;
   charIndex = 0;
   isDeleting = false;
-
-  /* =====================
-     CART
-  ===================== */
+  userPhone: string | null = '';
+  @ViewChild('accountWrapper') accountWrapper!: ElementRef;
+  @Output() searchChanged = new EventEmitter<string>();
+  showAccountDropdown = false; 
   cartCount = 0;
   private cartSub!: Subscription;
+  searchControl = new FormControl<string>('');
+  products$: Observable<any[]> | undefined;
 
   constructor(
     private cartService: CartService,
     private router: Router,
+    private productService: ProductService,
     public authService: AuthService   // 👈 public for template
-  ) {}
+  ) { }
 
-  /* =====================
-     LIFECYCLE
-  ===================== */
   ngOnInit(): void {
-    this.startTyping();
 
-    // ✅ single source of truth for cart count
-    this.cartSub = this.cartService.cartItems$.subscribe(items => {
+    // this.startTyping();
+
+      this.userPhone = this.authService.getUserPhone();
+
+      this.cartSub = this.cartService.cartItems$.subscribe(items => {
       this.cartCount = items.reduce(
         (sum, item) => sum + (item.count || 0),
-        0
-      );
+        0 ); });
+
+        this.searchControl.valueChanges
+    .pipe(debounceTime(400))
+    .subscribe(value => {
+      console.log("Header sending:", value);
+      this.productService.searchProducts(value ?? '');
+      // this.searchChanged.emit(value || '');
     });
+    
   }
 
   ngOnDestroy(): void {
     this.cartSub?.unsubscribe();
-  }
-
-  /* =====================
-     AUTH HELPERS (CLEAN)
-  ===================== */
-  get isLoggedIn(): boolean {
-    return this.authService.isLoggedIn();
   }
 
   get isAdmin(): boolean {
@@ -99,16 +101,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return this.authService.getCurrentUser()?.email || '';
   }
 
-  /* =====================
-     UI TOGGLES
-  ===================== */
   togglePopup() {
     this.showPopup = !this.showPopup;
   }
-
-  // toggleLogin() {
-  //   this.showLoginPopup = !this.showLoginPopup;
-  // }
 
   toggleLocationPopup() {
     this.showLocationPopup = !this.showLocationPopup;
@@ -118,15 +113,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.showLocationPopup = false;
   }
 
-  /* =====================
-     LOCATION
-  ===================== */
   fetchLocation() {
     if (!navigator.geolocation) {
       this.error = 'Geolocation not supported';
       return;
     }
-
     navigator.geolocation.getCurrentPosition(
       () => {
         this.userLocation = 'Location detected';
@@ -135,8 +126,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       () => {
         this.userLocation = 'Location unavailable';
         this.error = 'Permission denied';
-      }
-    );
+      });
   }
 
   searchLocation() {
@@ -144,9 +134,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.showLocationPopup = false;
   }
 
-  /* =====================
-     SEARCH PLACEHOLDER
-  ===================== */
   startTyping() {
     const currentText = this.placeholders[this.placeholderIndex];
 
@@ -167,38 +154,33 @@ export class HeaderComponent implements OnInit, OnDestroy {
           (this.placeholderIndex + 1) % this.placeholders.length;
       }
     }
-
     setTimeout(() => this.startTyping(), this.isDeleting ? 60 : 90);
   }
-/* =====================
-   LOGIN / LOGOUT
-===================== */
-// login(): void {
-//   this.authService.login({
-//     email: 'admin@silora.com',
-//     password: '123456'
-//   }).subscribe(() => {
 
-//     this.showLoginPopup = false;
-
-//     // 👇 Redirect admin to admin panel
-//     if (this.authService.isAdmin()) {
-//       this.router.navigate(['/admin']);
-//     }
-
-//   });
-// }
-// login(): void {
-//   this.router.navigate(['/login']);
-// }
-
-
-logout(): void {
+logout() {
   this.authService.logout();
-  this.router.navigate(['/']); // optional but recommended
+  this.showAccountDropdown = false;
 }
+
 openCart() {
   this.cartService.openCart();
 }
+
+toggleAccountDropdown() {
+  this.showAccountDropdown = !this.showAccountDropdown;
+}
+
+@HostListener('document:click', ['$event'])
+onClickOutside(event: MouseEvent) {
+  if (
+    this.showAccountDropdown &&
+    this.accountWrapper &&
+    !this.accountWrapper.nativeElement.contains(event.target)
+  ) {
+    this.showAccountDropdown = false;
+  }
+}
+
+
 
 }

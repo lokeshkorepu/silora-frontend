@@ -1,11 +1,28 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, addDoc, collectionData } from '@angular/fire/firestore';
-import { Storage, ref, uploadBytes, getDownloadURL } from '@angular/fire/storage';
+import {
+  Firestore,
+  collection,
+  collectionData,
+  doc,
+  docData,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  orderBy,
+  getDocs
+} from '@angular/fire/firestore';
+
+import {
+  Storage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject
+} from '@angular/fire/storage';
+
 import { Observable } from 'rxjs';
-import { doc, docData } from '@angular/fire/firestore';
-import { updateDoc } from '@angular/fire/firestore';
-import { deleteObject, getStorage } from 'firebase/storage';
-import { deleteDoc, getFirestore } from 'firebase/firestore';
 
 @Injectable({
   providedIn: 'root'
@@ -17,78 +34,231 @@ export class CategoryService {
     private storage: Storage
   ) {}
 
-  /* GET ALL CATEGORIES (REALTIME) */
-  getCategories(): Observable<any[]> {
-    const categoryRef = collection(this.firestore, 'categories');
-    return collectionData(collection(this.firestore, 'categories'), { idField: 'id' }) as Observable<any[]>;
+  /* =========================================
+     GET ALL CATEGORIES (Realtime)
+  ========================================== */
+  getAllCategories(): Observable<any[]> {
+
+    const categoriesRef = collection(this.firestore, 'categories');
+
+    const q = query(
+      categoriesRef,
+      orderBy('createdAt', 'desc')
+    );
+
+    return collectionData(q, { idField: 'id' }) as Observable<any[]>;
   }
 
-  getCategoryById(id: string) {
-  const docRef = doc(this.firestore, `categories/${id}`);
-  return docData(docRef, { idField: 'id' });
+  getCategories(): Observable<any[]> {
+  return this.getAllCategories();
 }
 
-  /* ADD CATEGORY */
-  async addCategory(name: string, file: File) {
+  /* =========================================
+     GET CATEGORY BY ID
+  ========================================== */
+  getCategoryById(id: string) {
 
-    const storageRef = ref(this.storage, `categories/${Date.now()}_${file.name}`);
+    const docRef = doc(this.firestore, `categories/${id}`);
 
-    // Upload image
+    return docData(docRef, { idField: 'id' });
+  }
+
+  /* =========================================
+     GET MAIN CATEGORIES (parentId == null)
+  ========================================== */
+  getMainCategories(): Observable<any[]> {
+
+    const categoriesRef = collection(this.firestore, 'categories');
+
+    const q = query(
+      categoriesRef,
+      where('parentId', '==', null),
+      where('isActive', '==', true),
+      orderBy('order', 'asc')
+    );
+
+    return collectionData(q, { idField: 'id' }) as Observable<any[]>;
+  }
+
+  /* =========================================
+     GET SUBCATEGORIES BY PARENT ID
+  ========================================== */
+  getSubcategories(parentId: string): Observable<any[]> {
+
+    const categoriesRef = collection(this.firestore, 'categories');
+
+    const q = query(
+      categoriesRef,
+      where('parentId', '==', parentId),
+      where('isActive', '==', true),
+      orderBy('order', 'asc')
+    );
+
+    return collectionData(q, { idField: 'id' }) as Observable<any[]>;
+  }
+
+  /* =========================================
+     GET ALL SUBCATEGORIES
+  ========================================== */
+  getAllSubCategories(): Observable<any[]> {
+
+  const categoriesRef = collection(this.firestore, 'categories');
+
+  const q = query(
+    categoriesRef,
+    where('parentId', '!=', null),
+    orderBy('parentId'),
+    orderBy('order')
+  );
+
+  return collectionData(q, { idField: 'id' }) as Observable<any[]>;
+}
+
+  /* =========================================
+     ADD CATEGORY
+  ========================================== */
+  async addCategory(
+    name: string,
+    file: File,
+    parentId: string | null
+  ) {
+
+    const storageRef = ref(
+      this.storage,
+      `categories/${Date.now()}_${file.name}`
+    );
+
     await uploadBytes(storageRef, file);
-
-    // Get image URL
     const imageUrl = await getDownloadURL(storageRef);
 
-    // Save to Firestore
-    const categoryRef = collection(this.firestore, 'categories');
-
-    await addDoc(categoryRef, {
+    await addDoc(collection(this.firestore, 'categories'), {
       name,
       imageUrl,
+      parentId: parentId ?? null,
+      order: await this.getNextOrder(parentId),
+      isActive: true,
       createdAt: new Date()
     });
   }
-  async updateCategory(id: string, name: string, file?: File | null) {
 
-  const firestoreRef = doc(this.firestore, `categories/${id}`);
+  /* =========================================
+     UPDATE CATEGORY
+  ========================================== */
+  async updateCategory(
+    id: string,
+    name: string,
+    file?: File | null,
+    parentId?: string | null
+  ) {
 
-  let data: any = { name };
+    const docRef = doc(this.firestore, `categories/${id}`);
 
-  // If new image selected → upload new image
-  if (file) {
+    let updateData: any = {
+      name,
+      parentId: parentId ?? null
+    };
 
-    const storageRef = ref(this.storage, `categories/${file.name}`);
-    await uploadBytes(storageRef, file);
-    const imageUrl = await getDownloadURL(storageRef);
+    if (file) {
 
-    data.imageUrl = imageUrl;
+      const storageRef = ref(
+        this.storage,
+        `categories/${Date.now()}_${file.name}`
+      );
+
+      await uploadBytes(storageRef, file);
+      const imageUrl = await getDownloadURL(storageRef);
+
+      updateData.imageUrl = imageUrl;
+    }
+
+    await updateDoc(docRef, updateData);
   }
 
-  await updateDoc(firestoreRef, data);
-}
+  /* =========================================
+     SAFE DELETE CATEGORY
+  ========================================== */
+  async deleteCategorySafe(category: any) {
 
+    const categoriesRef = collection(this.firestore, 'categories');
 
+    // Check if subcategories exist
+    const childQuery = query(
+      categoriesRef,
+      where('parentId', '==', category.id)
+    );
 
-async deleteCategory(categoryId: string, imageUrl: string) {
+    const childSnapshot = await getDocs(childQuery);
 
-  const storage = getStorage();
-  const firestore = getFirestore();
+    if (!childSnapshot.empty) {
+      throw new Error('Cannot delete: This category has subcategories.');
+    }
 
-  try {
-
-    // Delete image from Firebase Storage
-    if (imageUrl) {
-      const imageRef = ref(storage, imageUrl);
+    // Delete image from storage
+    if (category.imageUrl) {
+      const imageRef = ref(this.storage, category.imageUrl);
       await deleteObject(imageRef);
     }
 
-    // Delete Firestore document
-    await deleteDoc(doc(firestore, 'categories', categoryId));
+    // Delete document
+    await deleteDoc(
+      doc(this.firestore, 'categories', category.id)
+    );
 
-  } catch (error: any) {
-    console.error('Delete failed:', error);
-    throw error;
+    // Reorder siblings
+    await this.reorderCategories(category.parentId);
   }
-}
 
+  /* =========================================
+     GET NEXT ORDER
+  ========================================== */
+  private async getNextOrder(parentId: string | null): Promise<number> {
+
+    const categoriesRef = collection(this.firestore, 'categories');
+
+    const q = query(
+      categoriesRef,
+      where('parentId', '==', parentId ?? null),
+      orderBy('order', 'desc')
+    );
+
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) return 1;
+
+    const lastOrder = snapshot.docs[0].data()['order'] || 0;
+
+    return lastOrder + 1;
+  }
+
+  /* =========================================
+     REORDER SIBLINGS
+  ========================================== */
+  private async reorderCategories(parentId: string | null) {
+
+    const categoriesRef = collection(this.firestore, 'categories');
+
+    const q = query(
+      categoriesRef,
+      where('parentId', '==', parentId ?? null),
+      orderBy('order')
+    );
+
+    const snapshot = await getDocs(q);
+
+    let newOrder = 1;
+
+    const updates: Promise<any>[] = [];
+
+    snapshot.docs.forEach(docSnap => {
+
+      updates.push(
+        updateDoc(
+          doc(this.firestore, 'categories', docSnap.id),
+          { order: newOrder++ }
+        )
+      );
+    });
+
+    await Promise.all(updates);
+  }
 }

@@ -1,32 +1,31 @@
 import { Component } from '@angular/core';
 import { CategoryService } from '../../core/services/category.service';
-import { FormsModule } from '@angular/forms';  // ✅ ADD THIS
+import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Observable } from 'rxjs';
-import { deleteObject, ref, getStorage } from 'firebase/storage';
-import { doc, deleteDoc } from 'firebase/firestore';
-import { getFirestore } from 'firebase/firestore';
-import { Router } from '@angular/router';
-import { ActivatedRoute } from '@angular/router';
+import { Observable, map } from 'rxjs';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   standalone: true,
   selector: 'app-add-category',
-  imports: [CommonModule, FormsModule], // ✅ ADD FormsModule HERE
+  imports: [CommonModule, FormsModule],
   templateUrl: './add-category.html',
-  styleUrls: ['./add-category.css'] 
+  styleUrls: ['./add-category.css']
 })
-
 export class AddCategory {
 
   name = '';
   selectedFile: File | null = null;
+
   categories$!: Observable<any[]>;
+  mainCategories$!: Observable<any[]>;
+
   categoryId: string | null = null;
   isEditMode = false;
+
   previewImage: string | null = null;
   searchText: string = '';
-
+  parentId: string | null = null;
 
   constructor(
     private categoryService: CategoryService,
@@ -36,10 +35,17 @@ export class AddCategory {
 
   ngOnInit() {
 
-    // Load categories
-    this.categories$ = this.categoryService.getCategories();
+    // 🔥 Load all categories
+    this.categories$ = this.categoryService.getAllCategories();
 
-    // Check edit mode
+    // 🔥 Derive main categories from same collection
+    this.mainCategories$ = this.categoryService.getAllCategories().pipe(
+      map(categories =>
+        categories.filter(cat => !cat.parentId)
+      )
+    );
+
+    // Edit mode check
     this.categoryId = this.route.snapshot.paramMap.get('id');
 
     if (this.categoryId) {
@@ -49,14 +55,15 @@ export class AddCategory {
         .subscribe((category: any) => {
           if (category) {
             this.name = category.name || '';
-            this.previewImage = category.imageUrl || null; // ✅ show existing image
+            this.parentId = category.parentId ?? null;
+            this.previewImage = category.imageUrl || null;
           }
         });
     }
   }
 
-  // ✅ IMAGE PREVIEW FIX
   onFileSelected(event: any) {
+
     const file = event.target.files[0];
     if (!file) return;
 
@@ -66,12 +73,13 @@ export class AddCategory {
     reader.onload = () => {
       this.previewImage = reader.result as string;
     };
+
     reader.readAsDataURL(file);
   }
 
   async save() {
 
-    if (!this.name) {
+    if (!this.name.trim()) {
       alert('Please enter category name');
       return;
     }
@@ -83,7 +91,8 @@ export class AddCategory {
         await this.categoryService.updateCategory(
           this.categoryId,
           this.name,
-          this.selectedFile
+          this.selectedFile,
+          this.parentId
         );
 
         alert('Category updated successfully ✅');
@@ -95,12 +104,15 @@ export class AddCategory {
           return;
         }
 
-        await this.categoryService.addCategory(this.name, this.selectedFile);
+        await this.categoryService.addCategory(
+          this.name,
+          this.selectedFile,
+          this.parentId
+        );
 
         alert('Category added successfully ✅');
       }
 
-      // ✅ Reset form instead of full navigation reload
       this.resetForm();
 
     } catch (error) {
@@ -119,6 +131,7 @@ export class AddCategory {
     this.previewImage = null;
     this.isEditMode = false;
     this.categoryId = null;
+    this.parentId = null;
     this.router.navigate(['/admin/add-category']);
   }
 
@@ -126,32 +139,26 @@ export class AddCategory {
     this.router.navigate(['/admin/edit-category', category.id]);
   }
 
-  deleteCategory(category: any) {
+  async deleteCategory(category: any) {
 
-  if (!confirm('Are you sure you want to delete this category?')) return;
+    if (!confirm('Are you sure you want to delete this category?')) return;
 
-  this.categoryService
-    .deleteCategory(category.id, category.imageUrl)
-    .then(() => {
-      alert('Category deleted successfully');
-    })
-    .catch((error: any) => {
-      console.error(error);
-    });
+    try {
+      await this.categoryService.deleteCategorySafe(category);
+      alert('Category deleted successfully ✅');
+    } catch (error: any) {
+      alert(error.message);
+    }
+  }
+
+  getFilteredCategories(categories: any[]) {
+
+    if (!this.searchText) return categories;
+
+    return categories.filter(category =>
+      category.name
+        .toLowerCase()
+        .includes(this.searchText.toLowerCase())
+    );
+  }
 }
-
-
-getFilteredCategories(categories: any[]) {
-
-  if (!this.searchText) return categories;
-
-  return categories.filter(category =>
-    category.name
-      .toLowerCase()
-      .includes(this.searchText.toLowerCase())
-  );
-}
-
-
-}
-

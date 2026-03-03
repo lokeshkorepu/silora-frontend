@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { CartComponent } from './user/cart/cart';
 import { CartService } from './core/services/cart.service';
 import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 
 
 
@@ -15,7 +16,7 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-root',
   standalone: true,
   templateUrl: './app.html',
-  imports: [RouterOutlet, CommonModule, HeaderComponent, Footer, CartComponent],  
+  imports: [RouterOutlet, CommonModule, HeaderComponent, Footer, CartComponent, ReactiveFormsModule],  
 })
 export class AppComponent {
 

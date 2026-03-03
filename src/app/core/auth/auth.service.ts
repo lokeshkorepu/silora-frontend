@@ -1,26 +1,21 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, from } from 'rxjs';
-import { tap, map } from 'rxjs/operators';
-import { LoginDTO } from './login.dto';
+import { Injectable, inject } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 import { CartService } from '../services/cart.service';
 import {
   Auth,
-  signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
-  User,
-  createUserWithEmailAndPassword
+  User
 } from '@angular/fire/auth';
-import { Firestore, doc, setDoc } from '@angular/fire/firestore';
-
+import { Firestore } from '@angular/fire/firestore';
+import { doc, getDoc} from '@angular/fire/firestore';
 
 export type UserRole = 'admin' | 'user' | null;
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 
-  private readonly USER_KEY = 'logged_user';
-  private readonly ROLE_KEY = 'user_role';
+  private auth: Auth = inject(Auth);
 
   private userSubject = new BehaviorSubject<User | null>(null);
   user$ = this.userSubject.asObservable();
@@ -30,87 +25,52 @@ export class AuthService {
 
   constructor(
     private cartService: CartService,
-    private auth: Auth,
-    private firestore: Firestore   // ✅ Inject Firestore
-
+    private firestore: Firestore
   ) {
     this.listenToAuthState();
-    this.loadUser();
   }
 
-  /* ---------------- LOAD USER ---------------- */
+  /* ---------------- AUTH STATE LISTENER ---------------- */
 
-  private loadUser(): void {
-    const storedUser = localStorage.getItem(this.USER_KEY);
-    if (storedUser) {
-      this.userSubject.next(JSON.parse(storedUser));
-    }
-  }
+private listenToAuthState(): void {
+  onAuthStateChanged(this.auth, async (user) => {
+    this.userSubject.next(user);
 
-  private listenToAuthState(): void {
-    onAuthStateChanged(this.auth, (user) => {
-      this.userSubject.next(user);
+    if (user) {
 
-      if (user) {
-        const role: UserRole =
-          user.email === 'admin@silora.com' ? 'admin' : 'user';
+      try {
+        const userDocRef = doc(this.firestore, `users/${user.uid}`);
+        const userSnap = await getDoc(userDocRef);
 
-        this.roleSubject.next(role);
-
-        localStorage.setItem(this.USER_KEY, JSON.stringify(user));
-        localStorage.setItem(this.ROLE_KEY, role);
-
-      } else {
-        this.roleSubject.next(null);
-        localStorage.removeItem(this.USER_KEY);
-        localStorage.removeItem(this.ROLE_KEY);
-      }
-    });
-  }
-
-  /* ---------------- AUTH ACTIONS ---------------- */
-
-  login(dto: LoginDTO): Observable<User> {
-    return from(
-      signInWithEmailAndPassword(this.auth, dto.email, dto.password)
-    ).pipe(
-      tap(() => {
-        this.cartService.mergeGuestCart?.();
-      }),
-      map(result => result.user)
-    );
-  }
-
-  signup(email: string, password: string, name: string): Observable<User> {
-    return from(
-      createUserWithEmailAndPassword(this.auth, email, password)
-    ).pipe(
-      tap(async (result) => {
-        const uid = result.user?.uid;
-        if (uid) {
-          const userRef = doc(this.firestore, `users/${uid}`);
-          await setDoc(userRef, {
-            uid,
-            name,
-            email,
-            createdAt: new Date()
-          });
+        if (userSnap.exists()) {
+          const data = userSnap.data();
+          const role: UserRole = data['role'] === 'admin' ? 'admin' : 'user';
+          this.roleSubject.next(role);
+        } else {
+          this.roleSubject.next('user');
         }
-      }),
-      map(result => result.user)
-    );
-  }
+
+      } catch (error) {
+        console.error('Error fetching user role:', error);
+        this.roleSubject.next('user');
+      }
+
+    } else {
+      this.roleSubject.next(null);
+    }
+  });
+}
+
+  /* ---------------- LOGOUT ---------------- */
 
   logout(): void {
-    signOut(this.auth).then(() => {
-      localStorage.removeItem(this.USER_KEY);
-      localStorage.removeItem(this.ROLE_KEY);
-
-      this.userSubject.next(null);
-      this.roleSubject.next(null);
-
-      this.cartService.clearCart();
-    });
+    signOut(this.auth)
+      .then(() => {
+        this.cartService.clearCart();
+      })
+      .catch(error => {
+        console.error('Logout error:', error);
+      });
   }
 
   /* ---------------- HELPERS ---------------- */
@@ -124,13 +84,19 @@ export class AuthService {
   }
 
   isAdmin(): boolean {
-    return (
-      this.isLoggedIn() &&
-      localStorage.getItem(this.ROLE_KEY) === 'admin'
-    );
+    return this.roleSubject.value === 'admin';
   }
 
-  getRole(): UserRole | null {
-    return localStorage.getItem(this.ROLE_KEY) as UserRole | null;
+  getRole(): UserRole {
+    return this.roleSubject.value;
   }
+
+  getUserPhone(): string | null {
+    return this.auth.currentUser?.phoneNumber || null;
+  }
+
+  getUserObservable() {
+  return this.user$;
+}
+
 }

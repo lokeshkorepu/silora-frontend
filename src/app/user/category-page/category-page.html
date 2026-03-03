@@ -2,49 +2,60 @@
 
   <div class="home-box">
 
-    <!-- HEADER -->
     <div class="section-title">
-      Buy {{ selectedCategory?.name }} Online
+      Buy {{ subcategoryName }} Online
     </div>
 
-    <!-- MAIN CONTENT -->
     <div class="home-body">
 
-      <!-- ================= SIDEBAR ================= -->
+      <!-- Sidebar -->
       <aside class="category-rail">
 
-        @for (category of categories; track category.id) {
-          <div
-            class="rail-item"
-            [class.active]="selectedCategory?.id === category.id"
-            (click)="selectedCategory = category">
+        <div
+          class="rail-item"
+          *ngFor="let sub of subcategories; trackBy: trackById"
+          [routerLink]="['/category', categoryId, sub.id]"
+          [class.active]="subcategoryId === sub.id">
 
-            <div class="rail-image-box">
-              <img
-                [src]="category.imageUrl || 'assets/products/no-image.png'"
-                alt="{{ category.name }}" />
-            </div>
-
-            <div class="rail-label">
-              {{ category.name }}
-            </div>
-
+          <div class="rail-image-box">
+            <img
+              [src]="sub.imageUrl || 'assets/products/no-image.png'"
+              alt="{{ sub.name }}" />
           </div>
-        }
+
+          <div class="rail-label">
+            {{ sub.name }}
+          </div>
+
+        </div>
 
       </aside>
 
       <!-- ================= PRODUCT GRID ================= -->
-      <section class="products-grid" #productsGrid>
+      <div class="products-content">
 
-        @for (product of filteredProducts; track product.id) {
+        <!-- Search Count -->
+        <div *ngIf="currentSearchText && !loading" class="search-result-count">
+          {{ products.length }} result{{ products.length !== 1 ? 's' : '' }} found
+          for "<b>{{ currentSearchText }}</b>"
+        </div>
 
-          <div class="product-card">
+        <!-- Loading -->
+        <div *ngIf="loading" class="shimmer-container">
+          <div class="shimmer-card" *ngFor="let i of [1,2,3,4,5,6]"></div>
+        </div>
+
+        <!-- Products -->
+        <section *ngIf="!loading && products.length > 0"
+                 class="products-grid"
+                 #productsGrid>
+
+          <div class="product-card"
+               *ngFor="let product of products; trackBy: trackById">
 
             <!-- IMAGE SECTION -->
             <div class="image-wrapper">
 
-              <!-- Discount Badge -->
               <div *ngIf="product.discountPercentage 
                           && product.discountPercentage > 0 
                           && (product.stockQuantity || 0) > 0"
@@ -53,20 +64,17 @@
                 OFF
               </div>
 
-              <!-- Low Stock Badge -->
               <div *ngIf="isLowStock(product)"
                    class="low-stock-badge"
                    [ngClass]="getLowStockClass(product)">
                 Only {{ getAvailableUnits(product) }} left
               </div>
 
-              <!-- Product Image -->
               <img
                 [src]="product.imageUrl || 'assets/products/no-image.png'"
                 [class.out-img]="(product.stockQuantity || 0) <= 0"
                 (error)="onImageError($event)" />
 
-              <!-- Out of Stock Badge -->
               <div class="out-of-stock-badge"
                    *ngIf="(product.stockQuantity || 0) <= 0">
                 Out of Stock
@@ -77,8 +85,8 @@
             <!-- PRODUCT INFO -->
             <div class="delivery">⏱ 8 MINS</div>
 
-            <div class="name">
-              {{ product.name }}
+            <div class="name"
+                 [innerHTML]="highlight(product.name)">
             </div>
 
             <div class="qty">
@@ -88,7 +96,6 @@
             <!-- FOOTER -->
             <div class="footer">
 
-              <!-- PRICE BOX -->
               <div class="price-box">
 
                 <ng-container *ngIf="product.discountPercentage 
@@ -125,7 +132,6 @@
 
               </ng-container>
 
-              <!-- COUNTER -->
               <ng-template #counter>
                 <div class="qty-box"
                      [class.disabled-counter]="getAvailableUnits(product) === 0">
@@ -152,9 +158,17 @@
 
           </div>
 
-        }
+        </section>
 
-      </section>
+        <!-- No Results -->
+        <div *ngIf="!loading && products.length === 0"
+             class="no-results">
+          <img src="assets/products/no-image.png" />
+          <h3>No results found</h3>
+          <p>Try searching with a different keyword</p>
+        </div>
+
+      </div>
 
     </div>
 

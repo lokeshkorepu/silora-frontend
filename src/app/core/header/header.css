@@ -1,44 +1,84 @@
-/* ===== HEADER ===== */
+:root {
+  --header-height: 80px;
+}
+/* =======================================================
+   GLOBAL RESET (SAFE)
+======================================================= */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: inherit;
+}
+
+/* =======================================================
+   HEADER
+======================================================= */
+
 .header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 24px;
-  background: #ffffff;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  height: 72px;
+  height: 80px; /* explicit height */
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
   z-index: 1000;
 }
+
+/* ================= LEFT SECTION ================= */
 
 .left {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 24px;
 }
 
 .logo {
   height: 42px;
+  cursor: pointer;
+}
+
+/* =======================================================
+   LOCATION SECTION
+======================================================= */
+
+.location-wrapper {
+  position: relative;
 }
 
 .location-card {
-  background: #f7f7f7;
-  padding: 10px 14px;
-  border-radius: 12px;
+  background: #f3f3f3;
+  padding: 10px 16px;
+  border-radius: 14px;
   cursor: pointer;
+  min-width: 170px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.location-card:hover {
+  background: #eaeaea;
 }
 
 .location-title {
   font-size: 13px;
   font-weight: 600;
+  color: #111;
+  line-height: 1.2;
 }
 
 .location-subtitle {
   font-size: 12px;
-  color: #555;
+  color: #777;
+  line-height: 1.2;
 }
 
 .arrow {
@@ -46,84 +86,157 @@
   margin-left: 4px;
 }
 
+/* =======================================================
+   SEARCH SECTION
+======================================================= */
+
 .search-box {
   flex: 1;
-  max-width: 420px;
+  max-width: 540px;
+  height: 46px;
   display: flex;
   align-items: center;
   background: #f2f2f2;
-  border-radius: 14px;
-  padding: 10px 14px;
+  border-radius: 16px;
+  padding: 0 18px;
   margin: 0 40px;
+  transition: background 0.2s ease;
+}
+
+.search-box:focus-within {
+  background: #ececec;
 }
 
 .search-input {
   flex: 1;
   border: none;
-  outline: none;
   background: transparent;
+  outline: none;
+  font-size: 14px;
 }
+
+.search-input::placeholder {
+  color: #9e9e9e;
+}
+
+/* =======================================================
+   RIGHT SECTION
+======================================================= */
 
 .right {
   display: flex;
-  gap: 16px;
+  align-items: center;
+  gap: 20px;
 }
 
-.login-btn {
-  border: 1px solid #ccc;
-  padding: 8px 16px;
-  border-radius: 10px;
-  background: white;
+/* =======================================================
+   LOGIN BUTTON (PILL STYLE)
+======================================================= */
+
+.login-pill {
+  background: #efefef;
+  border: none;
+  border-radius: 16px;
+  height: 46px;
+  padding: 0 26px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #9e9e9e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
+
+.login-pill:hover {
+  background: #e2e2e2;
+}
+
+/* =======================================================
+   CART BUTTON
+======================================================= */
 
 .cart-btn {
-  position: relative;
+  background: #efefef;
+  border: none;
+  border-radius: 16px;
+  height: 46px;
+  padding: 0 26px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #9e9e9e;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
+
+.cart-btn:hover {
+  background: #e2e2e2;
+}
+
+.cart-icon {
+  font-size: 18px;
+  color: #bdbdbd;
+}
+
+/* Active Cart */
+
+.cart-btn.active {
+  background: #2e7d32;
+  color: #ffffff;
+}
+
+.cart-btn.active .cart-icon {
+  color: #ffffff;
+}
+
+/* Badge */
 
 .cart-badge {
   background: red;
   color: white;
   border-radius: 50%;
-  padding: 2px 6px;
   font-size: 11px;
-  margin-left: 6px;
+  padding: 2px 6px;
+  margin-left: 4px;
 }
 
+/* =======================================================
+   LOCATION DROPDOWN
+======================================================= */
 
-.location-wrapper {
-  position: relative;
-}
-
-/* ===== POPUP OVERLAY ===== */
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.45);
-  z-index: 999;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 900;
 }
 
-/* DROPDOWN POPUP */
 .location-dropdown {
   position: absolute;
-  top: calc(100% + 12px);
+  top: calc(100% + 14px);
   left: 0;
   width: 360px;
   background: #ffffff;
-  border-radius: 16px;
-  padding: 16px;
-  box-shadow: 0 12px 40px rgba(0,0,0,0.18);
-  z-index: 500;
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
   animation: dropdownIn 0.2s ease;
 }
 
-/* HEADER */
+/* Dropdown Header */
+
 .dropdown-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-weight: 600;
   font-size: 15px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .close-btn {
@@ -133,7 +246,8 @@
   cursor: pointer;
 }
 
-/* BUTTONS */
+/* Buttons */
+
 .detect-btn {
   width: 100%;
   padding: 12px;
@@ -143,6 +257,11 @@
   border-radius: 12px;
   font-weight: 600;
   cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.detect-btn:hover {
+  background: #086de0;
 }
 
 .confirm-btn {
@@ -155,22 +274,35 @@
   border-radius: 12px;
   font-weight: 600;
   cursor: pointer;
+  transition: background 0.2s ease;
 }
 
-/* INPUT */
+.confirm-btn:hover {
+  background: #00994c;
+}
+
+/* Input */
+
 .location-input {
   width: 100%;
   padding: 12px;
   margin-top: 10px;
   border-radius: 12px;
   border: 1px solid #ccc;
+  outline: none;
 }
 
-/* TEXT */
+.location-input:focus {
+  border-color: #0a7cff;
+}
+
+/* Text */
+
 .divider {
   text-align: center;
-  margin: 12px 0;
+  margin: 14px 0;
   color: #888;
+  font-size: 13px;
 }
 
 .error-text {
@@ -179,79 +311,230 @@
   margin-top: 8px;
 }
 
-/* LOGIN POPUP */
+/* =======================================================
+   LOGIN MODAL
+======================================================= */
 
 .login-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 1100;
 }
 
 .login-modal {
   background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  width: 300px;
+  padding: 24px;
+  border-radius: 16px;
+  width: 320px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .login-modal input {
-  padding: 8px;
-  border-radius: 6px;
+  padding: 10px;
+  border-radius: 8px;
   border: 1px solid #ccc;
+  outline: none;
+}
+
+.login-modal input:focus {
+  border-color: #0a7cff;
 }
 
 .login-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 12px;
 }
 
 .login-submit {
-  background: #1a8f3c;
+  background: #2e7d32;
   color: white;
   border: none;
-  padding: 6px 14px;
-  border-radius: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
   cursor: pointer;
 }
 
 .cancel-btn {
   background: #eee;
   border: none;
-  padding: 6px 14px;
-  border-radius: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
 }
 
 .admin-btn {
   border: 1px solid #333;
   background: #fff;
-  padding: 6px 12px;
-  border-radius: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
   font-weight: 500;
+  cursor: pointer;
 }
 
+/* =======================================================
+   ACCOUNT DROPDOWN
+======================================================= */
 
+.account-wrapper {
+  position: relative;
+  display: inline-block;
+}
 
-/* ANIMATION */
+/* =======================================================
+   ACCOUNT BUTTON (PILL STYLE - MATCHING LOGIN & CART)
+======================================================= */
+
+.account-btn {
+  background: #efefef;
+  border: none;
+  border-radius: 16px;
+  height: 46px;
+  padding: 0 26px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #9e9e9e;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.account-btn:hover {
+  background: #e2e2e2;
+}
+
+/* Optional: Active Account */
+.account-btn.active {
+  background: #2e7d32;
+  color: #ffffff;
+}
+
+/* ==========================================
+   ACCOUNT DROPDOWN - FINAL MERGED VERSION
+========================================== */
+
+.account-dropdown {
+  position: absolute;
+  top: 60px;
+  right: 0;
+  width: 300px;
+
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+
+  padding: 16px 18px;      /* Reduce side padding */
+  z-index: 1000;
+
+  /* 🔥 IMPORTANT */
+  max-height: 90vh;        /* stops before footer */
+  overflow-y: auto;        /* scroll inside if needed */
+
+  animation: dropdownIn 0.2s ease;
+}
+
+/* HEADER */
+
+.account-header h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.mobile-number {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+/* MENU */
+
+.account-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.account-menu li {
+  padding: 8px 8px;
+  font-size: 15px;
+  color: #333;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.account-menu li:hover {
+  background: #f2f2f2;
+}
+
+.logout {
+  margin-bottom: 6px;
+}
+
+/* DIVIDER */
+
+.divider-line {
+  height: 1px;
+  background: #eee;
+  margin: 10px 0;
+}
+
+/* QR SECTION */
+
+.qr-section {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.qr-section img {
+  width: 65px;
+  height: 65px;
+  /* object-fit: contain; */
+}
+
+.qr-text {
+  flex: 1;
+}
+
+.qr-text h4 {
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.highlight {
+  color: #0a7cff;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.qr-text p {
+  font-size: 13px;
+  color: #666;
+  margin: 0;
+}
+
+/* =======================================================
+   ANIMATION
+======================================================= */
+
 @keyframes dropdownIn {
   from {
     opacity: 0;
     transform: translateY(-6px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
   }
-
-
 }
-
-

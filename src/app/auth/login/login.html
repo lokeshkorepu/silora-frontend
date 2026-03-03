@@ -1,30 +1,128 @@
-<div class="login-page">
-  <div class="login-card">
-    <h2>Login to Silora</h2>
-    <p class="sub-text">Fast delivery, just a step away 🚀</p>
+<div class="login-overlay">
 
-    <form (ngSubmit)="onLogin()">
+  <ng-container *ngIf="!showSuccessPopup">
+
+  <!-- STEP 1: PHONE SCREEN -->
+  <div class="login-card" *ngIf="!showOtpField">
+
+    <div class="back-btn" (click)="goBack()">←</div>
+
+    <div class="logo-box"><img src="assets/logo/Silora3.png" alt="Company Logo" /></div>
+
+    <h2>India’s last minute app</h2>
+    <p class="subtitle">Log in or Sign up</p>
+
+    <div class="phone-input">
+      <span class="prefix">+91</span>
+      <input
+        type="tel"
+        maxlength="10"
+        [(ngModel)]="phoneNumber"
+        placeholder="Enter mobile number"
+      />
+    </div>
+
+    <button
+      class="continue-btn"
+      (click)="sendOTP()"
+      [disabled]="phoneNumber.length !== 10 || loading">
+      Continue
+    </button>
+
+    <p class="terms-text">
+       By continuing, you agree to our
+    <span>Terms of service</span> &
+    <span>Privacy policy</span>
+    </p>
+
+  </div>
+
+
+  <!-- STEP 2: OTP SCREEN -->
+  <div class="login-card otp-card" *ngIf="showOtpField">
+
+        <div class="back-btn" (click)="showOtpField=false">←</div>
+
+
+    <!-- <span class="back-btn" (click)="showOtpField=false">
+        <mat-icon>arrow_back</mat-icon>
+        </span> -->
+
+    <div class="otp-header">
+      
+      <span class="otp-title">OTP Verification</span>
+    </div>
+
+    <p class="otp-info">
+      We have sent a verification code to
+    </p>
+    <h3>+91-{{ phoneNumber }}</h3>
+
+    <!-- OTP BOXES -->
+    <div class="otp-box-container">
+      <input maxlength="1" class="otp-box" #otp1 (input)="moveNext($event, otp2)">
+      <input maxlength="1" class="otp-box" #otp2 (input)="moveNext($event, otp3)">
+      <input maxlength="1" class="otp-box" #otp3 (input)="moveNext($event, otp4)">
+      <input maxlength="1" class="otp-box" #otp4 (input)="moveNext($event, otp5)">
+      <input maxlength="1" class="otp-box" #otp5 (input)="moveNext($event, otp6)">
+      <input maxlength="1" class="otp-box" #otp6 (input)="collectOTP(otp1, otp2, otp3, otp4, otp5, otp6)">
+    </div>
+
+    <button
+     class="verify-btn"
+     (click)="verifyOTP()"
+     [disabled]="otp.length !== 6 || loading">
+      Verify OTP
+    </button>
+
+    <p class="resend-text">
+      Resend Code (in {{ countdown }}s)
+    </p>
+
+    <!-- <div id="recaptcha-container" style="display:none;"></div> -->
+
+  </div>
+  </ng-container>
+
+<!-- SUCCESS POPUP -->
+<div class="success-card" *ngIf="showSuccessPopup">
+
+    <div class="success-icon">
+      <span class="checkmark">✓</span>
+    </div>
+
+    <h3>Successfully logged in!</h3>
+
+  </div>
+
+
+       <div id="recaptcha-container"></div>
+
+
+</div>
+
+    <!-- <form (ngSubmit)="onLogin()"> -->
       <!-- <div class="form-group"> -->
-        <input
+        <!-- <input
           type="email"
           placeholder="Email"
           [(ngModel)]="email"
           name="email"
           required
-        />
+        /> -->
       <!-- </div> -->
 
       <!-- <div class="form-group"> -->
-        <input
+        <!-- <input
           type="password"
           placeholder="Password"
           [(ngModel)]="password"
           name="password"
           required
-        />
+        /> -->
       <!-- </div> -->
 
-      <button 
+      <!-- <button 
       type="submit" 
       class="login-btn"
       [disabled]="loading">
@@ -33,6 +131,6 @@
 
         <span *ngIf="loading" class="spinner"></span>
       </button>
-    </form>
-  </div>
-</div>
+    </form> -->
+  <!-- </div> -->
+<!-- </div> -->

@@ -1,5 +1,14 @@
-.page-wrapper {
-  min-height: calc(100vh - 72px); /* header height only */
-  background: #fff1f1;
-  padding-bottom: 40px;
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-main {
+  flex: 1;
+  margin-top: 80px;   /* match your header height exactly */
+}
+
+.admin-main {
+  margin-top: 0;
 }

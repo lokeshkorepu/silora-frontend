@@ -29,22 +29,19 @@ import { CategoryService } from '../../core/services/category.service';
   templateUrl: './products.html',
   styleUrls: ['./products.css']
 })
-
 export class Products implements OnInit {
 
   products: Product[] = [];
-  allProducts: Product[] = [];
   totalProducts: number = 0;
 
-categories: any[] = [];
-categoryMap: { [key: string]: string } = {};
-selectedCategory: string = '';
+  categories: any[] = [];
+  subCategoryMap: { [key: string]: string } = {};
+
+  selectedCategory: string = '';
 
   loading = true;
   searchTerm: string = '';
   private searchSubject = new Subject<string>();
-
-  categoryCounts: { [key: string]: number } = {};
 
   pageSize = 20;
 
@@ -56,28 +53,40 @@ selectedCategory: string = '';
     private categoryService: CategoryService
   ) {}
 
-  ngOnInit() {
-
+  ngOnInit(): void {
+    this.loadSubCategories();
+    this.initializeSearch();
     this.loadAllProducts();
+  }
 
+  /* =========================
+     LOAD SUBCATEGORIES MAP
+  ========================== */
+  private loadSubCategories(): void {
+    this.categoryService.getAllSubCategories().subscribe(subs => {
+
+      this.subCategoryMap = {};
+
+      subs.forEach((sub: any) => {
+        this.subCategoryMap[sub.id] = sub.name;
+      });
+
+      console.log('SubCategory Map Ready:', this.subCategoryMap);
+    });
+  }
+
+  /* =========================
+     SEARCH INIT
+  ========================== */
+  private initializeSearch(): void {
     this.searchSubject
       .pipe(
         debounceTime(400),
         distinctUntilChanged()
       )
-      .subscribe(value => {
-        this.performSearch(value);
+      .subscribe(searchTerm => {
+        this.performSearch(searchTerm);
       });
-
-      this.categoryService.getCategories().subscribe((cats: any[]) => {
-
-  this.categories = cats;
-
-  cats.forEach(cat => {
-    this.categoryMap[cat.id] = cat.name;
-  });
-
-});
   }
 
   /* =========================
@@ -88,64 +97,30 @@ selectedCategory: string = '';
     this.loading = true;
 
     this.productService
-      .getFilteredProducts(
-        this.selectedCategory,
-        this.pageSize
-      )
-      .subscribe((data) => {
+      .getFilteredProducts(this.selectedCategory, this.pageSize)
+      .subscribe({
+        next: (data) => {
 
-        // this.allProducts = data;
-        this.products = data;
-        this.productService.getAllProductsCount().subscribe(count => {
-         this.totalProducts = count;
-       });
+          this.products = data;
 
-        // // keep original category extraction logic
-        // if (!this.selectedCategory) {
-        //   this.extractCategories(data);
-        // }
+          this.productService.getAllProductsCount().subscribe(count => {
+            this.totalProducts = count;
+          });
 
-        // snackbar for out of stock
-        data.forEach(product => {
-          if (this.getAvailableUnits(product) === 0) {
-            this.snackBar.open(
-              `${product.name} is out of stock! Reorder required.`,
-              'Close',
-              { duration: 4000 }
-            );
-          }
-        });
-
-        this.loading = false;
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error loading products:', error);
+          this.loading = false;
+        }
       });
   }
 
-  /* =========================
-     FILTER BY CATEGORY
-  ========================== */
   onCategoryChange(category: string) {
     this.selectedCategory = category;
     this.loadAllProducts();
   }
 
-  // /* =========================
-  //    EXTRACT UNIQUE CATEGORY IDS
-  // ========================== */
-  // extractCategories(products: Product[]) {
-
-  //   const counts: { [key: string]: number } = {};
-
-  //   products.forEach(p => {
-  //     counts[p.categoryId] = (counts[p.categoryId] || 0) + 1;
-  //   });
-
-  //   this.categoryCounts = counts;
-  //   this.categories = Object.keys(counts);
-  // }
-
-  /* =========================
-     DELETE PRODUCT
-  ========================== */
   async deleteProduct(id: string) {
 
     const confirmDelete = confirm('Are you sure you want to delete this product?');
@@ -160,16 +135,10 @@ selectedCategory: string = '';
     }
   }
 
-  /* =========================
-     EDIT PRODUCT
-  ========================== */
   editProduct(product: Product) {
     this.router.navigate(['/admin/add-product', product.id]);
   }
 
-  /* =========================
-     SEARCH
-  ========================== */
   onSearchChange(value: string) {
     this.searchSubject.next(value);
   }
@@ -179,23 +148,20 @@ selectedCategory: string = '';
     const search = value.toLowerCase().trim();
 
     if (!search) {
-      this.products = this.allProducts;
+      this.loadAllProducts();
       return;
     }
 
-    this.products = this.allProducts.filter(product =>
+    this.products = this.products.filter(product =>
       product.name.toLowerCase().includes(search)
     );
   }
 
   clearSearch() {
     this.searchTerm = '';
-    this.products = this.allProducts;
-  }  
+    this.loadAllProducts();
+  }
 
-  /* =========================
-     STOCK LOGIC
-  ========================== */
   getAvailableUnits(product: Product): number {
 
     if (!product.stockQuantity || !product.quantity) return 0;
@@ -222,81 +188,21 @@ selectedCategory: string = '';
     return idealStock - currentUnits;
   }
 
-  async restockProduct(product: Product) {
-
-    if (!product.id) return;
-
-    const reorderUnits = this.getReorderQuantity(product);
-    if (reorderUnits <= 0) return;
-
-    const unitWeight = parseInt(product.quantity || '0');
-    const additionalStock = reorderUnits * unitWeight;
-    const newStock = (product.stockQuantity || 0) + additionalStock;
-
-    await updateDoc(
-      doc(this.firestore, `products/${product.id}`),
-      { stockQuantity: newStock }
-    );
-
-    this.snackBar.open(
-      `${product.name} restocked successfully`,
-      'Close',
-      { duration: 3000 }
-    );
-  }
-
   getFormattedStock(product: Product): string {
 
-  if (!product.stockQuantity || !product.quantity) return '0';
+    if (!product.stockQuantity || !product.quantity) return '0';
 
-  const quantityText = product.quantity.trim();   // "150 g", "2 kg", "5 pcs"
-  const parts = quantityText.split(' ');
+    const quantityText = product.quantity.trim();
+    const parts = quantityText.split(' ');
 
-  if (parts.length < 2) return product.stockQuantity.toString();
+    if (parts.length < 2) return product.stockQuantity.toString();
 
-  const unit = parts[1];  // g, kg, pcs
+    const unit = parts[1];
 
-  return `${product.stockQuantity} ${unit}`;
-}
-
-async bulkRestockLowStock() {
-
-  const lowStockProducts = this.products.filter(p =>
-    this.shouldReorder(p)
-  );
-
-  if (lowStockProducts.length === 0) {
-    this.snackBar.open('No low stock products found', 'Close', {
-      duration: 3000
-    });
-    return;
+    return `${product.stockQuantity} ${unit}`;
   }
 
-  for (const product of lowStockProducts) {
-
-    if (!product.id) continue;
-
-    const reorderUnits = this.getReorderQuantity(product);
-    const unitWeight = parseInt(product.quantity || '0');
-
-    const additionalStock = reorderUnits * unitWeight;
-    const newStock = (product.stockQuantity || 0) + additionalStock;
-
-    await updateDoc(
-      doc(this.firestore, `products/${product.id}`),
-      { stockQuantity: newStock }
-    );
+  onPageSizeChange() {
+    this.loadAllProducts();
   }
-
-  this.snackBar.open(
-    `${lowStockProducts.length} products restocked successfully`,
-    'Close',
-    { duration: 4000 }
-  );
-}
-
-onPageSizeChange() {
-  this.loadAllProducts();
-}
-
 }

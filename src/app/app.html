@@ -1,13 +1,14 @@
-<!-- USER HEADER -->
-<app-header *ngIf="!isAdminRoute  && !isCartRoute"></app-header>
-
-<!-- ROUTER -->
-<div class="main-content">
+<div class="app-layout">
+  <app-header *ngIf="!isAdminRoute && !isCartRoute"></app-header>
+  
+<main 
+  class="app-main"
+  [class.admin-main]="isAdminRoute">
   <router-outlet></router-outlet>
+</main>
+
+  <app-footer *ngIf="!isAdminRoute && !isCartRoute"></app-footer>
+
 </div>
 
-<!-- USER FOOTER -->
-<app-footer *ngIf="!isAdminRoute && !isCartRoute"></app-footer>
-
-<!-- CART DRAWER -->
 <app-cart *ngIf="isCartOpen"></app-cart>

@@ -1,55 +1,66 @@
-* {
+/* =========================================
+   GLOBAL RESET (PRODUCTION SAFE)
+========================================= */
+
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   height: 100%;
-  /* overflow: hidden; 🔥 prevents outer scroll */
+  width: 100%;
 }
 
 body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
+  background-color: #f5f6f8;
 }
 
-/* Root layout */
+/* =========================================
+   ROOT APP LAYOUT
+========================================= */
+
 app-root {
-  display: flex;
-  flex-direction: column;
+  display: block;
   min-height: 100vh;
 }
 
-.main-content {
-  flex: 1;
-}
-
-
-/* Header height variable */
+/* Header Height Variable */
 :root {
-  --header-height: 72px;
+  --header-height: 80px;
 }
+
+/* =========================================
+   GLOBAL SCROLLBAR
+========================================= */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c2c2c2;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
+/* =========================================
+   DARK MODE
+========================================= */
 
 .dark-mode {
   background-color: #121212;
   color: #ffffff;
 }
-
-.dark-mode .admin-container {
-  background-color: #1e1e1e;
-}
-
-.dark-mode .admin-header {
-  background-color: #0d1b2a;
-}
-
-.dark-mode .card {
-  background-color: #1f1f1f !important;
-  color: white;
-}
-
-.dark-mode .sidebar {
-  background-color: #111827;
-}
-
-

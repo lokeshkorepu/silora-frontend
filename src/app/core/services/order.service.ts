@@ -171,7 +171,10 @@ getOrderProducts(orderDocId: string) {
 async getProductById(productId: string): Promise<any> {
 
   const productRef = doc(this.firestore, `products/${productId}`);
-  const productSnap = await getDoc(productRef);
+
+  const productSnap = await runInInjectionContext(this.injector, () =>
+      getDoc(productRef)
+);
 
   if (productSnap.exists()) {
     return productSnap.data();
@@ -201,9 +204,13 @@ async getOrdersPaginated(pageSize: number, lastDoc: any = null) {
     );
   }
 
-  const snapshot = await getDocs(q);
+  const snapshot = await runInInjectionContext(this.injector, () =>
+  getDocs(q)
+);
 
-  const countSnapshot = await getCountFromServer(ordersRef);
+const countSnapshot = await runInInjectionContext(this.injector, () =>
+  getCountFromServer(ordersRef)
+);
 
   return {
     orders: snapshot.docs.map(doc => ({

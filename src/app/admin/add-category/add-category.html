@@ -45,6 +45,26 @@
         />
       </div>
 
+      <!-- 🔥 ADD THIS BLOCK BELOW for Test Purpose -->
+
+  <div class="form-group">
+    <label>Parent Category</label>
+
+    <select
+      [(ngModel)]="parentId"
+      name="parentId"
+      class="form-input">
+
+      <option [ngValue]="null">Main Category</option>
+
+      <option *ngFor="let cat of mainCategories$ | async"
+              [ngValue]="cat.id">
+        {{ cat.name }}
+      </option>
+
+    </select>
+  </div>
+
     </div>
 
   </div>

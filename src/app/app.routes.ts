@@ -1,15 +1,14 @@
 import { Routes } from '@angular/router';
 
-import { HomeComponent } from './user/home/home';
 import { LoginComponent } from './auth/login/login';
-import { CartComponent } from './user/cart/cart';
 import { CheckoutComponent } from './user/checkout/checkout';
 import { OrderSuccess } from './user/order-success/order-success';
 import { DashboardComponent } from './admin/dashboard/dashboard';
 import { AdminOrdersComponent } from './admin/orders/admin-orders';
 import { AddProductComponent } from './admin/add-product/add-product';
 import { AddCategory } from './admin/add-category/add-category';
-
+import { LandingComponent } from './user/landing/landing';
+import { CategoryPageComponent } from './user/category-page/category-page';
 
 import { AuthGuard } from './core/auth/auth.guard';
 import { AdminGuard } from './core/auth/admin.guard';
@@ -17,14 +16,26 @@ import { AdminGuard } from './core/auth/admin.guard';
 export const routes: Routes = [
 
   /* =========================
-     DEFAULT ROUTE
+     PUBLIC ROUTES
   ========================== */
    {
     path: '',
     loadComponent: () =>
-      import('./user/home/home')
-        .then(m => m.HomeComponent)
+      import('./user/landing/landing')
+        .then(m => m.LandingComponent)
   },
+    {
+  path: 'category/:categoryId/:subcategoryId',
+  loadComponent: () =>
+    import('./user/category-page/category-page')
+      .then(m => m.CategoryPageComponent)
+},
+{
+  path: 'category/:categoryId',
+  loadComponent: () =>
+    import('./user/category-page/category-page')
+      .then(m => m.CategoryPageComponent)
+},
 
   /* =========================
      AUTH ROUTES
@@ -34,20 +45,9 @@ export const routes: Routes = [
     component: LoginComponent
   },
 
-
   /* =========================
      USER ROUTES
   ========================== */
-  //  {
-  //   path: 'home',
-  //   loadComponent: () =>
-  //     import('./user/home/home')
-  //       .then(m => m.HomeComponent)
-  // },
-  // {
-  //   path: 'cart',
-  //   component: CartComponent
-  // },
   {
     path: 'orders',
     canActivate: [AuthGuard],
