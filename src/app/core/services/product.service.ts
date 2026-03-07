@@ -98,7 +98,7 @@ getProducts(): Observable<Product[]> {
     );
   }
 //Add Product
-  async addProduct(product: any, file: File): Promise<void> {
+async addProduct(product: any, file: File): Promise<string> {
 
   const storageRef = ref(
     this.storage,
@@ -106,17 +106,61 @@ getProducts(): Observable<Product[]> {
   );
 
   await uploadBytes(storageRef, file);
+
   const imageUrl = await getDownloadURL(storageRef);
 
   const productsRef = collection(this.firestore, 'products');
 
-  await addDoc(productsRef, {
+  const docRef = await addDoc(productsRef, {
     ...product,
     nameLower: product.name.toLowerCase(),
     imageUrl,
     createdAt: serverTimestamp(),
     isActive: true
   });
+
+  return docRef.id;
+
+}
+
+async addVariant(productId: string, variant: any, file?: File) {
+
+  let imageUrl = '';
+
+  if (file) {
+
+    const storageRef = ref(
+      this.storage,
+      `variants/${Date.now()}_${file.name}`
+    );
+
+    await uploadBytes(storageRef, file);
+
+    imageUrl = await getDownloadURL(storageRef);
+
+  }
+
+  const variantsRef = collection(
+    this.firestore,
+    `products/${productId}/variants`
+  );
+
+  await addDoc(variantsRef, {
+    ...variant,
+    image: imageUrl
+  });
+
+}
+
+getProductVariants(productId: string) {
+
+  const variantsRef = collection(
+    this.firestore,
+    `products/${productId}/variants`
+  );
+
+  return collectionData(variantsRef, { idField: 'id' });
+
 }
 
   async deleteProduct(id: string): Promise<void> {
@@ -124,11 +168,11 @@ getProducts(): Observable<Product[]> {
     await deleteDoc(productRef);
   }
 
-  async updateProduct(id: string, data: any): Promise<void> {
+  async updateProduct(id: string, product: any, file?: File): Promise<void> {
     const productRef = doc(this.firestore, 'products', id);
     await updateDoc(productRef, {
-      ...data,
-      nameLower: data.name?.toLowerCase()
+      ...product,
+      nameLower: product.name?.toLowerCase()
     });
   }
 
@@ -175,80 +219,14 @@ await addDoc(collection(this.firestore, 'products'), {
 });
 }
 
-  /* ================= MIGRATION METHOD (RESTORED) ================= */
-
-  async migrateProductsToCorrectSlug(): Promise<void> {
-
-    const productsSnapshot = await getDocs(
-      collection(this.firestore, 'products')
-    );
-
-    const categoriesSnapshot = await getDocs(
-      collection(this.firestore, 'categories')
-    );
-
-    const categoryMap = new Map<string, string>();
-
-    categoriesSnapshot.forEach(docSnap => {
-      const data = docSnap.data();
-      categoryMap.set(docSnap.id, data['slug']);
-    });
-
-    const mainCategoriesSnapshot = await getDocs(
-      collection(this.firestore, 'mainCategories')
-    );
-
-    for (const productDoc of productsSnapshot.docs) {
-
-      const productData = productDoc.data();
-      const categoryId = productData['categoryId'];
-
-      if (!categoryId) continue;
-
-      const subSlug = categoryMap.get(categoryId);
-      if (!subSlug) continue;
-
-      let foundMainSlug: string | null = null;
-
-      for (const mainDoc of mainCategoriesSnapshot.docs) {
-
-        const mainSlug = mainDoc.data()['slug'];
-
-        const subcategoriesSnapshot = await getDocs(
-          collection(
-            this.firestore,
-            `mainCategories/${mainDoc.id}/subcategories`
-          )
-        );
-
-        const match = subcategoriesSnapshot.docs.find(
-          subDoc => subDoc.data()['slug'] === subSlug
-        );
-
-        if (match) {
-          foundMainSlug = mainSlug;
-          break;
-        }
-      }
-
-      if (!foundMainSlug) continue;
-
-      await updateDoc(productDoc.ref, {
-        categorySlug: foundMainSlug,
-        subcategorySlug: subSlug
-      });
-    }
-
-    console.log('Product slug migration completed');
-  }
-
-    // 🔹 Get Products by SubCategory ID
+// 🔹 Get Products by SubCategory ID
   getProductsBySubCategory(subCategoryId: string): Observable<any[]> {
     const productsRef = collection(this.firestore, 'products');
     const q = query(
       productsRef,
       where('subcategoryId', '==', subCategoryId),
-      where('isActive', '==', true)
+      where('isActive', '==', true),
+      orderBy('createdAt', 'asc')   // 🔥 important
     );
     return collectionData(q, { idField: 'id' }) as Observable<any[]>;
   }

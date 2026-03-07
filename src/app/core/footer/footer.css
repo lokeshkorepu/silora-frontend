@@ -24,3 +24,25 @@
     padding: 6px 0; /* Vertical spacing between links */
     font-size: 14px;
   }
+
+.category-item{
+color:#6b6b6b;
+text-decoration:none;
+cursor:pointer;
+font-size:14px;
+}
+
+.category-item:hover{
+color:#2e7d32;   /* green hover like Blinkit */
+text-decoration:none;
+}
+
+.category-item:visited{
+color:#6b6b6b;
+}
+
+.category-item:active{
+text-decoration:none;
+}
+
+

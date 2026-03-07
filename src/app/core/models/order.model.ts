@@ -1,9 +1,14 @@
 export interface OrderItem {
-  id: string;
+  productId: string;
   name: string;
   price: number;
-  quantity: number;
-  image?: string;
+  
+  quantityValue: number;   // per unit weight
+  quantityUnit: string;    // g, kg, ml
+
+  orderQuantity: number;   // how many units user bought  
+  
+  imageUrl?: string;
   category?: string;
 }
 

@@ -10,6 +10,7 @@ import { CartService } from '../../core/services/cart.service';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 import { Observable } from 'rxjs';
+import { OrderItem } from '../../core/models/order.model';
 
 import { OrderDetailsDialogComponent } from './order-details.dialog';
 
@@ -99,25 +100,34 @@ export class OrdersComponent implements OnInit {
   }
 
   confirmReorder(order: Order): void {
-    this.cartService.clearCart();
 
-    order.items.forEach(item => {
-      this.cartService.addToCart({
-        id: item.id,
-        name: item.name,
-        price: item.price,
-        quantity: String(item.quantity),
-        imageUrl: item.image || '',
-        categoryId: item.category || 'reorder'
-      });
+  this.cartService.clearCart();
+
+  order.items.forEach(item => {
+
+    this.cartService.addToCart({
+      id: item.productId,
+      name: item.name,
+      price: item.price,
+
+      quantityValue: item.quantityValue,
+      quantityUnit: item.quantityUnit,
+
+      count: item.orderQuantity,
+
+      imageUrl: item.imageUrl ?? '',
+      stockQuantity: 0,
+      categoryId: 'reorder'
     });
 
-    this.snackBar.open('Items added to cart', 'View Cart', {
-      duration: 3000
-    }).onAction().subscribe(() => {
-      this.router.navigate(['/cart']);
-    });
-  }
+  });
+
+  this.snackBar.open('Items added to cart', 'View Cart', {
+    duration: 3000
+  }).onAction().subscribe(() => {
+    this.router.navigate(['/cart']);
+  });
+}
 
   openDetails(order: Order): void {
     this.dialog.open(OrderDetailsDialogComponent, {

@@ -10,10 +10,16 @@ export class OrderMapper {
       total: dto.totalAmount,
       status: OrderMapper.mapStatus(dto.status),
       items: dto.items.map(i => ({
-        id: i.productId,
-        name: 'Unknown product',   // backend will expand later
+        
+        productId: i.productId,
+        name: i.name,
         price: i.price,
-        quantity: i.quantity
+
+        quantityValue: i.quantityValue,
+        quantityUnit: i.quantityUnit,
+        orderQuantity: i.orderQuantity,
+
+        imageUrl: i.imageUrl || ''
       }))
     };
   }

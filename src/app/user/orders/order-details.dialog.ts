@@ -22,8 +22,8 @@ import { Order } from '../../core/models/order.model';
       <table class="order-items">
         <tr *ngFor="let item of data.items">
           <td>{{ item.name }}</td>
-          <td>× {{ item.quantity }}</td>
-          <td>₹{{ item.price * item.quantity }}</td>
+          <td>× {{ item.orderQuantity  }}</td>
+          <td>₹{{ item.price * item.orderQuantity  }}</td>
         </tr>
       </table>
     </mat-dialog-content>

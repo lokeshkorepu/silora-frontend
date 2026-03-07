@@ -58,23 +58,35 @@ export class CartComponent implements OnInit {
   /* ---------- PLACE ORDER ---------- */
   placeOrder() {
 
-    const items = this.cartItems.map(item => ({ ...item }));
-    const total = this.totalAmount;
+  const orderItems = this.cartItems.map(item => ({
+    productId: item.id || '',
+    name: item.name,
+    price: item.price,
 
-    this.orderService.saveOrder(items, total).subscribe({
+    quantityValue: item.quantityValue ?? 0,
+    quantityUnit: item.quantityUnit ?? '',
 
-      next: () => {
-        this.cartService.clearCart();
-        this.router.navigate(['/success']);
-      },
+    orderQuantity: item.count ?? 1,
 
-      error: (err) => {
-        console.error('Order failed:', err);
-        alert('Order failed ❌ Please try again');
-      }
+    imageUrl: item.imageUrl ?? ''
+  }));
 
-    });
-  }
+  const total = this.totalAmount;
+
+  this.orderService.saveOrder(orderItems, total).subscribe({
+
+    next: () => {
+      this.cartService.clearCart();
+      this.router.navigate(['/success']);
+    },
+
+    error: (err) => {
+      console.error('Order failed:', err);
+      alert('Order failed ❌ Please try again');
+    }
+
+  });
+}
 
   /* ---------- IMAGE FALLBACK ---------- */
   onImageError(event: Event) {

@@ -24,71 +24,265 @@
       </label>
     </div>
 
-    <!-- Right: Product Form -->
     <div class="form-section" [formGroup]="productForm">
 
-      <div class="form-group">
-        <label>Product Name</label>
-        <input
-          type="text"
-          formControlName="name"
-          class="form-input"
-        />
-      </div>
+  <!-- TAB HEADER -->
+  <div class="tabs">
+    <div 
+      class="tab"
+      [class.active]="activeTab === 'basic'"
+      (click)="activeTab = 'basic'">
+      Basic Information
+    </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label>Price</label>
-          <input
-            type="number"
-            formControlName="price"
-            class="form-input"
-          />
-        </div>
+    <div 
+      class="tab"
+      [class.active]="activeTab === 'pricing'"
+      (click)="activeTab = 'pricing'">
+      Pricing
+    </div>
 
-        <div class="form-group">
-          <label>Discount (%)</label>
-          <input
-            type="number"
-            formControlName="discount"
-            class="form-input"
-          />
-        </div>
-      </div>
+    <div 
+      class="tab"
+      [class.active]="activeTab === 'gst'"
+      (click)="activeTab = 'gst'">
+      GST Details
+    </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label>Quantity</label>
-          <input
-            type="text"
-            formControlName="quantity"
-            class="form-input"
-          />
-        </div>
-
-        <div class="form-group">
-          <label>Stock Quantity</label>
-          <input
-            type="number"
-            formControlName="stockQuantity"
-            class="form-input"
-            min="0"
-          />
-        </div>
-      </div>
-
-        <div class="form-group">          
-            <select formControlName="subcategoryId" class="form-input">
-                <option value="">Select Subcategory</option>
-                <option *ngFor="let sub of subcategories" [value]="sub.id">
-                  {{ sub.name }}
-                </option>
-            </select>
-        </div>
-      </div>
-
+    <div 
+      class="tab"
+      [class.active]="activeTab === 'inventory'"
+      (click)="activeTab = 'inventory'">
+      Inventory & Status
     </div>
   </div>
+
+  <!-- TAB CONTENT -->
+
+  <!-- 1️⃣ BASIC -->
+  <div *ngIf="activeTab === 'basic'" class="tab-content">
+
+    <div class="form-group">
+      <label>Product Name</label>
+      <input type="text" formControlName="name" class="form-input"/>
+    </div>
+
+    <div class="form-group">
+      <label>Select Subcategory</label>
+      <select formControlName="subcategoryId" class="form-input">
+        <option value="">Select Subcategory</option>
+        <option *ngFor="let sub of subcategories" [value]="sub.id">
+          {{ sub.name }}
+        </option>
+      </select>
+    </div>
+
+  </div>
+
+  <!-- 2️⃣ PRICING -->
+  <div *ngIf="activeTab === 'pricing'" class="tab-content">
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Price</label>
+        <input type="number" formControlName="price" class="form-input"/>
+      </div>
+
+      <div class="form-group">
+        <label>Discount (%)</label>
+        <input type="number" formControlName="discount" class="form-input"/>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 3️⃣ GST -->
+  <div *ngIf="activeTab === 'gst'" class="tab-content">
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>HSN Code</label>
+        <input type="text" formControlName="hsnCode" class="form-input"/>
+      </div>
+      <div *ngIf="productForm.get('hsnCode')?.invalid 
+            && productForm.get('hsnCode')?.touched"
+     style="color:red; font-size:12px;">
+
+  HSN must be 6 to 8 digits (numbers only)
+
+</div>
+
+      <div class="form-group">
+        <label>GST Type</label>
+        <select formControlName="gstType"
+                class="form-input"
+                (change)="onGstPercentageChange()">
+          <option value="GST">GST (CGST + SGST)</option>
+          <option value="IGST">IGST</option>
+          <option value="EXEMPT">Exempt</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>GST %</label>
+        <input type="number"
+               formControlName="gstPercentage"
+               class="form-input"
+               (input)="onGstPercentageChange()"/>
+      </div>
+
+      <div class="form-group">
+        <label>Cess %</label>
+        <input type="number"
+               formControlName="cess"
+               class="form-input"/>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>CGST %</label>
+        <input type="number"
+               formControlName="cgst"
+               class="form-input"
+               readonly/>
+      </div>
+
+      <div class="form-group">
+        <label>SGST %</label>
+        <input type="number"
+               formControlName="sgst"
+               class="form-input"
+               readonly/>
+      </div>
+    </div>
+
+    <div class="form-group" *ngIf="productForm.value.gstType === 'IGST'">
+      <label>IGST %</label>
+      <input type="number"
+             formControlName="igst"
+             class="form-input"
+             readonly/>
+    </div>
+
+  </div>
+
+  <!-- 4️⃣ INVENTORY -->
+  <div *ngIf="activeTab === 'inventory'" class="tab-content">
+
+    <div class="form-row">
+      <div class="form-row">
+
+  <div class="form-group">
+    <label>Quantity Value</label>
+    <input
+      type="number"
+      formControlName="quantityValue"
+      class="form-input"
+    />
+  </div>
+
+  <div class="form-group">
+    <label>Unit</label>
+    <select
+      formControlName="quantityUnit"
+      class="form-input">
+
+      <option value="g">Gram</option>
+      <option value="kg">Kilogram</option>
+      <option value="ml">Millilitre</option>
+      <option value="l">Litre</option>
+      <option value="pcs">Pieces</option>
+
+    </select>
+  </div>
+
+</div>
+
+      <div class="form-group">
+        <label>Stock Quantity</label>
+        <input type="number"
+               formControlName="stockQuantity"
+               class="form-input"/>
+      </div>
+    </div>
+
+      <div class="form-group">
+        <label>Number of Product Options</label>
+        <input type="number"
+               formControlName="optionsCount"
+               class="form-input"
+               placeholder="Example: 2 for 500g / 1kg"/>
+      </div>
+
+<div class="variants-section">
+
+  <h3>Product Variants</h3>
+
+  <button type="button" (click)="addVariant()" class="add-variant-btn">
+    + Add Variant
+  </button>
+
+  <div
+    class="variant-card"
+    *ngFor="let variant of variants; let i = index">
+
+    <input
+      type="text"
+      [(ngModel)]="variant.quantity"
+      [ngModelOptions]="{standalone: true}"
+      placeholder="Quantity (ex: 500 g)"
+      class="form-input">
+
+    <input
+      type="number"
+      [(ngModel)]="variant.price"
+      [ngModelOptions]="{standalone: true}"
+      placeholder="Price"
+      class="form-input">
+
+    <input
+      type="number"
+      [(ngModel)]="variant.mrp"
+      [ngModelOptions]="{standalone: true}"
+      placeholder="MRP"
+      class="form-input">
+
+    <input
+      type="number"
+      [(ngModel)]="variant.stock"
+      [ngModelOptions]="{standalone: true}"
+      placeholder="Stock"
+      class="form-input">
+
+    <input
+      type="file"
+      (change)="onVariantImageSelected($event, i)">
+
+    <button
+      type="button"
+      (click)="removeVariant(i)"
+      class="remove-variant-btn">
+
+      Remove
+
+    </button>
+
+  </div>
+
+</div>
+
+    <div class="form-group">
+      <label>
+        <input type="checkbox" formControlName="isActive"/>
+        Active Product
+      </label>
+    </div>
+
+  </div>
+
 
   <div class="save-container">
 
@@ -96,17 +290,21 @@
     mat-raised-button
     class="save-btn"
     (click)="saveProduct()">
-    Save
+    {{ isEditMode ? 'Update' : 'Save' }}
   </button>
 
   <button
     mat-raised-button
     class="cancel-btn"
-    type="button">
+    type="button"
+    (click)="onCancel()">
     Cancel
   </button>
 
 </div>
+
+</div>
+
 
 
 

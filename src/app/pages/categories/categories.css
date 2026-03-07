@@ -1,0 +1,54 @@
+.categories-container{
+ margin-top:210px;
+}
+
+h1{
+  font-size:24px;
+  margin-bottom:40px;
+}
+
+.category-section{
+  margin-bottom:40px;
+}
+
+.category-section h2{
+  font-size:16px;
+  margin-bottom:20px;
+}
+
+.category-grid{
+  display:grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap:20px;
+}
+
+.category-grid div{
+  color:#555;
+  cursor:pointer;
+  font-size:16px;
+}
+
+.categories-container {
+  padding-bottom: 80px;   /* add space at bottom */
+}
+
+.category-item{
+color:#6b6b6b;
+text-decoration:none;
+cursor:pointer;
+font-size:18px;
+}
+
+.category-item:hover{
+color:#2e7d32;   /* green hover like Blinkit */
+text-decoration:none;
+}
+
+.category-item:visited{
+color:#6b6b6b;
+}
+
+.category-item:active{
+text-decoration:none;
+color:#2e7d32;
+}

@@ -78,14 +78,6 @@
 
 </div>
 
-<div class="bulk-actions">
-  <button
-    class="bulk-restock-btn">
-    📦 Restock All Low Stock
-  </button>
-</div>
-
-
   <div class="products-wrapper">
 
     <table class="products-table">
@@ -113,7 +105,7 @@
                       {{ product.subcategoryId ? subCategoryMap[product.subcategoryId] || 'Uncategorized' : 'Uncategorized' }}
           </td>
 
-          <td class="col-quantity">{{ product.quantity }}</td>
+          <td class="col-quantity">{{ getDisplayQuantity(product) }}</td>
 
           
       <!-- STOCK COLUMN -->
@@ -125,11 +117,6 @@
           [class.out-stock]="product.stockQuantity === 0">
       {{ getFormattedStock(product) }}
     </span>
-
-    <button *ngIf="shouldReorder(product)"
-            class="reorder-btn">
-      🔄 Re-order {{ getReorderQuantity(product) }}
-    </button>
 
   </div>
 </td>

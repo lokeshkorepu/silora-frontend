@@ -26,6 +26,7 @@ export class CategoryPageComponent implements OnInit {
 
   // ✅ ADD THIS
   subcategoryName: string = '';
+  subcategoryDescription: string = '';
 
   loading = true;
   isCartOpen = false;
@@ -59,11 +60,13 @@ export class CategoryPageComponent implements OnInit {
       this.categoryId = params.get('categoryId')!;
       this.subcategoryId = params.get('subcategoryId');
 
+
       if (!this.categoryId) return;
 
       // 🔥 Load subcategories (parentId based)
       this.categoryService.getSubcategories(this.categoryId)
         .subscribe((subs: any[]) => {
+
 
           this.subcategories = subs ?? [];
 
@@ -86,7 +89,10 @@ export class CategoryPageComponent implements OnInit {
             sub => sub.id === this.subcategoryId
           );
 
+
           this.subcategoryName = selectedSub?.name || '';
+          this.subcategoryDescription = selectedSub?.descriptionHTML || '';
+
 
           // Load products if subcategory exists
           if (this.subcategoryId) {
@@ -111,20 +117,28 @@ export class CategoryPageComponent implements OnInit {
   ========================== */
   loadProducts(subcategoryId: string) {
 
-    this.loading = true;
+  this.loading = true;
 
-    this.productService
-      .getProductsBySubCategory(subcategoryId)
-      .subscribe((res: Product[]) => {
+  this.productService
+    .getProducts()
+    .subscribe((res: Product[]) => {
 
-        this.products = res ?? [];
-        this.syncWithCart();
-        this.loading = false;
+      const allProducts = res ?? [];
 
-      }, () => {
-        this.loading = false;
-      });
-  }
+      this.products = allProducts
+      .filter(p =>p.subcategoryId === subcategoryId)
+      .sort((a: any, b: any) =>
+        a.createdAt?.seconds - b.createdAt?.seconds
+      );
+
+      this.syncWithCart();
+      this.loading = false;
+
+    }, () => {
+      this.loading = false;
+    });
+
+}
 
   /* =========================
      CART SYNC
@@ -168,9 +182,9 @@ export class CategoryPageComponent implements OnInit {
 
   getAvailableUnits(product: Product): number {
 
-    if (!product.stockQuantity || !product.quantity) return 0;
+    if (!product.stockQuantity || !product.quantityValue) return 0;
 
-    const unitWeight = parseInt(product.quantity || '0');
+    const unitWeight = Number(product.quantityValue || '0');
     const stock = product.stockQuantity || 0;
 
     if (unitWeight === 0) return 0;
@@ -203,4 +217,78 @@ export class CategoryPageComponent implements OnInit {
   trackById(index: number, item: any) {
     return item.id;
   }
+
+/* =========================
+   VARIANT POPUP
+========================== */
+
+selectedProduct: Product | null = null;
+
+/* ADD BUTTON CLICK */
+handleAddClick(product: Product) {
+
+  // If product has variants
+  if (product.optionsCount && product.optionsCount > 1) {
+
+    if (!product.id) return;
+
+    this.productService
+      .getProductVariants(product.id)
+      .subscribe((variants: any[]) => {
+
+        this.selectedProduct = {
+          ...product,
+          variants: variants
+        };
+
+      });
+
+  } else {
+
+    // Normal product
+    this.addProduct(product);
+
+  }
+
+}
+
+/* CLOSE POPUP */
+closeOptionsPopup() {
+  this.selectedProduct = null;
+}
+
+/* ADD VARIANT TO CART */
+addVariantToCart(variant: any) {
+
+  if (!this.selectedProduct) return;
+
+  const variantProduct: Product = {
+
+    ...this.selectedProduct,
+
+    price: variant.price,
+
+    quantityValue: variant.quantity,
+
+    id: this.selectedProduct.id + '_' + variant.id
+
+  };
+
+  this.cartService.addToCart(variantProduct);
+
+  this.selectedProduct = null;
+
+}
+
+getVariantDiscount(variant: any): number {
+
+  if (!variant.mrp || !variant.price) return 0;
+
+  const discount =
+    ((variant.mrp - variant.price) / variant.mrp) * 100;
+
+  return Math.round(discount);
+
+}
+
 }

@@ -36,7 +36,7 @@ export class AppComponent {
   }
 
   get isCartRoute(): boolean {
-    return this.router.url.includes('/cart');
-  }
+  return this.router.url.includes('/cart') || this.router.url.includes('/categories');
+}
 
 }

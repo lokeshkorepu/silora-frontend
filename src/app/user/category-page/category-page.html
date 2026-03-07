@@ -90,7 +90,7 @@
             </div>
 
             <div class="qty">
-              {{ product.quantity }}
+              {{ product.quantityValue }} {{ product.quantityUnit }}
             </div>
 
             <!-- FOOTER -->
@@ -124,11 +124,19 @@
               <ng-container *ngIf="getCount(product) === 0; else counter">
 
                 <button
-                  class="add-btn"
-                  [disabled]="(product.stockQuantity || 0) <= 0"
-                  (click)="addProduct(product)">
-                  ADD
-                </button>
+  class="add-btn"
+  [disabled]="(product.stockQuantity || 0) <= 0"
+  (click)="handleAddClick(product)">
+
+  ADD
+
+  <span
+    *ngIf="product.optionsCount && product.optionsCount > 1"
+    class="options-text">
+    {{product.optionsCount}} options
+  </span>
+
+</button>
 
               </ng-container>
 
@@ -168,6 +176,15 @@
           <p>Try searching with a different keyword</p>
         </div>
 
+        <!-- CATEGORY DESCRIPTION -->
+          <div
+            class="category-description"
+            *ngIf="!loading && subcategoryDescription">
+
+            <div [innerHTML]="subcategoryDescription"></div>
+
+          </div>
+
       </div>
 
     </div>
@@ -175,5 +192,90 @@
   </div>
 
 </div>
+
+<div class="variant-overlay" *ngIf="selectedProduct && selectedProduct.variants">
+
+  <div class="variant-modal">  
+
+    <!-- Close Button -->
+    <div class="modal-close" (click)="selectedProduct=null">
+      ✕
+    </div>
+
+    <!-- Product Title -->
+    <div class="product-title">
+      {{ selectedProduct.name }}
+    </div>
+
+    <!-- Variant List -->
+    <div class="variant-list">
+
+      <div
+        class="variant-item"
+        *ngFor="let variant of selectedProduct?.variants">
+
+        <!-- Image -->
+        <div class="variant-left">
+
+  <!-- Discount Badge -->
+  <div
+    class="variant-discount-badge"
+    *ngIf="variant?.mrp && variant?.price && variant.mrp > variant.price">
+
+    {{ getVariantDiscount(variant) }}% OFF
+
+  </div>
+
+  <img
+    [src]="variant?.image || 'assets/products/no-image.png'"
+    class="variant-img"
+    (error)="onImageError($event)" />
+
+</div>
+
+        <!-- Variant Info -->
+<div class="variant-middle">
+
+  <div class="variant-qty">
+    {{ variant?.quantity }}
+  </div>
+
+  <div class="variant-price-box">
+
+    <span class="variant-price">
+      ₹{{ variant?.price }}
+    </span>
+
+    <span
+      *ngIf="variant?.mrp && variant?.price && variant.mrp > variant.price"
+      class="variant-mrp">
+
+      ₹{{ variant?.mrp }}
+
+    </span>
+
+  </div>
+
+
+        <!-- Add Button -->
+        <div class="variant-right">
+
+          <button
+            class="variant-add-btn"
+            (click)="addVariantToCart(variant)">
+
+            ADD
+
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  </div>
 
 <app-cart-bar></app-cart-bar>

@@ -49,15 +49,22 @@ font-family: Arial, sans-serif; font-size: 14px; color: #808080;">
 
     <!-- Categories -->
     <div>
-      <h3 style="margin-bottom: 16px; color: #333;">Categories</h3>
+      <h3 style="margin-bottom: 16px; color: #333;">
+  Categories
+  <a routerLink="/categories" style="color: green; margin-left:10px; font-size:14px; text-decoration:none;">
+    See all
+  </a>
+</h3>
+
       <div style="display: flex; gap: 100px;">
 
         <ul style="list-style: none; padding: 0; color: #808080;">
-          <li>
-            <a [routerLink]="['/category', 'MARMR3ohBPxHTUhdcQ64']">
-                Vegetables & Fruits
-            </a>
-          </li>
+          <li> 
+          <a [routerLink]="['/category','MARMR3ohBPxHTUhdcQ64']" 
+              class="category-item">
+              Vegetables & Fruits 
+          </a> 
+        </li>
           <br />
           <li>Cold Drinks & Juices</li>
           <br />
@@ -105,7 +112,7 @@ font-family: Arial, sans-serif; font-size: 14px; color: #808080;">
         <ul style="list-style: none; padding: 0; color: #808080;">
           <li>Munchies</li>
           <br />
-          <a routerLink="/home/products/milk">Tea, Coffee & Milk Drinks</a>
+          <li>Tea, Coffee & Milk Drinks</li>
           <br />
           <li>Atta, Rice & Dal</li>
           <br />

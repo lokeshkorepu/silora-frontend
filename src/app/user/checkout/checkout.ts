@@ -36,25 +36,38 @@ export class CheckoutComponent implements OnInit {
 
   placeOrder() {
 
-    if (!this.name || !this.phone || !this.address) {
-      alert('Please fill all address details');
-      return;
+  if (!this.name || !this.phone || !this.address) {
+    alert('Please fill all address details');
+    return;
+  }
+
+  const orderItems = this.cartItems.map(item => ({
+    productId: item.id || '',
+    name: item.name,
+    price: item.price,
+
+    quantityValue: item.quantityValue ?? 0,
+    quantityUnit: item.quantityUnit ?? '',
+
+    orderQuantity: item.count ?? 1,
+
+    imageUrl: item.imageUrl ?? ''
+  }));
+
+  this.orderService.saveOrder(
+    orderItems,
+    this.totalAmount
+  ).subscribe({
+
+    next: () => {
+      this.cartService.clearCart();
+      this.router.navigate(['/success']);
+    },
+
+    error: () => {
+      alert('Order failed ❌ Please try again');
     }
 
-    this.orderService.saveOrder(
-      this.cartItems,
-      this.totalAmount
-    ).subscribe({
-
-      next: () => {
-        this.cartService.clearCart();
-        this.router.navigate(['/success']);
-      },
-
-      error: () => {
-        alert('Order failed ❌ Please try again');
-      }
-
-    });
-  }
+  });
+}
 }

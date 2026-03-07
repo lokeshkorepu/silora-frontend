@@ -9,6 +9,7 @@ import { AddProductComponent } from './admin/add-product/add-product';
 import { AddCategory } from './admin/add-category/add-category';
 import { LandingComponent } from './user/landing/landing';
 import { CategoryPageComponent } from './user/category-page/category-page';
+import { Categories } from './pages/categories/categories';
 
 import { AuthGuard } from './core/auth/auth.guard';
 import { AdminGuard } from './core/auth/admin.guard';
@@ -36,6 +37,9 @@ export const routes: Routes = [
     import('./user/category-page/category-page')
       .then(m => m.CategoryPageComponent)
 },
+
+ { path: 'categories', 
+  component: Categories },
 
   /* =========================
      AUTH ROUTES

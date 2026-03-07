@@ -26,6 +26,7 @@ import {
   getDocs,
   getCountFromServer 
 } from '@angular/fire/firestore';
+import { OrderItem } from '../models/order.model';
 
 
 @Injectable({
@@ -86,7 +87,7 @@ export class OrderService {
   /* =========================
      SAVE ORDER (Firestore)
   ========================== */
-  saveOrder(items: Product[], total: number): Observable<void> {
+  saveOrder(items: OrderItem[], total: number): Observable<void> {
 
   const user = this.authService.getCurrentUser();
 
@@ -96,10 +97,20 @@ export class OrderService {
     totalAmount: total,
     status: 'DELIVERED',
     items: items.map(item => ({
-      productId: item.id as string,
-      price: item.price,
-      quantity: item.count as number
-    }))
+
+    
+    productId: item.productId,
+    name: item.name,
+    price: item.price,
+
+    quantityValue: item.quantityValue ?? 0,
+    quantityUnit: item.quantityUnit ?? '',
+
+    orderQuantity: item.orderQuantity ?? 0,
+
+    imageUrl: item.imageUrl ?? ''
+
+}))
   };
 
   const ordersRef = collection(this.firestore, 'orders');
@@ -116,17 +127,17 @@ export class OrderService {
 
       for (const item of items) {
 
-        if (!item.id) continue;
+        if (!item.productId) continue;
 
-        const unitWeight = parseInt(item.quantity || '0');
-        const orderedQty = item.count || 0;
+        const unitWeight = Number(item.quantityValue || '0');
+        const orderedQty = item.orderQuantity || 0;
 
         const deduction = unitWeight * orderedQty;
 
-        const newStock = (item.stockQuantity || 0) - deduction;
+        const newStock = (item.quantityValue || 0) - deduction;
 
         await updateDoc(
-          doc(this.firestore, `products/${item.id}`),
+          doc(this.firestore, `products/${item.productId}`),
           { stockQuantity: newStock }
         );
       }

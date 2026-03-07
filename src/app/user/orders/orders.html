@@ -44,14 +44,16 @@
 
             <!-- Item -->
            <td (click)="openDetails(order)" class="clickable">
-                 {{ item.name }} × {{ item.quantity }}
+                 {{ item.name }}
+                      ({{ item.quantityValue }} {{ item.quantityUnit }})
+                            × {{ item.orderQuantity }}
             </td>
 
             <!-- Image -->
             <td>
               <img
                 class="item-image"
-                [src]="item.image || 'assets/placeholder.png'"
+                [src]="item.imageUrl  || 'assets/placeholder.png'"
               />
             </td>
 

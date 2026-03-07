@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ProductService } from '../../core/services/product.service';
 import { Product } from '../../core/models/product.model';
 import { MatIconModule } from '@angular/material/icon';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -57,7 +57,14 @@ export class Products implements OnInit {
     this.loadSubCategories();
     this.initializeSearch();
     this.loadAllProducts();
-  }
+
+  this.productService.getProducts().subscribe(products => {
+    this.products = products;
+  });
+
+}
+
+  
 
   /* =========================
      LOAD SUBCATEGORIES MAP
@@ -116,10 +123,18 @@ export class Products implements OnInit {
       });
   }
 
+  /* =========================
+     On Category Change
+  ========================== */
+
   onCategoryChange(category: string) {
     this.selectedCategory = category;
     this.loadAllProducts();
   }
+
+  /* =========================
+       Delete Product
+  ========================== */
 
   async deleteProduct(id: string) {
 
@@ -134,6 +149,10 @@ export class Products implements OnInit {
       alert('Delete failed ❌');
     }
   }
+
+   /* =========================
+       Edit Product
+  ========================== */
 
   editProduct(product: Product) {
     this.router.navigate(['/admin/add-product', product.id]);
@@ -162,47 +181,58 @@ export class Products implements OnInit {
     this.loadAllProducts();
   }
 
-  getAvailableUnits(product: Product): number {
+getFormattedStock(product: any): string {
 
-    if (!product.stockQuantity || !product.quantity) return 0;
+  // If new structure exists
+  if (product.quantityValue && product.quantityUnit) {
 
-    const unitWeight = parseInt(product.quantity || '0');
-    const stock = product.stockQuantity || 0;
+    const total = 
+  (Number(product.quantityValue) || 0) *
+  (Number(product.stockQuantity) || 0);
 
-    if (unitWeight === 0) return 0;
+    if (isNaN(total)) return '-';
 
-    return Math.floor(stock / unitWeight);
+    if (product.quantityUnit === 'g') {
+      if (total >= 1000) {
+        return (total / 1000).toFixed(2) + ' kg';
+      }
+      return total + ' g';
+    }
+
+    if (product.quantityUnit === 'ml') {
+      if (total >= 1000) {
+        return (total / 1000).toFixed(2) + ' l';
+      }
+      return total + ' ml';
+    }
+
+    return total + ' ' + product.quantityUnit;
   }
 
-  shouldReorder(product: Product): boolean {
-    return this.getAvailableUnits(product) <= 5;
+  // OLD STRUCTURE (fallback)
+  if (product.stockQuantity && product.quantity) {
+    return product.stockQuantity + ' ' + product.quantity;
   }
 
-  getReorderQuantity(product: Product): number {
+  return '-';
+}
 
-    const idealStock = 30;
-    const currentUnits = this.getAvailableUnits(product);
+getDisplayQuantity(product: any): string {
 
-    if (currentUnits >= idealStock) return 0;
-
-    return idealStock - currentUnits;
+  // NEW STRUCTURE
+  if (product.quantityValue && product.quantityUnit) {
+    return product.quantityValue + ' ' + product.quantityUnit;
   }
 
-  getFormattedStock(product: Product): string {
-
-    if (!product.stockQuantity || !product.quantity) return '0';
-
-    const quantityText = product.quantity.trim();
-    const parts = quantityText.split(' ');
-
-    if (parts.length < 2) return product.stockQuantity.toString();
-
-    const unit = parts[1];
-
-    return `${product.stockQuantity} ${unit}`;
+  // OLD STRUCTURE (Fallback)
+  if (product.quantity) {
+    return product.quantity;
   }
 
-  onPageSizeChange() {
+  return '-';
+}
+
+onPageSizeChange() {
     this.loadAllProducts();
   }
 }

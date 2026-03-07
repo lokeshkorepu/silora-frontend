@@ -7,7 +7,15 @@ export interface OrderDTO {
 }
 
 export interface OrderItemDTO {
+
   productId: string;
+  name: string;
   price: number;
-  quantity: number;
+
+  quantityValue: number;
+  quantityUnit: string;
+
+  orderQuantity: number;
+
+  imageUrl?: string;
 }

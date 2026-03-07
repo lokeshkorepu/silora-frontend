@@ -40,9 +40,9 @@
 }
 /* ================= CATEGORY RAIL ================= */
 
-.category-rail {
+/* .category-rail {
   position: sticky;
-  top: 80px;              /* header height */
+  top: 80px;              
   height: calc(100vh - 100px);
   overflow-y: auto;
 }
@@ -71,24 +71,90 @@
 }
 
 .rail-image-box {
-  width: 55px;
-  height: 55px;
+  width: 60px;
+  height: 60px;
   margin: 0 auto 4px auto;
   background: #f3f4f6;
-  border-radius: 10px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
 .rail-image-box img {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;   
 }
 
 .rail-label {
   font-size: 13px;
+  font-weight: 500;
+  color: #333;
+  line-height: 1.2;
+} */
+
+/* ================= CATEGORY RAIL ================= */
+
+.category-rail {
+  position: sticky;
+  top: 80px;              /* header height */
+  height: calc(100vh - 100px);
+  overflow-y: auto;
+
+  width: 100px;           /* ✅ reduce sidebar width */
+  padding: 8px 4px;
+}
+
+.rail-item {
+  position: relative;
+  padding: 6px 2px;       /*✅ reduce vertical spacing*/
+  text-align: center;
+  cursor: pointer;
+  background: #fff;
+
+  margin-bottom: 10px;    /* ✅ controls space between items */
+}
+
+.rail-item.active::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 10px;              /* ✅ adjust indicator alignment */
+  bottom: 10px;
+  width: 4px;
+  background: #16a34a;
+  border-radius: 4px;
+}
+
+.rail-item.active .rail-label {
+  font-weight: 600;
+}
+
+.rail-image-box {
+  width: 56px;            /* ✅ slightly smaller for compact look */
+  height: 56px;
+  margin: 0 auto 6px auto;
+  background: #f3f4f6;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.rail-image-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: scale(1.15) translateY(-2px);
+  object-position: center;
+  background-color: white;    
+}
+
+.rail-label {
+  font-size: 12.5px;     /* ✅ slightly smaller text */
   font-weight: 500;
   color: #333;
   line-height: 1.2;
@@ -261,15 +327,36 @@
   border: 1px solid #0f9d58;
   background: #fff;
   color: #0f9d58;
-  padding: 4px 10px;
+  padding: 6px 14px;
   border-radius: 8px;
   font-size: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;   /* ⭐ important */
+  align-items: center;
+  justify-content: center;
+
+  font-weight: 600;
+}
+
+/* ⭐ Updated options text */
+.options-text {
+  display: block;          /* ensures new line */
+  font-size: 10.5px;
+  color: #0f9d58;
+  margin-top: 2px;
+  line-height: 1;
+  font-weight: 500;
+  text-align: center;
 }
 
 .add-btn:hover:not(:disabled) {
   background: #0f9d58;
+  color: #fff;
+}
+
+.add-btn:hover .options-text {
   color: #fff;
 }
 
@@ -378,6 +465,223 @@
   );
   background-size: 400% 100%;
   animation: shimmer 1.4s ease infinite;
+}
+
+/* ================= VARIANT POPUP OVERLAY ================= */
+
+.variant-overlay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.65);
+display:flex;
+align-items:center;
+justify-content:center;
+z-index:999;
+}
+
+/* ================= MODAL ================= */
+
+.variant-modal {
+  position: relative;
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  width: 420px;
+  max-width: 90%;
+  margin: auto;
+}
+
+.variant-left {
+  position: relative;
+}
+
+.variant-discount-badge {
+
+  position: absolute;
+  top: -6px;
+  left: -6px;
+
+  background: #2a66f6;
+
+  color: white;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  padding: 4px 6px;
+
+  border-radius: 4px;
+
+  line-height: 1.1;
+
+  text-align: center;
+}
+
+/* ================= CLOSE BUTTON ================= */
+
+.modal-close {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+
+  width: 32px;
+  height: 32px;
+
+  background: #000;
+  color: #fff;
+
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 18px;
+  font-weight: bold;
+
+  cursor: pointer;
+
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+}
+
+/* ================= TITLE ================= */
+
+.product-title{
+font-size:20px;
+font-weight:700;
+margin-bottom:18px;
+}
+
+/* ================= LIST ================= */
+
+.variant-list{
+display:flex;
+flex-direction:column;
+gap:12px;
+max-height:420px;
+overflow-y:auto;
+padding-right:6px;
+}
+
+/* ================= VARIANT ITEM ================= */
+
+.variant-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:#f6f6f6;
+  border-radius:14px;
+  padding:12px 16px;
+  margin-bottom:14px;
+}
+
+.variant-left{
+  width:70px;
+}
+
+.variant-middle{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 10px;
+}
+
+.variant-qty{
+  font-size:15px;
+  font-weight:500;
+  color:#333;
+}
+
+.variant-price-box{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.variant-price{
+  font-weight:700;
+  color:#000;
+}
+
+.variant-mrp{
+  text-decoration:line-through;
+  color:#8a8a8a;
+}
+
+.variant-right{
+  width:80px;
+  display:flex;
+  justify-content:flex-end;
+}
+
+/* ================= IMAGE ================= */
+
+.variant-img{
+width:64px;
+height:64px;
+border-radius:10px;
+object-fit:cover;
+}
+
+/* ================= MIDDLE SECTION ================= */
+
+
+
+.variant-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:15px;
+}
+
+/* ================= ADD BUTTON ================= */
+
+.variant-add-btn{
+border:1px solid #16a34a;
+color:#16a34a;
+background:#fff;
+padding:6px 16px;
+border-radius:8px;
+font-size:13px;
+font-weight:700;
+cursor:pointer;
+transition:all 0.2s ease;
+}
+
+.variant-add-btn:hover{
+background:#16a34a;
+color:#fff;
+}
+
+.category-description{
+  margin-top:40px;
+  padding:30px;
+  line-height:1.7;
+  color:#444;
+  background:#fafafa;
+  border-radius:10px;
+}
+
+.category-description h2{
+  font-size:24px;
+  margin-bottom:10px;
+}
+
+.category-description h3{
+  margin-top:20px;
+  font-size:18px;
+}
+
+.category-description p{
+  margin-bottom:12px;
+}
+
+.category-description ul{
+  margin-left:18px;
 }
 
 @keyframes shimmer {
