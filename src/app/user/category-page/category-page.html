@@ -11,16 +11,14 @@
       <!-- Sidebar -->
       <aside class="category-rail">
 
-        <div
-          class="rail-item"
-          *ngFor="let sub of subcategories; trackBy: trackById"
-          [routerLink]="['/category', categoryId, sub.id]"
-          [class.active]="subcategoryId === sub.id">
+        <div class="rail-item"
+             *ngFor="let sub of subcategories; trackBy: trackById"
+             [routerLink]="['/category', categoryId, sub.id]"
+             [class.active]="subcategoryId === sub.id">
 
           <div class="rail-image-box">
-            <img
-              [src]="sub.imageUrl || 'assets/products/no-image.png'"
-              alt="{{ sub.name }}" />
+            <img [src]="sub.imageUrl || 'assets/products/no-image.png'"
+                 alt="{{ sub.name }}" />
           </div>
 
           <div class="rail-label">
@@ -56,10 +54,11 @@
             <!-- IMAGE SECTION -->
             <div class="image-wrapper">
 
-              <div *ngIf="product.discountPercentage 
-                          && product.discountPercentage > 0 
-                          && (product.stockQuantity || 0) > 0"
-                   class="discount-mini-badge">
+              <div *ngIf="product.discountPercentage
+                   && product.discountPercentage>
+                0
+                && (product.stockQuantity || 0) > 0"
+                class="discount-mini-badge">
                 {{ product.discountPercentage }}% <br />
                 OFF
               </div>
@@ -70,10 +69,9 @@
                 Only {{ getAvailableUnits(product) }} left
               </div>
 
-              <img
-                [src]="product.imageUrl || 'assets/products/no-image.png'"
-                [class.out-img]="(product.stockQuantity || 0) <= 0"
-                (error)="onImageError($event)" />
+              <img [src]="product.imageUrl || 'assets/products/no-image.png'"
+                   [class.out-img]="(product.stockQuantity || 0) <= 0"
+                   (error)="onImageError($event)" />
 
               <div class="out-of-stock-badge"
                    *ngIf="(product.stockQuantity || 0) <= 0">
@@ -98,9 +96,10 @@
 
               <div class="price-box">
 
-                <ng-container *ngIf="product.discountPercentage 
-                                      && product.discountPercentage > 0; 
-                                      else normalPrice">
+                <ng-container *ngIf="product.discountPercentage
+                              && product.discountPercentage>
+                  0;
+                  else normalPrice">
 
                   <div class="new-price">
                     ₹{{ product.price }}
@@ -123,20 +122,18 @@
               <!-- ADD / COUNTER -->
               <ng-container *ngIf="getCount(product) === 0; else counter">
 
-                <button
-  class="add-btn"
-  [disabled]="(product.stockQuantity || 0) <= 0"
-  (click)="handleAddClick(product)">
+                <button class="add-btn"
+                        [disabled]="(product.stockQuantity || 0) <= 0"
+                        (click)="handleAddClick(product)">
 
-  ADD
+                  ADD
 
-  <span
-    *ngIf="product.optionsCount && product.optionsCount > 1"
-    class="options-text">
-    {{product.optionsCount}} options
-  </span>
+                  <span *ngIf="product.optionsCount && product.optionsCount > 1"
+                        class="options-text">
+                    {{product.optionsCount}} options
+                  </span>
 
-</button>
+                </button>
 
               </ng-container>
 
@@ -176,16 +173,15 @@
           <p>Try searching with a different keyword</p>
         </div>
 
-        <!-- CATEGORY DESCRIPTION -->
-          <div
-            class="category-description"
-            *ngIf="!loading && subcategoryDescription">
-
-            <div [innerHTML]="subcategoryDescription"></div>
-
-          </div>
-
       </div>
+
+    </div>
+
+    <!-- CATEGORY DESCRIPTION -->
+    <div class="category-description"
+         *ngIf="!loading && subcategoryDescription">
+
+      <div [innerHTML]="subcategoryDescription"></div>
 
     </div>
 

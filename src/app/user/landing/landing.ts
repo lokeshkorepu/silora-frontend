@@ -29,4 +29,13 @@ export class LandingComponent implements OnInit {
   goToCategory(id: number) {
     this.router.navigate(['/category', id]);
   }
+
+  openVegetablesFruits() {
+    this.router.navigate([
+      '/category',
+      'MARMR3ohBPxHTUhdcQ64',
+      'uDGQ1fUgz1pvdjD5t0sM'
+    ]);
+  }
+
 }

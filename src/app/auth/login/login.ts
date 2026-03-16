@@ -108,6 +108,8 @@ sendOTP(): void {
       // Wait for AuthService to fetch role from Firestore
       const sub = this.authService.role$.subscribe(role => {
 
+        console.log("Role from backend:", role);
+
         if (!role) return; // wait until role is loaded
 
         setTimeout(() => {

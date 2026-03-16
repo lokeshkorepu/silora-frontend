@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Observable, map } from 'rxjs';
 import { Router, ActivatedRoute } from '@angular/router';
+import { QuillModule } from 'ngx-quill';
 
 @Component({
   standalone: true,
   selector: 'app-add-category',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, QuillModule],
   templateUrl: './add-category.html',
   styleUrls: ['./add-category.css']
 })
@@ -26,6 +27,7 @@ export class AddCategory {
   previewImage: string | null = null;
   searchText: string = '';
   parentId: string | null = null;
+  descriptionHTML: string = '';
 
   constructor(
     private categoryService: CategoryService,
@@ -57,6 +59,7 @@ export class AddCategory {
             this.name = category.name || '';
             this.parentId = category.parentId ?? null;
             this.previewImage = category.imageUrl || null;
+            this.descriptionHTML = category.descriptionHTML || '';
           }
         });
     }
@@ -92,7 +95,8 @@ export class AddCategory {
           this.categoryId,
           this.name,
           this.selectedFile,
-          this.parentId
+          this.parentId,
+          this.descriptionHTML
         );
 
         alert('Category updated successfully ✅');
@@ -107,7 +111,8 @@ export class AddCategory {
         await this.categoryService.addCategory(
           this.name,
           this.selectedFile,
-          this.parentId
+          this.parentId,
+          this.descriptionHTML
         );
 
         alert('Category added successfully ✅');

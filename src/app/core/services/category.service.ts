@@ -120,7 +120,8 @@ export class CategoryService {
   async addCategory(
     name: string,
     file: File,
-    parentId: string | null
+    parentId: string | null,
+    descriptionHTML?: string
   ) {
 
     const storageRef = ref(
@@ -137,6 +138,7 @@ export class CategoryService {
       parentId: parentId ?? null,
       order: await this.getNextOrder(parentId),
       isActive: true,
+      descriptionHTML,
       createdAt: new Date()
     });
   }
@@ -148,14 +150,16 @@ export class CategoryService {
     id: string,
     name: string,
     file?: File | null,
-    parentId?: string | null
+    parentId?: string | null,
+    descriptionHTML?: string
   ) {
 
     const docRef = doc(this.firestore, `categories/${id}`);
 
     let updateData: any = {
       name,
-      parentId: parentId ?? null
+      parentId: parentId ?? null,
+      descriptionHTML: descriptionHTML || ''
     };
 
     if (file) {

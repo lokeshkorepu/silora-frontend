@@ -37,33 +37,42 @@
 
       <div class="form-group">
         <label>Category Name</label>
-        <input
-          type="text"
-          [(ngModel)]="name"
-          placeholder="Enter category name"
-          class="form-input"
-        />
+        <input type="text"
+               [(ngModel)]="name"
+               placeholder="Enter category name"
+               class="form-input" />
       </div>
 
       <!-- 🔥 ADD THIS BLOCK BELOW for Test Purpose -->
 
-  <div class="form-group">
-    <label>Parent Category</label>
+      <div class="form-group">
+        <label>Parent Category</label>
 
-    <select
-      [(ngModel)]="parentId"
-      name="parentId"
-      class="form-input">
+        <select [(ngModel)]="parentId"
+                name="parentId"
+                class="form-input">
 
-      <option [ngValue]="null">Main Category</option>
+          <option [ngValue]="null">Main Category</option>
 
-      <option *ngFor="let cat of mainCategories$ | async"
-              [ngValue]="cat.id">
-        {{ cat.name }}
-      </option>
+          <option *ngFor="let cat of mainCategories$ | async"
+                  [ngValue]="cat.id">
+            {{ cat.name }}
+          </option>
 
-    </select>
-  </div>
+        </select>
+      </div>
+
+      <!-- NEW DESCRIPTION EDITOR -->
+
+      <div class="form-group description-group">
+        <label>Category Description</label>
+
+        <quill-editor [(ngModel)]="descriptionHTML"
+                      [style]="{height: '200px'}"
+                      placeholder="Write category description...">
+        </quill-editor>
+
+      </div>
 
     </div>
 
