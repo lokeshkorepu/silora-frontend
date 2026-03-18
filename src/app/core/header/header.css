@@ -42,6 +42,8 @@
 .logo {
   height: 42px;
   cursor: pointer;
+/*  background-color:darkslategrey;*/
+width:100px;
 }
 
 /* =======================================================

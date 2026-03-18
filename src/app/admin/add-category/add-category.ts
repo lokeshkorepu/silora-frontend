@@ -37,17 +37,13 @@ export class AddCategory {
 
   ngOnInit() {
 
-    // 🔥 Load all categories
     this.categories$ = this.categoryService.getAllCategories();
-
-    // 🔥 Derive main categories from same collection
     this.mainCategories$ = this.categoryService.getAllCategories().pipe(
       map(categories =>
         categories.filter(cat => !cat.parentId)
       )
     );
 
-    // Edit mode check
     this.categoryId = this.route.snapshot.paramMap.get('id');
 
     if (this.categoryId) {
