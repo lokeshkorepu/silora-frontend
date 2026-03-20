@@ -6,8 +6,8 @@ export const environment = {
   apiKey: "AIzaSyAgvZYJ92L3VVZbmwUCAIwUypqtHZmiNks",
   authDomain: "silora-53f9a.firebaseapp.com",
   projectId: "silora-53f9a",
-  //storageBucket: "silora-53f9a.firebasestorage.app",
-    storageBucket: "silora-53f9a.appspot.com",
+  storageBucket: "silora-53f9a.firebasestorage.app",
+  //storageBucket: "silora-53f9a.appspot.com",
   messagingSenderId: "906444959568",
   appId: "1:906444959568:web:cb677a4409c8bd47e84655"
   }
