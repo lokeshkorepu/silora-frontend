@@ -35,7 +35,7 @@ app-root {
 
 /* Header Height Variable */
 :root {
-  --header-height: 80px;
+  --header-height: 90px; /* ✅ match actual header */
 }
 
 /* =========================================

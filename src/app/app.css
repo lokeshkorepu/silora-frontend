@@ -6,8 +6,12 @@
 
 .app-main {
   flex: 1;
-  margin-top: 80px;   /* match your header height exactly */
 }
+
+  /* 🔥 Apply spacing ONLY when header exists */
+  .app-main.has-header {
+    padding-top: 90px; /* 🔥 instead of margin */
+  }
 
 .admin-main {
   margin-top: 0;

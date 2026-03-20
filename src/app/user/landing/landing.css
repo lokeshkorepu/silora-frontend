@@ -1,18 +1,18 @@
 .landing-wrapper {
   max-width: 1400px;
-  margin: 90px auto 0 auto; /* ✅ pushes below header */
+  margin: 0 auto;
   padding: 20px 10px;
   background-color: #f8f8f8;
+  padding-top: 16px;
 }
 
 .hero-banner {
   position: relative;
   width: 100%;
   max-width: 1400px;
-  margin: 25px auto;
-  margin-top: 20px; /* or 0 */
   border-radius: 16px;
   overflow: hidden;
+  margin: 80px auto 25px auto;
 }
 
   .hero-banner img {

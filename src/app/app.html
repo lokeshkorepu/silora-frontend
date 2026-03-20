@@ -1,11 +1,13 @@
 <div class="app-layout">
   <app-header *ngIf="!isAdminRoute && !isCartRoute"></app-header>
   
-<main 
-  class="app-main"
-  [class.admin-main]="isAdminRoute">
-  <router-outlet></router-outlet>
-</main>
+  <main class="app-main"
+        [class.admin-main]="isAdminRoute"
+        [class.has-header]="!isAdminRoute && !isCartRoute">
+
+    <router-outlet></router-outlet>
+
+  </main>
 
   <app-footer *ngIf="!isAdminRoute && !isCartRoute"></app-footer>
 
